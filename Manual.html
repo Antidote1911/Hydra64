@@ -61,7 +61,34 @@
   main { min-width: 0; padding-bottom: 64px; }
 
   /* ---- Sections ---- */
-  section { margin-top: 48px; }
+  /* Sections dépliables (repliées par défaut) : le titre et une ligne de contenu forment la barre */
+  section { margin-top: 12px; }
+  .fold-tools { display: flex; justify-content: flex-end; gap: 8px; margin-top: 36px; }
+  .fold-tools button {
+    border: 1px solid var(--border-soft); border-radius: 6px; background: var(--panel); color: var(--text-dim);
+    padding: 4px 12px; font: inherit; font-size: 12px; cursor: pointer;
+  }
+  .fold-tools button:hover { color: var(--text); border-color: var(--accent); }
+  summary {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 16px;
+    list-style: none; cursor: pointer; padding: 13px 18px; border-radius: 8px;
+    background: var(--panel); border: 1px solid var(--border); box-shadow: 0 1px 0 var(--border-soft) inset;
+    transition: border-color .15s, background .15s;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { border-color: var(--accent); background: var(--panel-alt); }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  summary h2 { grid-column: 1; margin: 0; font-size: 19px; }
+  summary h2::after { display: none; }
+  summary .hint { grid-column: 1; margin: 2px 0 0 40px; font-size: 13px; color: var(--text-dim); }
+  summary::after {
+    content: "›"; grid-column: 2; grid-row: 1 / span 2; font-size: 24px; line-height: 1; color: var(--text-faint);
+    transition: transform .15s, color .15s;
+  }
+  summary:hover::after { color: var(--accent); }
+  details[open] > summary { margin-bottom: 20px; border-color: var(--border-soft); }
+  details[open] > summary::after { transform: rotate(90deg); color: var(--accent); }
+  details[open] { margin-bottom: 36px; }
   h2 {
     margin: 0 0 16px; font-size: 22px; font-weight: 700; letter-spacing: -.01em; color: #ececef;
     display: flex; align-items: center; gap: 12px;
@@ -178,7 +205,9 @@
     header .wrap { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; }
     #lang { margin-left: 0; }
     h1 { font-size: 24px; }
-    h2 { font-size: 19px; }
+    h2, summary h2 { font-size: 17px; }
+    summary { padding: 11px 14px; }
+    summary .hint { margin-left: 0; }
     .wrap { padding: 0 16px; }
     nav.toc { columns: 1; }
     .grid2, .grid3 { grid-template-columns: 1fr; }
@@ -279,9 +308,15 @@
 
 <main>
 
+<div class="fold-tools">
+  <button data-fold="open"><span class="fr">Tout déplier</span><span class="en">Expand all</span></button>
+  <button data-fold="close"><span class="fr">Tout replier</span><span class="en">Collapse all</span></button>
+</div>
+
 <!-- =================================================================== PRISE EN MAIN -->
 <section id="prise-en-main" class="fr">
-  <h2><span class="glyph">♙</span>Prise en main</h2>
+<details>
+  <summary><h2><span class="glyph">♙</span>Prise en main</h2><span class="hint">Les quatre pages, les panneaux et les menus, l'échiquier et la notation</span></summary>
   <p>Hydra64 est une interface d'échecs de bureau : elle gère des bases de parties, analyse avec des moteurs UCI (Stockfish, Lc0, Berserk…), fait jouer contre un moteur et organise des tournois entre moteurs. Un <strong>Stockfish est intégré</strong> : il évalue les positions en arrière-plan et sert d'adversaire ou de juge par défaut, sans rien installer.</p>
 
   <h3 id="pages">Les quatre pages</h3>
@@ -344,10 +379,12 @@
   </div>
   <div class="note info"><div><p><strong>Évaluation automatique</strong> : le Stockfish intégré évalue en arrière-plan chaque position de la partie affichée (d'abord la position courante, puis toute la ligne principale). La courbe et la barre d'évaluation se remplissent sans rien lancer. Fermer le panneau <em>Évaluation</em> d'une page arrête ce calcul sur cette page. Jamais sur la page Tournoi, pour laisser tous les processeurs aux moteurs.</p></div></div>
   <div class="note info"><div><p><strong>Analyse assistée</strong> (<span class="menu">Affichage → Analyse assistée</span>, pages Bases et Analyse, éteinte par défaut) : quand vous prenez une pièce, ses cases d'arrivée se colorent selon la qualité du coup — <strong>vert</strong> bon coup, <strong>jaune</strong> jouable, <strong>rouge</strong> faute. Le Stockfish intégré évalue tous les coups de la position affichée en un peu plus d'une seconde ; les couleurs apparaissent dès les premiers résultats et s'affinent. <span class="menu">Affichage → Menace en flèche</span> ajoute une flèche rouge : ce que l'adversaire jouerait si le camp au trait passait son tour, quand cela lui rapporte vraiment (pas de flèche si rien ne menace, ni quand le roi est en échec). Ces deux aides ne fonctionnent jamais sur la page Jouer.</p></div></div>
+</details>
 </section>
 
 <section id="en-prise-en-main" class="en">
-  <h2><span class="glyph">♙</span>Getting started</h2>
+<details>
+  <summary><h2><span class="glyph">♙</span>Getting started</h2><span class="hint">The four pages, panels and menus, board and notation</span></summary>
   <p>Hydra64 is a desktop chess interface: it manages game databases, analyses with UCI engines (Stockfish, Lc0, Berserk…), lets you play against an engine and runs tournaments between engines. A <strong>Stockfish is built in</strong>: it evaluates positions in the background and serves as the default opponent or judge, with nothing to install.</p>
 
   <h3 id="en-pages">The four pages</h3>
@@ -410,11 +447,13 @@
   </div>
   <div class="note info"><div><p><strong>Automatic evaluation</strong>: the built-in Stockfish evaluates in the background every position of the displayed game (first the current position, then the whole main line). The graph and the evaluation bar fill in without starting anything. Closing the <em>Evaluation</em> panel of a page stops this computation on that page. Never on the Tournament page, to leave all the processors to the engines.</p></div></div>
   <div class="note info"><div><p><strong>Assisted analysis</strong> (<span class="menu">View → Assisted analysis</span>, Databases and Analysis pages, off by default): when you pick up a piece, its target squares are coloured by the quality of the move — <strong>green</strong> good move, <strong>yellow</strong> playable, <strong>red</strong> mistake. The built-in Stockfish evaluates all the moves of the displayed position in a little over a second; the colours appear with the first results and are refined. <span class="menu">View → Threat as an arrow</span> adds a red arrow: what the opponent would play if the side to move passed its turn, when it really gains something (no arrow if nothing threatens, nor when the king is in check). These two aids never work on the Play page.</p></div></div>
+</details>
 </section>
 
 <!-- =================================================================== BASES -->
 <section id="bases" class="fr">
-  <h2><span class="glyph">⛁</span>Page Bases de données</h2>
+<details>
+  <summary><h2><span class="glyph">⛁</span>Page Bases de données</h2><span class="hint">Ouvrir, créer, copier, chercher, entretenir une base, statistiques, préparation contre un joueur</span></summary>
   <p>La liste des parties d'une ou plusieurs bases (un onglet par base), triable par colonne, avec l'échiquier et la notation de la partie choisie. Un clic sur une partie l'ouvre sur l'échiquier et dans la notation de cette page, sans toucher à la page Analyse (<kbd>Ctrl</kbd> ou <kbd>Maj</kbd> + clic étend la sélection sans rien ouvrir) ; un double-clic ouvre ses informations, pour les corriger dans le fichier.</p>
 
   <h3 id="bases-ouvrir">Ouvrir, créer, enregistrer, copier</h3>
@@ -595,10 +634,12 @@
       <p>Le panneau <a href="#outils-finales">Finales</a> est aussi sur cette page.</p>
     </div>
   </div>
+</details>
 </section>
 
 <section id="en-bases" class="en">
-  <h2><span class="glyph">⛁</span>Databases page</h2>
+<details>
+  <summary><h2><span class="glyph">⛁</span>Databases page</h2><span class="hint">Open, create, copy, search, database upkeep, statistics, preparing against a player</span></summary>
   <p>The game list of one or more databases (one tab per database), sortable by column, with the board and the notation of the chosen game. A click on a game opens it on the board and in the notation of this page, without touching the Analysis page (<kbd>Ctrl</kbd> or <kbd>Shift</kbd> + click extends the selection without opening anything); a double-click opens its information, to correct it in the file.</p>
 
   <h3 id="en-bases-ouvrir">Open, create, save, copy</h3>
@@ -779,11 +820,13 @@
       <p>The <a href="#en-outils-finales">Endgames</a> panel is on this page too.</p>
     </div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== ANALYSE -->
 <section id="analyse" class="fr">
-  <h2><span class="glyph">♗</span>Page Analyse</h2>
+<details>
+  <summary><h2><span class="glyph">♗</span>Page Analyse</h2><span class="hint">Moteurs spectateurs, annotation automatique, analyse approfondie</span></summary>
   <p>Un échiquier libre pour étudier une partie ou une position : variantes, commentaires, moteurs, annotation automatique et arbre d'analyse. Les parties y arrivent par <strong>Envoyer dans l'analyse</strong> (<kbd>Ctrl+Maj+A</kbd>) depuis les pages Bases et Jouer, par un collage de FEN ou de PGN (<kbd>Ctrl+Maj+V</kbd>), ou par l'éditeur de position.</p>
 
   <h3 id="analyse-moteurs">Moteurs spectateurs</h3>
@@ -840,10 +883,12 @@
     <div class="card feat grey"><h4>Courbe d'évaluation</h4><p>Cliquable, comme une timeline : un clic va au coup.</p></div>
     <div class="card feat grey"><h4>Arbre d'ouverture, finales</h4><p>Panneaux <a href="#outils-arbre">Arbre d'ouverture</a> et <a href="#outils-finales">Finales</a>.</p></div>
   </div>
+</details>
 </section>
 
 <section id="en-analyse" class="en">
-  <h2><span class="glyph">♗</span>Analysis page</h2>
+<details>
+  <summary><h2><span class="glyph">♗</span>Analysis page</h2><span class="hint">Spectator engines, automatic annotation, deep analysis</span></summary>
   <p>A free board to study a game or a position: variations, comments, engines, automatic annotation and analysis tree. Games arrive there through <strong>Send to analysis</strong> (<kbd>Ctrl+Shift+A</kbd>) from the Databases and Play pages, by pasting a FEN or a PGN (<kbd>Ctrl+Shift+V</kbd>), or through the position editor.</p>
 
   <h3 id="en-analyse-moteurs">Spectator engines</h3>
@@ -900,11 +945,13 @@
     <div class="card feat grey"><h4>Evaluation graph</h4><p>Clickable, like a timeline: a click goes to the move.</p></div>
     <div class="card feat grey"><h4>Opening tree, endgames</h4><p><a href="#en-outils-arbre">Opening tree</a> and <a href="#en-outils-finales">Endgames</a> panels.</p></div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== JOUER -->
 <section id="jouer" class="fr">
-  <h2><span class="glyph">♘</span>Page Jouer</h2>
+<details>
+  <summary><h2><span class="glyph">♘</span>Page Jouer</h2><span class="hint">Contre un moteur : réglages, pendule, coach, indice, entraînement</span></summary>
   <p>La partie contre un moteur, avec sa propre partie. <strong>Il suffit de jouer un coup</strong> pour lancer une partie avec les derniers réglages : vous prenez le camp de la pièce jouée, depuis la position affichée.</p>
 
   <h3 id="jouer-regler">Régler la partie</h3>
@@ -962,10 +1009,12 @@
     <p><strong>Révision espacée</strong> (cochée par défaut) : une position réussie revient après 1, 3, 7, 14 puis 30 jours ; une position ratée revient 4 positions plus loin et passe en tête de la séance suivante. La fenêtre affiche, pour le recueil, les positions à revoir, nouvelles et acquises, et votre taux de réussite. <strong>Remettre à zéro</strong> oublie la progression du recueil ; les recueils eux-mêmes ne sont jamais modifiés. <strong>Vérifier…</strong> ouvre la <a href="#moteurs-verifier">vérification du recueil</a>.</p>
     <p class="dim">Les 3 565 exercices des bases intégrées (<code>databases/training/</code>, au format Hydra64, ouvrables dans la page Bases) viennent de la base publique de Lichess (domaine public) et arrivent dans un ordre au hasard. <strong>Solution</strong> montre la suite complète ; <strong>Analyser</strong> ouvre la position dans la page Analyse.</p>
   </div>
+</details>
 </section>
 
 <section id="en-jouer" class="en">
-  <h2><span class="glyph">♘</span>Play page</h2>
+<details>
+  <summary><h2><span class="glyph">♘</span>Play page</h2><span class="hint">Against an engine: settings, clock, coach, hint, training</span></summary>
   <p>The game against an engine, with its own game. <strong>Just play a move</strong> to start a game with the last settings used: you take the side of the piece played, from the displayed position.</p>
 
   <h3 id="en-jouer-regler">Setting up the game</h3>
@@ -1023,11 +1072,13 @@
     <p><strong>Spaced repetition</strong> (ticked by default): a position solved comes back after 1, 3, 7, 14 then 30 days; a position missed comes back 4 positions later and goes to the head of the next session. The window shows, for the collection, the positions to review, new and learned, and your success rate. <strong>Reset</strong> forgets the progress of the collection; the collections themselves are never modified. <strong>Check…</strong> opens the <a href="#en-moteurs-verifier">collection check</a>.</p>
     <p class="dim">The 3,565 exercises of the built-in databases (<code>databases/training/</code>, in Hydra64 format, openable in the Databases page) come from the public Lichess puzzle database (public domain) and arrive in random order. <strong>Solution</strong> shows the full continuation; <strong>Analyse</strong> opens the position in the Analysis page.</p>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== TOURNOI -->
 <section id="tournoi" class="fr">
-  <h2><span class="glyph">♔</span>Page Tournoi de moteurs</h2>
+<details>
+  <summary><h2><span class="glyph">♔</span>Page Tournoi de moteurs</h2><span class="hint">Appariements, parties simultanées, ouvertures, arbitrage, résultats, export HTML</span></summary>
   <p>Des moteurs s'affrontent à la pendule, une partie après l'autre ou plusieurs à la fois, et la partie suivie s'affiche en direct. Pas d'évaluation automatique sur cette page : les moteurs gardent tous les processeurs.</p>
   <div class="stack">
     <div class="card feat">
@@ -1075,10 +1126,12 @@
       <p>Tout le tournoi dans une <a href="#outils-html">page autonome</a> : classement avec l'écart d'Elo, tableau croisé, liste des parties et échiquier pour les rejouer, courbe d'évaluation de chaque partie, téléchargement du PGN. Les coups imposés (positions de départ, livre des moteurs) sont en gris, suivis de « fin de la bibliothèque ». Au-delà de 3 000 parties, un avertissement prévient que la page sera lourde.</p>
     </div>
   </div>
+</details>
 </section>
 
 <section id="en-tournoi" class="en">
-  <h2><span class="glyph">♔</span>Engine tournament page</h2>
+<details>
+  <summary><h2><span class="glyph">♔</span>Engine tournament page</h2><span class="hint">Pairings, concurrent games, openings, adjudication, results, HTML export</span></summary>
   <p>Engines face each other on the clock, one game after another or several at a time, and the game followed is displayed live. No automatic evaluation on this page: the engines keep all the processors.</p>
   <div class="stack">
     <div class="card feat">
@@ -1126,11 +1179,13 @@
       <p>The whole tournament in a <a href="#en-outils-html">standalone page</a>: standings with the Elo difference, crosstable, game list and a board to replay them, evaluation graph of each game, PGN download. The forced moves (start positions, engine book) are in grey, followed by “end of book”. Beyond 3,000 games, a warning says that the page will be heavy.</p>
     </div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== OUTILS COMMUNS -->
 <section id="outils" class="fr">
-  <h2><span class="glyph">♖</span>Outils communs</h2>
+<details>
+  <summary><h2><span class="glyph">♖</span>Outils communs</h2><span class="hint">Arbre d'ouverture, recueils d'exercices, tables de finales, pages HTML, Chess960, conversion, éditeur de position</span></summary>
   <div class="stack">
     <div class="card feat" id="outils-arbre">
       <div class="feat-head"><h4>Arbre d'ouverture</h4><span class="where">panneau · pages Bases, Analyse, Jouer</span></div>
@@ -1194,10 +1249,12 @@
       </div>
     </div>
   </div>
+</details>
 </section>
 
 <section id="en-outils" class="en">
-  <h2><span class="glyph">♖</span>Common tools</h2>
+<details>
+  <summary><h2><span class="glyph">♖</span>Common tools</h2><span class="hint">Opening tree, exercise collections, endgame tables, HTML pages, Chess960, conversion, position editor</span></summary>
   <div class="stack">
     <div class="card feat" id="en-outils-arbre">
       <div class="feat-head"><h4>Opening tree</h4><span class="where">panel · Databases, Analysis, Play pages</span></div>
@@ -1261,11 +1318,13 @@
       </div>
     </div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== MOTEURS -->
 <section id="moteurs" class="fr">
-  <h2><span class="glyph">⚙</span>Moteurs</h2>
+<details>
+  <summary><h2><span class="glyph">⚙</span>Moteurs</h2><span class="hint">Gestion des moteurs UCI, Stockfish et Shuffle intégrés, vérification d'un recueil, test de solutions</span></summary>
   <div class="stack">
     <div class="card feat">
       <div class="feat-head"><h4>Gestion des moteurs</h4><span class="where"><span class="menu">Moteur → Gestion des moteurs…</span> · <kbd>Ctrl+Maj+E</kbd></span></div>
@@ -1295,10 +1354,12 @@
       <p>Le moteur cherche chaque position d'un recueil (EPD, PGN ou base Hydra64) pendant un temps fixé ; pour chaque position, le coup proposé en direct, depuis quand il tient la solution, et le résultat ; à la fin, le nombre de positions résolues. Fourni : le <em>Tactics Marathon</em> (210 positions, <code>databases/engine-tests/</code>).</p>
     </div>
   </div>
+</details>
 </section>
 
 <section id="en-moteurs" class="en">
-  <h2><span class="glyph">⚙</span>Engines</h2>
+<details>
+  <summary><h2><span class="glyph">⚙</span>Engines</h2><span class="hint">Managing UCI engines, built-in Stockfish and Shuffle, checking a collection, solution test</span></summary>
   <div class="stack">
     <div class="card feat">
       <div class="feat-head"><h4>Engine management</h4><span class="where"><span class="menu">Engine → Manage engines…</span> · <kbd>Ctrl+Shift+E</kbd></span></div>
@@ -1328,11 +1389,13 @@
       <p>The engine searches each position of a collection (EPD, PGN or Hydra64 database) for a set time; for each position, the proposed move live, since when it has held the solution, and the result; at the end, the number of positions solved. Provided: the <em>Tactics Marathon</em> (210 positions, <code>databases/engine-tests/</code>).</p>
     </div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== FICHIERS -->
 <section id="fichiers" class="fr">
-  <h2><span class="glyph">▤</span>Types de fichiers</h2>
+<details>
+  <summary><h2><span class="glyph">▤</span>Types de fichiers</h2><span class="hint">Formats lus et écrits, fichiers de l'application, votre dossier Hydra64</span></summary>
   <p>Ce que Hydra64 lit et écrit, à quoi sert chaque format, et comment l'application s'en sert.</p>
   <p>
     <span class="chips">
@@ -1411,10 +1474,12 @@
     <div class="card"><h4><code>engines_tournaments</code></h4><p class="dim">Parties des tournois de moteurs, une base Hydra64 (<code>.hy64</code>) par tournoi.</p></div>
     <div class="card"><h4><code>exercises</code>, <code>analyses</code>, <code>repertoire</code>, <code>themes</code></h4><p class="dim">Vos recueils d'exercices, projets d'analyse approfondie, répertoire d'ouvertures, jeux de pièces et échiquiers ; créés quand ils servent.</p></div>
   </div>
+</details>
 </section>
 
 <section id="en-fichiers" class="en">
-  <h2><span class="glyph">▤</span>File types</h2>
+<details>
+  <summary><h2><span class="glyph">▤</span>File types</h2><span class="hint">Formats read and written, application files, your Hydra64 folder</span></summary>
   <p>What Hydra64 reads and writes, what each format is for, and how the application uses it.</p>
   <p>
     <span class="chips">
@@ -1493,11 +1558,13 @@
     <div class="card"><h4><code>engines_tournaments</code></h4><p class="dim">Games of the engine tournaments, one Hydra64 database (<code>.hy64</code>) per tournament.</p></div>
     <div class="card"><h4><code>exercises</code>, <code>analyses</code>, <code>repertoire</code>, <code>themes</code></h4><p class="dim">Your exercise collections, deep analysis projects, opening repertoire, piece sets and boards; created when they are needed.</p></div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== PRÉFÉRENCES -->
 <section id="preferences" class="fr">
-  <h2><span class="glyph">✦</span>Préférences</h2>
+<details>
+  <summary><h2><span class="glyph">✦</span>Préférences</h2><span class="hint">Langue, notation, affichage, évaluation, bases, finales</span></summary>
   <p><span class="menu">Édition → Préférences…</span> (<kbd>Ctrl+,</kbd>) ou clic sur la tête d'hydre.</p>
   <div class="grid3">
     <div class="card"><h4>Langue</h4><p class="dim">Français ou anglais (au redémarrage).</p></div>
@@ -1509,10 +1576,12 @@
     <div class="card"><h4>Bases</h4><p class="dim">Dossier de l'encyclopédie des joueurs de ChessBase (« Playbase »), vérifié dès qu'il est choisi.</p></div>
     <div class="card"><h4>Finales</h4><p class="dim">Dossiers et images ISO de <a href="#outils-finales">tables de finales</a>, usage par les moteurs, téléchargement.</p></div>
   </div>
+</details>
 </section>
 
 <section id="en-preferences" class="en">
-  <h2><span class="glyph">✦</span>Preferences</h2>
+<details>
+  <summary><h2><span class="glyph">✦</span>Preferences</h2><span class="hint">Language, notation, display, evaluation, databases, endgames</span></summary>
   <p><span class="menu">Edit → Preferences…</span> (<kbd>Ctrl+,</kbd>) or click on the hydra head.</p>
   <div class="grid3">
     <div class="card"><h4>Language</h4><p class="dim">French or English (on restart).</p></div>
@@ -1524,11 +1593,13 @@
     <div class="card"><h4>Databases</h4><p class="dim">Folder of the ChessBase player encyclopedia (“Playbase”), checked as soon as it is chosen.</p></div>
     <div class="card"><h4>Endgames</h4><p class="dim">Folders and ISO images of <a href="#en-outils-finales">endgame tables</a>, use by the engines, download.</p></div>
   </div>
+</details>
 </section>
 
 <!-- =================================================================== RACCOURCIS -->
 <section id="raccourcis" class="fr">
-  <h2><span class="glyph">⌨</span>Raccourcis clavier</h2>
+<details>
+  <summary><h2><span class="glyph">⌨</span>Raccourcis clavier</h2><span class="hint">Toutes les touches, page par page</span></summary>
   <div class="grid2">
     <div class="table-wrap">
       <table>
@@ -1581,10 +1652,12 @@
     </div>
   </div>
   <p class="dim" style="margin-top:12px">À la souris : clic droit (glissé) sur l'échiquier pour les marques et les flèches ; double-clic sur une ligne de moteur, de l'arbre d'ouverture ou des finales pour jouer le coup ; molette sur l'échiquier pour avancer ou reculer.</p>
+</details>
 </section>
 
 <section id="en-raccourcis" class="en">
-  <h2><span class="glyph">⌨</span>Keyboard shortcuts</h2>
+<details>
+  <summary><h2><span class="glyph">⌨</span>Keyboard shortcuts</h2><span class="hint">Every key, page by page</span></summary>
   <div class="grid2">
     <div class="table-wrap">
       <table>
@@ -1637,11 +1710,13 @@
     </div>
   </div>
   <p class="dim" style="margin-top:12px">With the mouse: right-click (drag) on the board for marks and arrows; double-click on a line of an engine, of the opening tree or of the endgames to play the move; wheel over the board to go forward or back.</p>
+</details>
 </section>
 
 <!-- =================================================================== ORIGINES -->
 <section id="origines" class="fr">
-  <h2><span class="glyph">❦</span>Données et licences</h2>
+<details>
+  <summary><h2><span class="glyph">❦</span>Données et licences</h2><span class="hint">Stockfish, ouvertures, exercices, pièces et échiquiers, bibliothèques</span></summary>
   <dl class="card" style="margin:0">
     <dt><strong>Stockfish</strong></dt><dd class="dim" style="margin:2px 0 10px">Moteur libre (GPLv3), compilé depuis ses sources officielles.</dd>
     <dt><strong>Ouvertures ECO</strong></dt><dd class="dim" style="margin:2px 0 10px">Données ouvertes de Lichess (<code>lichess-org/chess-openings</code>, domaine public).</dd>
@@ -1653,10 +1728,12 @@
     <dt><strong>Bases Chess Assistant et encyclopédie des joueurs</strong></dt><dd class="dim" style="margin:2px 0 10px">Formats lus par Hydra64 lui-même, d'après l'étude de fichiers existants. Aucune donnée de ChessOK ni de ChessBase n'est fournie : vous utilisez vos propres bases.</dd>
     <dt><strong>Panneaux</strong></dt><dd class="dim" style="margin:2px 0 0">Qt Advanced Docking System (LGPL 2.1), interface en Qt 6.</dd>
   </dl>
+</details>
 </section>
 
 <section id="en-origines" class="en">
-  <h2><span class="glyph">❦</span>Data and licences</h2>
+<details>
+  <summary><h2><span class="glyph">❦</span>Data and licences</h2><span class="hint">Stockfish, openings, exercises, pieces and boards, libraries</span></summary>
   <dl class="card" style="margin:0">
     <dt><strong>Stockfish</strong></dt><dd class="dim" style="margin:2px 0 10px">Free engine (GPLv3), built from its official sources.</dd>
     <dt><strong>ECO openings</strong></dt><dd class="dim" style="margin:2px 0 10px">Open data from Lichess (<code>lichess-org/chess-openings</code>, public domain).</dd>
@@ -1668,6 +1745,7 @@
     <dt><strong>Chess Assistant databases and player encyclopedia</strong></dt><dd class="dim" style="margin:2px 0 10px">Formats read by Hydra64 itself, from the study of existing files. No data from ChessOK or ChessBase is supplied: you use your own databases.</dd>
     <dt><strong>Panels</strong></dt><dd class="dim" style="margin:2px 0 0">Qt Advanced Docking System (LGPL 2.1), interface in Qt 6.</dd>
   </dl>
+</details>
 </section>
 
 <div class="board-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -1688,27 +1766,69 @@
     var buttons = document.querySelectorAll('#lang button');
     for (var i = 0; i < buttons.length; ++i) buttons[i].className = buttons[i].getAttribute('data-lang') === lang ? 'on' : '';
   }
+  // Sections are folded by default. The one that holds `id` (or is `id`) is unfolded.
+  function reveal(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    var fold = el.closest('details') || el.querySelector(':scope > details');
+    if (fold) fold.open = true;
+    return el;
+  }
   // The last titled block that starts above the top of the window, and how far above.
   function place() {
     var marks = document.querySelectorAll('main .' + lang + '[id], main .' + lang + ' [id]'), best = null;
     for (var i = 0; i < marks.length; ++i) {
+      if (!marks[i].getClientRects().length) continue; // inside a folded section
       var top = marks[i].getBoundingClientRect().top;
       if (top <= 24 && (!best || top >= best.top)) best = { id: marks[i].id, top: top };
     }
     return best;
   }
   function jump(id, top) {
-    var el = document.getElementById(id);
+    var el = reveal(id);
     if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - top, behavior: 'instant' });
   }
   apply();
   // A link written for the other language (#bases while reading in English) leads to the same section.
+  // A link also unfolds the section it leads into.
   function followHash() {
     var id = decodeURIComponent(location.hash.slice(1));
-    if (id && twin(id, lang) !== id && document.getElementById(twin(id, lang))) jump(twin(id, lang), 16);
+    if (id && document.getElementById(twin(id, lang))) jump(twin(id, lang), 16);
   }
   followHash();
   window.addEventListener('hashchange', followHash);
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('a[href^="#"]');
+    if (link) reveal(decodeURIComponent(link.getAttribute('href').slice(1))); // before the browser scrolls to it
+  });
+  // A section folded or unfolded in one language is in the other too: changing language keeps the page as it is.
+  document.addEventListener('toggle', function (e) {
+    var section = e.target.parentNode;
+    if (e.target.tagName !== 'DETAILS' || !section || !section.id) return;
+    var other = document.getElementById(twin(section.id, /^en-/.test(section.id) ? 'fr' : 'en'));
+    var fold = other && other.querySelector(':scope > details');
+    if (fold && fold.open !== e.target.open) fold.open = e.target.open;
+  }, true);
+  function foldAll(open) {
+    var folds = document.querySelectorAll('main section > details');
+    for (var i = 0; i < folds.length; ++i) folds[i].open = open;
+  }
+  document.querySelector('.fold-tools').addEventListener('click', function (e) {
+    var button = e.target.closest('button');
+    if (button) foldAll(button.getAttribute('data-fold') === 'open');
+  });
+  // Printing: everything unfolded, then back to what was open.
+  var beforePrint = null;
+  window.addEventListener('beforeprint', function () {
+    beforePrint = [];
+    var folds = document.querySelectorAll('main section > details');
+    for (var i = 0; i < folds.length; ++i) { beforePrint.push(folds[i].open); folds[i].open = true; }
+  });
+  window.addEventListener('afterprint', function () {
+    var folds = document.querySelectorAll('main section > details');
+    for (var i = 0; beforePrint && i < folds.length; ++i) folds[i].open = beforePrint[i];
+    beforePrint = null;
+  });
   document.getElementById('lang').addEventListener('click', function (e) {
     var l = e.target.getAttribute('data-lang');
     if (!l || l === lang) return;
