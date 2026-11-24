@@ -1,0 +1,165 @@
+# Builds Hydra64 for Windows and Linux and publishes both in a GitHub release.
+#
+#   git tag v0.1.0 && git push origin v0.1.0    builds, then creates the release "v0.1.0" with
+#                                               the Windows archive and the Linux AppImage
+#   "Run workflow" button (Actions tab)         builds only: the two files are kept as
+#                                               artifacts of the run, no release is created
+#
+# Windows: the same cross-compilation as "./build.sh --win", in an Arch Linux container (MinGW
+# UCRT, Qt taken from MSYS2; Arch's Qt and MSYS2's must be at the same version, the script checks).
+# Linux: built on Ubuntu 24.04 with the official Qt, packed as an AppImage (glibc 2.39 or later).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  QT_VERSION: '6.12.0' # Linux build; the Windows build takes the version Arch and MSYS2 offer
+
+jobs:
+  windows:
+    name: Windows (x64)
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install the tools
+        run: |
+          pacman -Syu --noconfirm --needed base-devel git cmake python zstd \
+              qt6-base qt6-tools mingw-w64-gcc rustup
+          rustup toolchain install stable --profile minimal --target x86_64-pc-windows-gnu
+          rustup default stable
+
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: ./build.sh --win
+
+      - name: Name the archive
+        run: mv build-win/Hydra64-windows.zip "Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: Hydra64-*-windows-x64.zip
+          if-no-files-found: error
+          compression-level: 0 # already a zip
+
+  linux:
+    name: Linux (x86_64)
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+              g++-14 ninja-build zlib1g-dev libfuse3-dev libgl1-mesa-dev libxkbcommon-dev libcups2 \
+              libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+              libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+              libfontconfig1 libdbus-1-3 libegl1 libwayland-client0 libwayland-cursor0 libwayland-egl1
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+
+      - name: Build
+        # x86-64-avx2: Stockfish must not be tuned for the processor of the build machine
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DSTOCKFISH_ARCH=x86-64-avx2
+          cmake --build build --parallel "$(nproc)" --target hydra64 hydra64-convert hydra64-tablefs
+
+      - name: Pack the AppImage
+        # Engines and bundled databases go next to the program, where it looks for them.
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1 # no FUSE on the build machine
+          NO_STRIP: 1                 # linuxdeploy's strip does not read recent libraries
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp build/hydra64 build/hydra64-convert build/hydra64-tablefs build/stockfish build/shuffle AppDir/usr/bin/
+          cp -r build/databases AppDir/usr/bin/databases
+          cat > hydra64.desktop <<'DESKTOP'
+          [Desktop Entry]
+          Type=Application
+          Name=Hydra64
+          GenericName=Chess database and analysis
+          GenericName[fr]=Bases, analyse et jeu d'échecs
+          Comment=Chess databases, engine analysis, play and engine tournaments
+          Comment[fr]=Bases de parties, analyse avec moteurs, jeu et tournois de moteurs
+          Exec=hydra64 %f
+          Icon=hydra64
+          Terminal=false
+          Categories=Game;BoardGame;
+          MimeType=application/x-chess-pgn;
+          StartupWMClass=hydra64
+          DESKTOP
+          base=https://github.com/linuxdeploy
+          curl -fsSL -o linuxdeploy "$base/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          curl -fsSL -o linuxdeploy-plugin-qt "$base/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          chmod +x linuxdeploy linuxdeploy-plugin-qt
+          export PATH="$PWD:$PATH" QMAKE="$QT_ROOT_DIR/bin/qmake"
+          export LD_LIBRARY_PATH="$QT_ROOT_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          # Wayland as well as X11, when this Qt has the plugins
+          wayland=$(cd "$QT_ROOT_DIR/plugins/platforms" && ls libqwayland*.so 2>/dev/null | paste -sd ';' || true)
+          [[ -z $wayland ]] || export EXTRA_PLATFORM_PLUGINS="$wayland"
+          export OUTPUT="Hydra64-${GITHUB_REF_NAME//\//-}-linux-x86_64.AppImage"
+          linuxdeploy --appdir AppDir \
+              --executable AppDir/usr/bin/hydra64 --executable AppDir/usr/bin/hydra64-convert \
+              --executable AppDir/usr/bin/hydra64-tablefs \
+              --desktop-file hydra64.desktop --icon-file resources/hydra64.svg \
+              --plugin qt --output appimage
+
+      - name: Check that the AppImage starts
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
+          QT_QPA_PLATFORM: offscreen
+        run: env -u LD_LIBRARY_PATH -u QT_PLUGIN_PATH timeout 120 ./Hydra64-*-linux-x86_64.AppImage --version
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: Hydra64-*-linux-x86_64.AppImage
+          if-no-files-found: error
+          compression-level: 0
+
+  release:
+    name: GitHub release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+              gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
+                  --title "Hydra64 ${GITHUB_REF_NAME#v}" --generate-notes
+          fi
