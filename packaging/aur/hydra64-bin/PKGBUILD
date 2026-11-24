@@ -14,8 +14,8 @@ pkgdesc="Chess databases, engine analysis, play against an engine and engine tou
 arch=('x86_64')
 url="https://antidote1911.github.io/Hydra64/"
 license=('GPL-3.0-only')
-depends=('glibc' 'gcc-libs' 'zlib' 'bzip2' 'fontconfig' 'freetype2' 'libglvnd' 'libx11' 'libxcb'
-         'libgpg-error' 'e2fsprogs' 'hicolor-icon-theme')
+depends=('glibc' 'gcc-libs' 'zlib' 'gmp' 'fontconfig' 'freetype2' 'libglvnd' 'libx11' 'libxcb'
+         'wayland' 'libgpg-error' 'e2fsprogs' 'hicolor-icon-theme')
 optdepends=('fuse3: endgame tablebases read from ISO disc images')
 provides=("hydra64=$pkgver")
 conflicts=('hydra64')

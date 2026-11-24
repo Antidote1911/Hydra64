@@ -1,4 +1,4 @@
-# Maintainer: Antidote1911 <your e-mail address here>
+# Maintainer: Antidote1911 <antidote1911@gmail.com>
 #
 # Hydra64 built from the sources of a release. Two things differ from the AppImage:
 #   - Stockfish is the system's package (the program finds /usr/bin/stockfish and registers it as
@@ -17,7 +17,7 @@ pkgdesc="Chess databases, engine analysis, play against an engine and engine tou
 arch=('x86_64')
 url="https://antidote1911.github.io/Hydra64/"
 license=('GPL-3.0-only')
-depends=('qt6-base' 'qt6-svg' 'stockfish' 'fuse3' 'zlib' 'gcc-libs' 'glibc' 'hicolor-icon-theme')
+depends=('qt6-base' 'qt6-svg' 'stockfish' 'libxcb' 'fuse3' 'zlib' 'gcc-libs' 'glibc' 'hicolor-icon-theme')
 makedepends=('cmake' 'rust' 'qt6-tools')
 conflicts=('hydra64-bin')
 _ads=5.1.1

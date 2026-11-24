@@ -11,6 +11,7 @@ pkgbase = hydra64
 	depends = qt6-base
 	depends = qt6-svg
 	depends = stockfish
+	depends = libxcb
 	depends = fuse3
 	depends = zlib
 	depends = gcc-libs
