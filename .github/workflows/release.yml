@@ -1,6 +1,6 @@
 # Builds Hydra64 for Windows and Linux and publishes both in a GitHub release.
 #
-#   git tag v0.1.0 && git push origin v0.1.0    builds, then creates the release "v0.1.0" with
+#   git tag v1.0.0 && git push origin v1.0.0    builds, then creates the release "v1.0.0" with
 #                                               the Windows installer and archive, the Linux
 #                                               AppImage, their checksums (SHA256SUMS) and the
 #                                               notes of .github/release-notes.md
@@ -117,12 +117,16 @@ jobs:
             if (-not (Test-Path (Join-Path $dir $f))) { throw "installer: $f is missing" }
           }
           if (-not (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Hydra64.lnk")) { throw 'installer: no Start menu entry' }
+          $open = (Get-ItemProperty 'HKLM:\Software\Classes\Hydra64.Database\shell\open\command').'(default)'
+          if ($open -ne "`"$dir\hydra64.exe`" `"%1`"") { throw "installer: .hy64 files open with: $open" }
+          if ((Get-ItemProperty 'HKLM:\Software\Classes\.hy64').'(default)' -ne 'Hydra64.Database') { throw 'installer: .hy64 is not associated' }
           $p = Start-Process -FilePath (Join-Path $dir 'hydra64.exe') -ArgumentList '--version' -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw "installed hydra64.exe --version: exit code $($p.ExitCode)" }
           $p = Start-Process -FilePath (Join-Path $dir 'uninstall.exe') -ArgumentList '/S', "_?=$dir" -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw "uninstaller: exit code $($p.ExitCode)" }
           if (Test-Path (Join-Path $dir 'hydra64.exe')) { throw 'uninstaller: hydra64.exe is still there' }
           if (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Hydra64.lnk") { throw 'uninstaller: the Start menu entry is still there' }
+          if ((Test-Path 'HKLM:\Software\Classes\Hydra64.Database') -or (Test-Path 'HKLM:\Software\Classes\.hy64')) { throw 'uninstaller: the file types are still registered' }
 
       - uses: actions/upload-artifact@v4
         with:

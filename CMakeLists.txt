@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(Hydra64 VERSION 0.1.0 LANGUAGES C CXX)
+project(Hydra64 VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -218,6 +218,8 @@ target_compile_options(hydra64_ui PRIVATE -Wall -Wextra)
 
 qt_add_executable(hydra64 src/main.cpp)
 target_link_libraries(hydra64 PRIVATE hydra64_ui)
+# The version is written once, in project() above: "About" and --version take it from here.
+target_compile_definitions(hydra64 PRIVATE HYDRA64_VERSION="${PROJECT_VERSION}")
 # Windows: graphical program, otherwise a console window opens next to the application
 set_target_properties(hydra64 PROPERTIES WIN32_EXECUTABLE TRUE)
 if(UNIX AND NOT APPLE)

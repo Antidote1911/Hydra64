@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     QApplication::setApplicationName(QStringLiteral("Hydra64"));
     QApplication::setOrganizationName(QStringLiteral("Hydra64"));
     QApplication::setApplicationDisplayName(QStringLiteral("Hydra64"));
-    QApplication::setApplicationVersion(QStringLiteral("0.1.0"));
+    QApplication::setApplicationVersion(QStringLiteral(HYDRA64_VERSION)); // project() of CMakeLists.txt
     QApplication::setWindowIcon(theme::logoIcon());
     theme::apply(app);
 
