@@ -38,6 +38,7 @@ build-options:
 modules:
   - name: hydra64
     buildsystem: cmake-ninja
+    builddir: true # outside the sources: the build copies databases/ into its own folder
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DHYDRA64_TESTS=OFF
