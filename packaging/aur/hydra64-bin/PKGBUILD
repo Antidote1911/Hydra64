@@ -1,4 +1,4 @@
-# Maintainer: Antidote1911 <your e-mail address here>
+# Maintainer: Antidote1911 <antidote1911@gmail.com>
 #
 # Hydra64 from the AppImage of its GitHub release, unpacked into /opt/hydra64: nothing is built,
 # and FUSE is not needed to run it. The AppImage carries its own Qt; what it takes from the system

@@ -1,0 +1,48 @@
+# Flatpak of Hydra64, built from the sources of the repository.
+#
+#   flatpak-builder --user --install --force-clean build-flatpak packaging/flatpak/io.github.antidote1911.hydra64.yml
+#   flatpak run io.github.antidote1911.hydra64
+#
+# The releases carry it as a bundle (Hydra64-…-linux-x86_64.flatpak, .github/workflows/release.yml):
+#   flatpak install Hydra64-…-linux-x86_64.flatpak
+#
+# The build downloads what CMake and cargo fetch (docking library, Stockfish and its networks,
+# Rust crates): it is given the network. Flathub does not allow that — a submission there needs
+# these downloads listed as sources of the manifest.
+app-id: io.github.antidote1911.hydra64
+runtime: org.kde.Platform
+runtime-version: '6.10'
+sdk: org.kde.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: hydra64
+# The menu entry and the icon must bear the name of the application
+rename-desktop-file: hydra64.desktop
+rename-icon: hydra64
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # Download of endgame tables, Lichess online tables (optional)
+  - --share=network
+  # Databases are made of several files side by side (.hy64i, .hy64n…) and the user folder is
+  # ~/Documents/hydra64: the file chooser of the sandbox, which hands over one file, is not enough.
+  - --filesystem=home
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  build-args:
+    - --share=network
+  env:
+    CARGO_HOME: /run/build/hydra64/cargo
+modules:
+  - name: hydra64
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DHYDRA64_TESTS=OFF
+      # Stockfish for any recent processor, not for the one of the build machine
+      - -DSTOCKFISH_ARCH=x86-64-avx2
+    sources:
+      - type: dir
+        path: ../..

@@ -1,0 +1,17 @@
+Package: hydra64
+Version: {VERSION}
+Architecture: amd64
+Maintainer: Antidote1911 <antidote1911@users.noreply.github.com>
+Installed-Size: {SIZE}
+Depends: libc6 (>= 2.39), libstdc++6, zlib1g, libbz2-1.0, libfontconfig1, libfreetype6, libgl1, libegl1, libx11-6, libx11-xcb1, libxcb1, libxkbcommon0, libgpg-error0, libcom-err2
+Recommends: fuse3
+Section: games
+Priority: optional
+Homepage: https://antidote1911.github.io/Hydra64/
+Description: Chess databases, engine analysis, play and engine tournaments
+ Hydra64 is a chess workbench: it manages game databases, analyses with UCI
+ engines, lets you play against an engine and runs tournaments between
+ engines, in one interface with dockable panels.
+ .
+ This package holds the program with its own copy of Qt, the Stockfish and
+ Shuffle engines and the bundled databases, in /opt/hydra64.

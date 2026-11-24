@@ -6,17 +6,27 @@
 #                                               notes of .github/release-notes.md
 #   "Run workflow" button (Actions tab)         builds only: the files are kept as
 #                                               artifacts of the run, no release is created
+#   the same with "release" filled in (v1.0.0)  builds the branch, names the files after that
+#                                               release and adds to it those it does not have
+#                                               yet — a file already published is never replaced
 #
 # Windows: built on a Windows machine with MSYS2 (UCRT64: its MinGW, its Qt, its Rust), packed by
 # the same script as "./build.sh --win", which stays the way to build for Windows from Linux.
 # The installer (NSIS, tools/windows/installer.nsi) holds the same folder as the archive.
-# Linux: built on Ubuntu 24.04 with the official Qt, packed as an AppImage (glibc 2.39 or later).
+# Linux: built on Ubuntu 24.04 with the official Qt, packed as an AppImage (glibc 2.39 or later);
+# the same folder also makes the .tar.gz archive and the Debian package (program in /opt/hydra64).
+# Flatpak: built from packaging/flatpak/, on the KDE runtime.
 name: Release
 
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Existing release to add the missing files to (v1.0.0); empty: build only'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -27,6 +37,7 @@ concurrency:
 
 env:
   QT_VERSION: '6.12.0' # Linux build; the Windows build takes the version MSYS2 offers
+  LABEL: ${{ inputs.release || github.ref_name }} # in the names of the files: the tag, or the branch
 
 jobs:
   windows:
@@ -73,7 +84,7 @@ jobs:
         # Same script as "./build.sh --win"; the DLLs are those of the MSYS2 just installed.
         run: |
           python tools/windows/package.py build-win "$(cygpath -m "$MINGW_PREFIX")" \
-              "Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64.zip"
+              "Hydra64-${LABEL//\//-}-windows-x64.zip"
 
       - name: Build the installer
         # The folder package.py has just gathered (build-win/Hydra64), as it is. Version: that of
@@ -81,13 +92,13 @@ jobs:
         env:
           MSYS2_ARG_CONV_EXCL: '*'
         run: |
-          version=${GITHUB_REF_NAME#v}
-          [[ $GITHUB_REF_NAME == v* ]] || version=$(sed -n 's/^project(Hydra64 VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          version=${LABEL#v}
+          [[ $LABEL == v* ]] || version=$(sed -n 's/^project(Hydra64 VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
           printf '\xEF\xBB\xBF' > build-win/LICENSE.txt && cat LICENSE >> build-win/LICENSE.txt # UTF-8 mark: see the script
           makensis -V2 -DVERSION="$version" -DROOT="$(cygpath -w "$PWD")" \
               -DLICENSE="$(cygpath -w "$PWD/build-win/LICENSE.txt")" \
               -DSTAGE="$(cygpath -w "$PWD/build-win/Hydra64")" \
-              -DOUTFILE="$(cygpath -w "$PWD")\\Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64-setup.exe" \
+              -DOUTFILE="$(cygpath -w "$PWD")\\Hydra64-${LABEL//\//-}-windows-x64-setup.exe" \
               tools/windows/installer.nsi
 
       - name: Check that the programs start
@@ -194,7 +205,7 @@ jobs:
           # and Wayland when this Qt has the plugins
           wayland=$(cd "$QT_ROOT_DIR/plugins/platforms" && ls libqwayland*.so 2>/dev/null | paste -sd ';' || true)
           export EXTRA_PLATFORM_PLUGINS="libqoffscreen.so${wayland:+;$wayland}"
-          export OUTPUT="Hydra64-${GITHUB_REF_NAME//\//-}-linux-x86_64.AppImage"
+          export OUTPUT="Hydra64-${LABEL//\//-}-linux-x86_64.AppImage"
           linuxdeploy --appdir AppDir \
               --executable AppDir/usr/bin/hydra64 --executable AppDir/usr/bin/hydra64-convert \
               --executable AppDir/usr/bin/hydra64-tablefs \
@@ -207,17 +218,92 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: env -u LD_LIBRARY_PATH -u QT_PLUGIN_PATH timeout 120 ./Hydra64-*-linux-x86_64.AppImage --version
 
+      - name: Pack the archive and the Debian package
+        # The folder linuxdeploy has just filled (AppDir: programs, Qt, AppRun), as it is.
+        #   .tar.gz  a "Hydra64" folder to extract anywhere, started by Hydra64/hydra64
+        #   .deb     the same folder in /opt/hydra64, commands in /usr/bin, menu entry
+        run: |
+          version=${LABEL#v}
+          [[ $LABEL == v* ]] || version=$(sed -n 's/^project(Hydra64 VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+
+          cp -a AppDir Hydra64
+          printf '%s\n' '#!/bin/sh' '# Starts Hydra64 from this folder, wherever it is.' \
+              'exec "$(dirname "$(readlink -f "$0")")/AppRun" "$@"' > Hydra64/hydra64
+          chmod 755 Hydra64/hydra64
+          tar -czf "Hydra64-${LABEL//\//-}-linux-x86_64.tar.gz" --owner=0 --group=0 Hydra64
+
+          root=deb/hydra64
+          mkdir -p $root/DEBIAN $root/opt $root/usr/bin $root/usr/share/doc/hydra64
+          cp -a AppDir $root/opt/hydra64
+          printf '%s\n' '#!/bin/sh' 'exec /opt/hydra64/AppRun "$@"' > $root/usr/bin/hydra64
+          printf '%s\n' '#!/bin/sh' 'exec /opt/hydra64/usr/bin/hydra64-convert "$@"' > $root/usr/bin/hydra64-convert
+          chmod 755 $root/usr/bin/hydra64 $root/usr/bin/hydra64-convert
+          install -Dm644 packaging/linux/hydra64.desktop -t $root/usr/share/applications
+          install -Dm644 packaging/linux/io.github.antidote1911.hydra64.metainfo.xml -t $root/usr/share/metainfo
+          install -Dm644 resources/hydra64.svg -t $root/usr/share/icons/hicolor/scalable/apps
+          install -Dm644 LICENSE $root/usr/share/doc/hydra64/copyright
+          chmod -R u=rwX,go=rX $root
+          sed -e "s/{VERSION}/$version/" -e "s/{SIZE}/$(du -sk $root | cut -f1)/" packaging/debian/control > $root/DEBIAN/control
+          dpkg-deb --root-owner-group -Zxz --build $root "hydra64_${version}_amd64.deb"
+          dpkg-deb --info "hydra64_${version}_amd64.deb"
+
+      - name: Check the archive and the Debian package
+        # The package: installed for real, both commands run, then removed.
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          mkdir check && tar -xzf Hydra64-*-linux-x86_64.tar.gz -C check
+          env -u LD_LIBRARY_PATH -u QT_PLUGIN_PATH timeout 120 check/Hydra64/hydra64 --version
+          sudo apt-get install -y ./hydra64_*_amd64.deb
+          env -u LD_LIBRARY_PATH -u QT_PLUGIN_PATH timeout 120 hydra64 --version
+          env -u LD_LIBRARY_PATH -u QT_PLUGIN_PATH hydra64-convert 2>&1 | head -2
+          test -f /usr/share/applications/hydra64.desktop
+          sudo apt-get remove -y hydra64
+          test ! -e /opt/hydra64
+
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: Hydra64-*-linux-x86_64.AppImage
+          path: |
+            Hydra64-*-linux-x86_64.AppImage
+            Hydra64-*-linux-x86_64.tar.gz
+            hydra64_*_amd64.deb
+          if-no-files-found: error
+          compression-level: 0
+
+  flatpak:
+    name: Flatpak (x86_64)
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10 # the runtime of the manifest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: Hydra64-${{ inputs.release || github.ref_name }}-linux-x86_64.flatpak
+          manifest-path: packaging/flatpak/io.github.antidote1911.hydra64.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+          upload-artifact: false
+
+      - name: Check that the application starts
+        # In the folder the action has just built (flatpak_app), with the rights of the manifest
+        run: |
+          flatpak-builder --run flatpak_app packaging/flatpak/io.github.antidote1911.hydra64.yml \
+              env QT_QPA_PLATFORM=offscreen hydra64 --version
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak
+          path: Hydra64-*-linux-x86_64.flatpak
           if-no-files-found: error
           compression-level: 0
 
   release:
     name: GitHub release
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [windows, linux]
+    if: startsWith(github.ref, 'refs/tags/') || inputs.release != ''
+    needs: [windows, linux, flatpak]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -229,20 +315,40 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Checksums
-        run: cd dist && sha256sum Hydra64-* > SHA256SUMS && cat SHA256SUMS
-
       - name: Publish
-        # The notes: .github/release-notes.md, then the list of changes GitHub writes. A release
-        # that already exists keeps its notes; its files are replaced.
+        # A tag: creates the release with all the files, their checksums and the notes
+        # (.github/release-notes.md, then the list of changes GitHub writes).
+        # "release" given by hand: adds to that release the files it does not have yet. A file
+        # already published is left as it is — its checksum may be written in a package recipe.
         env:
           GH_TOKEN: ${{ github.token }}
+          ADD_TO: ${{ inputs.release }}
         run: |
+          tag=$LABEL
           stockfish=$(sed -n 's/^set(STOCKFISH_TAG "\([^"]*\)".*/\1/p' CMakeLists.txt)
-          sed -e "s/{TAG}/$GITHUB_REF_NAME/g" -e "s/{STOCKFISH}/$stockfish/g" .github/release-notes.md > notes.md
-          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-              gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          sed -e "s/{TAG}/$tag/g" -e "s/{VERSION}/${tag#v}/g" -e "s/{STOCKFISH}/$stockfish/g" .github/release-notes.md > notes.md
+          cd dist
+          if [[ -n $ADD_TO ]]; then
+              gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' > ../published
+              gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS --output SHA256SUMS || : > SHA256SUMS
+              new=()
+              for f in Hydra64-* hydra64_*; do
+                  if grep -qxF "$f" ../published; then echo "already published, left as it is: $f"; else new+=("$f"); fi
+              done
+              if (( ${#new[@]} )); then
+                  sha256sum "${new[@]}" >> SHA256SUMS
+                  gh release upload "$tag" "${new[@]}" --repo "$GITHUB_REPOSITORY"
+                  gh release upload "$tag" SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
+                  printf '\n**Full Changelog**: https://github.com/%s/commits/%s\n' "$GITHUB_REPOSITORY" "$tag" >> ../notes.md
+                  gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --notes-file ../notes.md
+              fi
+              cat SHA256SUMS
           else
-              gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
-                  --title "Hydra64 ${GITHUB_REF_NAME#v}" --notes-file notes.md --generate-notes
+              sha256sum Hydra64-* hydra64_* > SHA256SUMS && cat SHA256SUMS
+              if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+                  gh release upload "$tag" * --repo "$GITHUB_REPOSITORY" --clobber
+              else
+                  gh release create "$tag" * --repo "$GITHUB_REPOSITORY" \
+                      --title "Hydra64 ${tag#v}" --notes-file ../notes.md --generate-notes
+              fi
           fi
