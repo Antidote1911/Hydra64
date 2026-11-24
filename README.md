@@ -105,6 +105,10 @@ A manifest (`resources/windows/`) puts file paths in UTF-8. File offsets are 64-
 
 Differences from Linux: no endgame tablebases in ISO images (FUSE); no tests; no installer.
 
+The archives of the GitHub releases (`.github/workflows/release.yml`, run by pushing a `v*` tag)
+are built on a Windows machine instead, with MSYS2 "ucrt64" — its MinGW, its Qt, its Rust — and
+packed by the same `tools/windows/package.py`.
+
 The **Qt Advanced Docking System** (v5.1.1, LGPL 2.1) is downloaded by CMake (`FetchContent`) at
 the first `./build.sh` (Internet connection needed only once), then built as a static library with
 the project.
@@ -774,3 +778,10 @@ Credits: `CREDITS.txt` of each folder. To ship another: a folder
 the database before the screenshot), `--info` (opens the game information), `--prefs` (opens the
 preferences), `--about` (opens "About"), `--panel NAME` (opens a panel: clock, graph…),
 `--screenshot FILE` (takes a screenshot then quits: handy to check the rendering).
+
+## Licence
+
+Hydra64 is free software, distributed under the **GNU General Public License, version 3**: see
+[`LICENSE`](LICENSE). It comes with no warranty. The components it embeds or downloads keep their
+own licences, named in the sections that describe them (Qt, Qt Advanced Docking System, cbvault,
+Stockfish, piece sets and boards).

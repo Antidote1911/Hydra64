@@ -255,7 +255,8 @@ target_compile_options(hydra64 PRIVATE -Wall -Wextra)
 # Built by cargo and copied next to the hydra64 executable, which registers it at first launch.
 find_program(CARGO cargo)
 # Cross-compilation to Windows (cmake/mingw-w64.cmake): cargo targets the same platform, its outputs
-# are in a subfolder named after it and the programs carry ".exe".
+# are in a subfolder named after it and the programs carry ".exe". Built on Windows (MSYS2, see
+# .github/workflows/release.yml), MSYS2's cargo targets that platform by itself.
 set(CARGO_TARGET_ARGS)
 set(CARGO_OUT_SUBDIR "release")
 if(WIN32 AND CMAKE_CROSSCOMPILING)
@@ -265,13 +266,15 @@ endif()
 if(CARGO)
     set(SHUFFLE_DIR ${CMAKE_SOURCE_DIR}/engines/shuffle)
     set(SHUFFLE_TARGET_DIR ${CMAKE_BINARY_DIR}/shuffle-target)
-    add_custom_target(shuffle ALL
+    # "shuffle_engine" and not "shuffle": with Ninja, a target cannot bear the name of the file it
+    # produces in the build folder (Linux: build/shuffle).
+    add_custom_target(shuffle_engine ALL
         COMMAND ${CARGO} build --release --quiet ${CARGO_TARGET_ARGS} --manifest-path ${SHUFFLE_DIR}/Cargo.toml --target-dir ${SHUFFLE_TARGET_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHUFFLE_TARGET_DIR}/${CARGO_OUT_SUBDIR}/shuffle${CMAKE_EXECUTABLE_SUFFIX} ${CMAKE_BINARY_DIR}/shuffle${CMAKE_EXECUTABLE_SUFFIX}
         BYPRODUCTS ${CMAKE_BINARY_DIR}/shuffle${CMAKE_EXECUTABLE_SUFFIX}
         COMMENT "Compilation du moteur Shuffle (cargo)"
         VERBATIM)
-    add_dependencies(hydra64 shuffle)
+    add_dependencies(hydra64 shuffle_engine)
 else()
     message(STATUS "cargo introuvable : le moteur Shuffle (Rust) ne sera pas compilé")
 endif()
@@ -300,8 +303,9 @@ if(CARGO AND HYDRA64_CHESSBASE)
     add_dependencies(cbbridge_lib cbbridge)
     add_dependencies(hydra64_ui cbbridge)
     if(WIN32)
-        # System libraries the Rust standard library needs on Windows
-        target_link_libraries(hydra64_ui PUBLIC cbbridge_lib ws2_32 userenv bcrypt ntdll advapi32 kernel32)
+        # System libraries the Rust standard library needs on Windows ("synchronization":
+        # WaitOnAddress and WakeByAddress*, which its locks use since Rust 1.100)
+        target_link_libraries(hydra64_ui PUBLIC cbbridge_lib ws2_32 userenv bcrypt ntdll advapi32 kernel32 synchronization)
     else()
         target_link_libraries(hydra64_ui PUBLIC cbbridge_lib ${CMAKE_DL_LIBS} pthread m)
     endif()
@@ -325,10 +329,12 @@ if(BUNDLE_STOCKFISH)
         set(NPROC 4)
     endif()
     set(STOCKFISH_COMP)
-    if(WIN32 AND CMAKE_CROSSCOMPILING)
-        set(STOCKFISH_COMP COMP=mingw) # its Makefile then takes x86_64-w64-mingw32-c++ (static linking)
+    if(MINGW)
+        # Its Makefile then takes x86_64-w64-mingw32-c++ (static linking): the system MinGW from
+        # Linux, that of MSYS2 on Windows.
+        set(STOCKFISH_COMP COMP=mingw)
     endif()
-    ExternalProject_Add(stockfish
+    ExternalProject_Add(stockfish_engine # not "stockfish": name of the file produced, see shuffle_engine
         GIT_REPOSITORY https://github.com/official-stockfish/Stockfish.git
         GIT_TAG ${STOCKFISH_TAG}
         GIT_SHALLOW TRUE
@@ -342,7 +348,7 @@ if(BUNDLE_STOCKFISH)
         LOG_BUILD TRUE
         LOG_OUTPUT_ON_FAILURE TRUE
         COMMENT "Compilation de Stockfish (${STOCKFISH_TAG})")
-    add_dependencies(hydra64 stockfish)
+    add_dependencies(hydra64 stockfish_engine)
 endif()
 
 # ---- Tests ----
@@ -368,10 +374,10 @@ target_compile_definitions(core_tests PRIVATE HYDRA64_SOURCE_DIR="${CMAKE_SOURCE
 add_test(NAME ui_tests COMMAND ui_tests) # isolates its configuration itself (ui_tests_home)
 set_tests_properties(ui_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 if(BUNDLE_STOCKFISH)
-    add_dependencies(ui_tests stockfish)
+    add_dependencies(ui_tests stockfish_engine)
 endif()
 if(CARGO)
-    add_dependencies(ui_tests shuffle)
+    add_dependencies(ui_tests shuffle_engine)
     add_test(NAME shuffle_tests COMMAND ${CARGO} test --release --quiet --manifest-path ${SHUFFLE_DIR}/Cargo.toml --target-dir ${SHUFFLE_TARGET_DIR})
 endif()
 

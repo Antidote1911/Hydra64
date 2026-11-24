@@ -5,8 +5,8 @@
 #   "Run workflow" button (Actions tab)         builds only: the two files are kept as
 #                                               artifacts of the run, no release is created
 #
-# Windows: the same cross-compilation as "./build.sh --win", in an Arch Linux container (MinGW
-# UCRT, Qt taken from MSYS2; Arch's Qt and MSYS2's must be at the same version, the script checks).
+# Windows: built on a Windows machine with MSYS2 (UCRT64: its MinGW, its Qt, its Rust), packed by
+# the same script as "./build.sh --win", which stays the way to build for Windows from Linux.
 # Linux: built on Ubuntu 24.04 with the official Qt, packed as an AppImage (glibc 2.39 or later).
 name: Release
 
@@ -23,28 +23,66 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  QT_VERSION: '6.12.0' # Linux build; the Windows build takes the version Arch and MSYS2 offer
+  QT_VERSION: '6.12.0' # Linux build; the Windows build takes the version MSYS2 offers
 
 jobs:
   windows:
     name: Windows (x64)
-    runs-on: ubuntu-latest
-    container: archlinux:latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
-      - name: Install the tools
-        run: |
-          pacman -Syu --noconfirm --needed base-devel git cmake python zstd \
-              qt6-base qt6-tools mingw-w64-gcc rustup
-          rustup toolchain install stable --profile minimal --target x86_64-pc-windows-gnu
-          rustup default stable
+      - name: Keep the line endings of the repository
+        shell: bash
+        run: git config --global core.autocrlf false
 
       - uses: actions/checkout@v4
 
-      - name: Build
-        run: ./build.sh --win
+      - name: Install the tools (MSYS2, UCRT64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            make
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-python
+            mingw-w64-ucrt-x86_64-rust
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-svg
+            mingw-w64-ucrt-x86_64-qt6-tools
+            mingw-w64-ucrt-x86_64-qt6-translations
 
-      - name: Name the archive
-        run: mv build-win/Hydra64-windows.zip "Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64.zip"
+      - name: Build
+        # x86-64-avx2: Stockfish must not be tuned for the processor of the build machine
+        run: |
+          cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=Release -DHYDRA64_TESTS=OFF \
+              -DSTOCKFISH_ARCH=x86-64-avx2
+          cmake --build build-win --parallel "$(nproc)"
+
+      - name: Pack the archive
+        # Same script as "./build.sh --win"; the DLLs are those of the MSYS2 just installed.
+        run: |
+          python tools/windows/package.py build-win "$(cygpath -m "$MINGW_PREFIX")" \
+              "Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64.zip"
+
+      - name: Check that the programs start
+        # Outside MSYS2: only the DLLs of the archive are within reach, as on a user's machine.
+        shell: pwsh
+        timeout-minutes: 5
+        env:
+          QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES: 1 # --version: text, not a dialog to close
+        run: |
+          Expand-Archive -Path (Get-Item Hydra64-*-windows-x64.zip).FullName -DestinationPath check
+          $p = Start-Process -FilePath check\Hydra64\hydra64.exe -ArgumentList '--version' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "hydra64.exe --version: exit code $($p.ExitCode)" }
+          'quit' | & check\Hydra64\stockfish.exe
+          if ($LASTEXITCODE -ne 0) { throw "stockfish.exe: exit code $LASTEXITCODE" }
 
       - uses: actions/upload-artifact@v4
         with:
@@ -96,6 +134,7 @@ jobs:
           mkdir -p AppDir/usr/bin
           cp build/hydra64 build/hydra64-convert build/hydra64-tablefs build/stockfish build/shuffle AppDir/usr/bin/
           cp -r build/databases AppDir/usr/bin/databases
+          install -Dm644 LICENSE AppDir/usr/share/licenses/hydra64/LICENSE
           cat > hydra64.desktop <<'DESKTOP'
           [Desktop Entry]
           Type=Application
