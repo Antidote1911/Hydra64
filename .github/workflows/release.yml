@@ -156,9 +156,10 @@ jobs:
           chmod +x linuxdeploy linuxdeploy-plugin-qt
           export PATH="$PWD:$PATH" QMAKE="$QT_ROOT_DIR/bin/qmake"
           export LD_LIBRARY_PATH="$QT_ROOT_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          # Wayland as well as X11, when this Qt has the plugins
+          # Besides X11: "offscreen" (no display: --screenshot on a server, and the check below),
+          # and Wayland when this Qt has the plugins
           wayland=$(cd "$QT_ROOT_DIR/plugins/platforms" && ls libqwayland*.so 2>/dev/null | paste -sd ';' || true)
-          [[ -z $wayland ]] || export EXTRA_PLATFORM_PLUGINS="$wayland"
+          export EXTRA_PLATFORM_PLUGINS="libqoffscreen.so${wayland:+;$wayland}"
           export OUTPUT="Hydra64-${GITHUB_REF_NAME//\//-}-linux-x86_64.AppImage"
           linuxdeploy --appdir AppDir \
               --executable AppDir/usr/bin/hydra64 --executable AppDir/usr/bin/hydra64-convert \
