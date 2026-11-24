@@ -1,12 +1,15 @@
 # Builds Hydra64 for Windows and Linux and publishes both in a GitHub release.
 #
 #   git tag v0.1.0 && git push origin v0.1.0    builds, then creates the release "v0.1.0" with
-#                                               the Windows archive and the Linux AppImage
-#   "Run workflow" button (Actions tab)         builds only: the two files are kept as
+#                                               the Windows installer and archive, the Linux
+#                                               AppImage, their checksums (SHA256SUMS) and the
+#                                               notes of .github/release-notes.md
+#   "Run workflow" button (Actions tab)         builds only: the files are kept as
 #                                               artifacts of the run, no release is created
 #
 # Windows: built on a Windows machine with MSYS2 (UCRT64: its MinGW, its Qt, its Rust), packed by
 # the same script as "./build.sh --win", which stays the way to build for Windows from Linux.
+# The installer (NSIS, tools/windows/installer.nsi) holds the same folder as the archive.
 # Linux: built on Ubuntu 24.04 with the official Qt, packed as an AppImage (glibc 2.39 or later).
 name: Release
 
@@ -57,6 +60,7 @@ jobs:
             mingw-w64-ucrt-x86_64-qt6-svg
             mingw-w64-ucrt-x86_64-qt6-tools
             mingw-w64-ucrt-x86_64-qt6-translations
+            mingw-w64-ucrt-x86_64-nsis
 
       - name: Build
         # x86-64-avx2: Stockfish must not be tuned for the processor of the build machine
@@ -71,6 +75,19 @@ jobs:
           python tools/windows/package.py build-win "$(cygpath -m "$MINGW_PREFIX")" \
               "Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64.zip"
 
+      - name: Build the installer
+        # The folder package.py has just gathered (build-win/Hydra64), as it is. Version: that of
+        # the tag, otherwise that of CMakeLists.txt. Windows paths, passed without MSYS2 rewriting.
+        env:
+          MSYS2_ARG_CONV_EXCL: '*'
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          [[ $GITHUB_REF_NAME == v* ]] || version=$(sed -n 's/^project(Hydra64 VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          makensis -V2 -DVERSION="$version" -DROOT="$(cygpath -w "$PWD")" \
+              -DSTAGE="$(cygpath -w "$PWD/build-win/Hydra64")" \
+              -DOUTFILE="$(cygpath -w "$PWD")\\Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64-setup.exe" \
+              tools/windows/installer.nsi
+
       - name: Check that the programs start
         # Outside MSYS2: only the DLLs of the archive are within reach, as on a user's machine.
         shell: pwsh
@@ -84,12 +101,37 @@ jobs:
           'quit' | & check\Hydra64\stockfish.exe
           if ($LASTEXITCODE -ne 0) { throw "stockfish.exe: exit code $LASTEXITCODE" }
 
+      - name: Check the installer
+        # Silent installation into a folder with a space, program started from there, then
+        # silent removal ("_?=": the uninstaller runs in place and is waited for).
+        shell: pwsh
+        timeout-minutes: 10
+        env:
+          QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES: 1
+        run: |
+          $setup = (Get-Item Hydra64-*-windows-x64-setup.exe).FullName
+          $dir = Join-Path $env:RUNNER_TEMP 'Hydra64 test'
+          $p = Start-Process -FilePath $setup -ArgumentList '/S', "/D=$dir" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "installer: exit code $($p.ExitCode)" }
+          foreach ($f in 'hydra64.exe', 'stockfish.exe', 'shuffle.exe', 'uninstall.exe', 'databases\games\Masters_1000.hy64', 'plugins\platforms\qwindows.dll') {
+            if (-not (Test-Path (Join-Path $dir $f))) { throw "installer: $f is missing" }
+          }
+          if (-not (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Hydra64.lnk")) { throw 'installer: no Start menu entry' }
+          $p = Start-Process -FilePath (Join-Path $dir 'hydra64.exe') -ArgumentList '--version' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "installed hydra64.exe --version: exit code $($p.ExitCode)" }
+          $p = Start-Process -FilePath (Join-Path $dir 'uninstall.exe') -ArgumentList '/S', "_?=$dir" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "uninstaller: exit code $($p.ExitCode)" }
+          if (Test-Path (Join-Path $dir 'hydra64.exe')) { throw 'uninstaller: hydra64.exe is still there' }
+          if (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Hydra64.lnk") { throw 'uninstaller: the Start menu entry is still there' }
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows
-          path: Hydra64-*-windows-x64.zip
+          path: |
+            Hydra64-*-windows-x64.zip
+            Hydra64-*-windows-x64-setup.exe
           if-no-files-found: error
-          compression-level: 0 # already a zip
+          compression-level: 0 # already compressed
 
   linux:
     name: Linux (x86_64)
@@ -135,21 +177,7 @@ jobs:
           cp build/hydra64 build/hydra64-convert build/hydra64-tablefs build/stockfish build/shuffle AppDir/usr/bin/
           cp -r build/databases AppDir/usr/bin/databases
           install -Dm644 LICENSE AppDir/usr/share/licenses/hydra64/LICENSE
-          cat > hydra64.desktop <<'DESKTOP'
-          [Desktop Entry]
-          Type=Application
-          Name=Hydra64
-          GenericName=Chess database and analysis
-          GenericName[fr]=Bases, analyse et jeu d'échecs
-          Comment=Chess databases, engine analysis, play and engine tournaments
-          Comment[fr]=Bases de parties, analyse avec moteurs, jeu et tournois de moteurs
-          Exec=hydra64 %f
-          Icon=hydra64
-          Terminal=false
-          Categories=Game;BoardGame;
-          MimeType=application/x-chess-pgn;
-          StartupWMClass=hydra64
-          DESKTOP
+          install -Dm644 packaging/linux/io.github.antidote1911.hydra64.metainfo.xml -t AppDir/usr/share/metainfo
           base=https://github.com/linuxdeploy
           curl -fsSL -o linuxdeploy "$base/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           curl -fsSL -o linuxdeploy-plugin-qt "$base/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
@@ -164,7 +192,7 @@ jobs:
           linuxdeploy --appdir AppDir \
               --executable AppDir/usr/bin/hydra64 --executable AppDir/usr/bin/hydra64-convert \
               --executable AppDir/usr/bin/hydra64-tablefs \
-              --desktop-file hydra64.desktop --icon-file resources/hydra64.svg \
+              --desktop-file packaging/linux/hydra64.desktop --icon-file resources/hydra64.svg \
               --plugin qt --output appimage
 
       - name: Check that the AppImage starts
@@ -188,18 +216,27 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4 # the notes of the release and the Stockfish version
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
 
+      - name: Checksums
+        run: cd dist && sha256sum Hydra64-* > SHA256SUMS && cat SHA256SUMS
+
       - name: Publish
+        # The notes: .github/release-notes.md, then the list of changes GitHub writes. A release
+        # that already exists keeps its notes; its files are replaced.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          stockfish=$(sed -n 's/^set(STOCKFISH_TAG "\([^"]*\)".*/\1/p' CMakeLists.txt)
+          sed -e "s/{TAG}/$GITHUB_REF_NAME/g" -e "s/{STOCKFISH}/$stockfish/g" .github/release-notes.md > notes.md
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
               gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber
           else
               gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
-                  --title "Hydra64 ${GITHUB_REF_NAME#v}" --generate-notes
+                  --title "Hydra64 ${GITHUB_REF_NAME#v}" --notes-file notes.md --generate-notes
           fi

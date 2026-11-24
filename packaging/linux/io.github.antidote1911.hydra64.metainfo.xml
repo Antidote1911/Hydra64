@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream description of Hydra64: what software centres display. Installed in share/metainfo. -->
+<component type="desktop-application">
+  <id>io.github.antidote1911.hydra64</id>
+  <name>Hydra64</name>
+  <summary>Chess databases, engine analysis, play and engine tournaments</summary>
+  <summary xml:lang="fr">Bases de parties, analyse avec les moteurs, jeu et tournois de moteurs</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <developer id="io.github.antidote1911">
+    <name>Antidote1911</name>
+  </developer>
+  <description>
+    <p>Hydra64 is a chess workbench: it manages game databases, analyses with UCI engines, lets you play against an engine and runs tournaments between engines, in one dark interface with dockable panels. Stockfish is built in.</p>
+    <p xml:lang="fr">Hydra64 est un atelier d'échecs : il gère des bases de parties, analyse avec des moteurs UCI, fait jouer contre un moteur et organise des tournois entre moteurs, dans une seule interface sombre aux panneaux ancrables. Stockfish est intégré.</p>
+    <ul>
+      <li>Opens a database of 11 million games in a few milliseconds; searches by position, material, pawn structure or manoeuvre</li>
+      <li xml:lang="fr">Ouvre une base de 11 millions de parties en quelques millisecondes ; recherches par position, matériel, structure de pions ou manœuvre</li>
+      <li>Converts ChessBase and Chess Assistant databases and opening books to open, documented formats</li>
+      <li xml:lang="fr">Convertit les bases et les livres d'ouvertures ChessBase et Chess Assistant en formats ouverts et documentés</li>
+      <li>Automatic annotation, deep analysis, opening trees, Syzygy endgame tables</li>
+      <li xml:lang="fr">Annotation automatique, analyse approfondie, arbres d'ouverture, tables de finales Syzygy</li>
+      <li>Games against the engine with clock, coach and training exercises</li>
+      <li xml:lang="fr">Parties contre le moteur avec pendule, coach et exercices d'entraînement</li>
+      <li>Engine tournaments: round robin, gauntlet or Swiss, several games at once</li>
+      <li xml:lang="fr">Tournois de moteurs : toutes rondes, gauntlet ou système suisse, plusieurs parties à la fois</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">hydra64.desktop</launchable>
+  <url type="homepage">https://antidote1911.github.io/Hydra64/</url>
+  <url type="help">https://antidote1911.github.io/Hydra64/manual/</url>
+  <url type="bugtracker">https://github.com/Antidote1911/Hydra64/issues</url>
+  <url type="vcs-browser">https://github.com/Antidote1911/Hydra64</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Analysis page</caption>
+      <caption xml:lang="fr">Page Analyse</caption>
+      <image>https://antidote1911.github.io/Hydra64/screenshots/analysis.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Databases page</caption>
+      <caption xml:lang="fr">Page Bases de données</caption>
+      <image>https://antidote1911.github.io/Hydra64/screenshots/databases.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Play page</caption>
+      <caption xml:lang="fr">Page Jouer</caption>
+      <image>https://antidote1911.github.io/Hydra64/screenshots/play.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Engine tournament</caption>
+      <caption xml:lang="fr">Tournoi de moteurs</caption>
+      <image>https://antidote1911.github.io/Hydra64/screenshots/tournament.png</image>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Game</category>
+    <category>BoardGame</category>
+  </categories>
+  <provides>
+    <binary>hydra64</binary>
+    <binary>hydra64-convert</binary>
+    <mediatype>application/x-chess-pgn</mediatype>
+  </provides>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-24"/>
+  </releases>
+</component>

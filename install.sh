@@ -28,20 +28,7 @@ ln -sf "$opt/hydra64" "$bin/hydra64"
 ln -sf "$opt/hydra64-convert" "$bin/hydra64-convert"
 install -m 644 resources/hydra64.svg "$icons/scalable/apps/hydra64.svg"
 command -v rsvg-convert >/dev/null && rsvg-convert -w 256 -h 256 resources/hydra64.svg -o "$icons/256x256/apps/hydra64.png"
-cat > "$apps/hydra64.desktop" <<DESKTOP
-[Desktop Entry]
-Type=Application
-Name=Hydra64
-GenericName=Chess database and analysis
-GenericName[fr]=Bases, analyse et jeu d'échecs
-Comment=Chess databases, engine analysis, play and engine tournaments
-Comment[fr]=Bases de parties, analyse avec moteurs, jeu et tournois de moteurs
-Exec=$opt/hydra64 %f
-Icon=hydra64
-Terminal=false
-Categories=Game;BoardGame;
-MimeType=application/x-chess-pgn;
-StartupWMClass=hydra64
-DESKTOP
+# The menu entry of the packages (packaging/linux), pointing at this installation
+sed "s|^Exec=hydra64 |Exec=$opt/hydra64 |" packaging/linux/hydra64.desktop > "$apps/hydra64.desktop"
 command -v update-desktop-database >/dev/null && update-desktop-database "$apps" >/dev/null 2>&1 || true
 echo "Hydra64 installé dans $opt — lanceur : $bin/hydra64, entrée de menu « Hydra64 »."

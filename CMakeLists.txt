@@ -90,6 +90,7 @@ FetchContent_Declare(qtads
     GIT_TAG        v5.1.1
     GIT_SHALLOW    TRUE
     SYSTEM
+    EXCLUDE_FROM_ALL # built as a dependency only; its headers and library are not installed (CMake 3.28)
     # Parentless floating windows (orphaned native windows with Qt 6.12): see the script
     PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch-qtads.cmake
 )
@@ -353,9 +354,7 @@ endif()
 
 # ---- Tests ----
 option(HYDRA64_TESTS "Compiler les tests" ON)
-if(NOT HYDRA64_TESTS)
-    return() # cross-compilation: only the programs
-endif()
+if(HYDRA64_TESTS) # OFF for the cross-compilation and for packages: only the programs
 enable_testing()
 add_executable(core_tests tests/core_tests.cpp)
 target_link_libraries(core_tests PRIVATE hydra64_core)
@@ -380,6 +379,7 @@ if(CARGO)
     add_dependencies(ui_tests shuffle_engine)
     add_test(NAME shuffle_tests COMMAND ${CARGO} test --release --quiet --manifest-path ${SHUFFLE_DIR}/Cargo.toml --target-dir ${SHUFFLE_TARGET_DIR})
 endif()
+endif() # HYDRA64_TESTS
 
 # Endgame tablebases read from disc images (.iso): small FUSE file system,
 # started by the application. Optional: without libfuse3, the images cannot be used.
@@ -394,4 +394,44 @@ if(TARGET PkgConfig::FUSE3)
     message(STATUS "Tables de finales dans des images ISO : hydra64-tablefs (FUSE 3)")
 else()
     message(STATUS "libfuse3 absente : les tables de finales dans des images ISO ne seront pas utilisables")
+endif()
+
+# ---- Installation (Linux): cmake --install build --prefix /usr [DESTDIR=…] ----
+# Hydra64 looks for its engines, its helper and the bundled databases next to its executable.
+# So the programs go together in <lib>/hydra64/, with links in <bin>/ for the two commands; the
+# bundled databases are in <share>/hydra64/, reached through a link too.
+#   <bin>/hydra64, <bin>/hydra64-convert           links to <lib>/hydra64/…
+#   <lib>/hydra64/                                  hydra64, hydra64-convert, hydra64-tablefs, stockfish, shuffle
+#   <lib>/hydra64/databases                         link to <share>/hydra64/databases
+#   <share>/applications, icons, metainfo, licenses menu entry, icon, AppStream description, licence
+# Without the embedded Stockfish (-DBUNDLE_STOCKFISH=OFF), the system's "stockfish" is used.
+if(UNIX AND NOT APPLE)
+    include(GNUInstallDirs)
+    set(HYDRA64_PRIVATE_DIR ${CMAKE_INSTALL_LIBDIR}/hydra64)
+    install(TARGETS hydra64 hydra64-convert RUNTIME DESTINATION ${HYDRA64_PRIVATE_DIR})
+    if(TARGET hydra64-tablefs)
+        install(TARGETS hydra64-tablefs RUNTIME DESTINATION ${HYDRA64_PRIVATE_DIR})
+    endif()
+    if(BUNDLE_STOCKFISH)
+        install(PROGRAMS ${CMAKE_BINARY_DIR}/stockfish DESTINATION ${HYDRA64_PRIVATE_DIR})
+    endif()
+    if(CARGO)
+        install(PROGRAMS ${CMAKE_BINARY_DIR}/shuffle DESTINATION ${HYDRA64_PRIVATE_DIR})
+    endif()
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/databases DESTINATION ${CMAKE_INSTALL_DATADIR}/hydra64)
+    install(FILES packaging/linux/hydra64.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES packaging/linux/io.github.antidote1911.hydra64.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+    install(FILES resources/hydra64.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+    install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/hydra64)
+    # Relative links: the installed tree can be moved (DESTDIR, package).
+    file(RELATIVE_PATH HYDRA64_BIN_TO_PRIVATE "/${CMAKE_INSTALL_BINDIR}" "/${HYDRA64_PRIVATE_DIR}")
+    file(RELATIVE_PATH HYDRA64_PRIVATE_TO_BASES "/${HYDRA64_PRIVATE_DIR}" "/${CMAKE_INSTALL_DATADIR}/hydra64/databases")
+    install(CODE "
+        set(root \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}\")
+        file(MAKE_DIRECTORY \"\${root}/${CMAKE_INSTALL_BINDIR}\")
+        foreach(program hydra64 hydra64-convert)
+            file(CREATE_LINK \"${HYDRA64_BIN_TO_PRIVATE}/\${program}\" \"\${root}/${CMAKE_INSTALL_BINDIR}/\${program}\" SYMBOLIC)
+        endforeach()
+        file(CREATE_LINK \"${HYDRA64_PRIVATE_TO_BASES}\" \"\${root}/${HYDRA64_PRIVATE_DIR}/databases\" SYMBOLIC)
+    ")
 endif()

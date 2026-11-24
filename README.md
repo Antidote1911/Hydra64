@@ -70,6 +70,26 @@ Optional tests on real data: `HYDRA64_TEST_2CBV=<.2cbv archive>` (ChessBase 18),
 `HYDRA64_TEST_HY64` / `HYDRA64_TEST_CBH` (ChessBase database, see below).
 The script of the exported HTML pages is run by Qt's JavaScript engine (Qt6Qml) if it is installed.
 
+### Installing, packages
+
+`./install.sh` installs the build for the current user, without root (`~/.local/opt/hydra64`,
+menu entry; `--uninstall` removes it). For a system-wide installation or a package:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DHYDRA64_TESTS=OFF -DSTOCKFISH_ARCH=x86-64-avx2
+cmake --build build --parallel
+sudo cmake --install build --prefix /usr      # or: DESTDIR=<package folder> cmake --install …
+```
+
+The programs go together in `/usr/lib/hydra64/` (Hydra64 looks for its engines and the bundled
+databases next to its executable), with links in `/usr/bin` for `hydra64` and `hydra64-convert`;
+the bundled databases are in `/usr/share/hydra64/`. The menu entry and the AppStream description
+are in `packaging/linux/`.
+
+`packaging/aur/hydra64-bin/` is the recipe of the Arch Linux (AUR) package made from the AppImage
+of a release. The Windows installer of the releases is built by NSIS from
+`tools/windows/installer.nsi`.
+
 ### User folder
 
 Everything Hydra64 reads or writes for the user, apart from settings, is in a single folder:
@@ -124,7 +144,8 @@ sudo pacman -S --needed mingw-w64-gcc && rustup target add x86_64-pc-windows-gnu
 ./build.sh --win --clean  # from an empty configuration (downloaded Qt kept)
 ```
 
-The archive contains a `Hydra64` folder to unzip anywhere (nothing to install):
+The releases also offer an installer (`…-windows-x64-setup.exe`: Start menu entry, uninstaller),
+which holds the same files. The archive contains a `Hydra64` folder to unzip anywhere (nothing to install):
 `hydra64.exe`, `hydra64-convert.exe`, Stockfish and Shuffle, the Qt DLLs, the `databases/`
 folder. Windows 10 (1903) or 11, 64-bit, processor with AVX2 (Stockfish).
 
@@ -137,7 +158,8 @@ the programs and the DLLs they depend on. Our programs embed their C++ library
 A manifest (`resources/windows/`) puts file paths in UTF-8. File offsets are 64-bit everywhere
 (`src/db/fileoffset.h`): databases over 2 GB work.
 
-Differences from Linux: no endgame tablebases in ISO images (FUSE); no tests; no installer.
+Differences from Linux: no endgame tablebases in ISO images (FUSE); no tests. `./build.sh --win`
+makes the archive only: the installer is built with the releases, on the Windows machine.
 
 The archives of the GitHub releases (`.github/workflows/release.yml`, run by pushing a `v*` tag)
 are built on a Windows machine instead, with MSYS2 "ucrt64" — its MinGW, its Qt, its Rust — and
