@@ -5,6 +5,7 @@
 #   ./build.sh --linux       the same thing, stated explicitly
 #   ./build.sh --win         64-bit Windows, built from Linux in build-win/;
 #                            produces the archive build-win/Hydra64-windows.zip (to unzip, nothing to install)
+#                            and, if NSIS is installed, the installer build-win/Hydra64-windows-setup.exe
 #   ./build.sh --linux --win both
 #   ./build.sh --clean       starts from an empty build folder (--win: downloaded Qt kept)
 #   ./build.sh --test        also runs the tests after the build (Linux)
@@ -106,6 +107,19 @@ build_windows() {
     echo "==> Archive"
     python3 tools/windows/package.py "$dir" "$sysroot/ucrt64" "$dir/Hydra64-windows.zip"
     echo "==> OK : $dir/Hydra64-windows.zip (dossier décompressé : $dir/Hydra64/)"
+
+    # Installer (the same folder), if NSIS is there: makensis
+    if command -v makensis >/dev/null; then
+        echo "==> Installateur"
+        local version
+        version=$(sed -n 's/^project(Hydra64 VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+        printf '\xEF\xBB\xBF' > "$dir/LICENSE.txt" && cat LICENSE >> "$dir/LICENSE.txt" # UTF-8 mark: see the script
+        makensis -V2 -DVERSION="$version" -DROOT="$PWD" -DSTAGE="$PWD/$dir/Hydra64" \
+            -DLICENSE="$PWD/$dir/LICENSE.txt" -DOUTFILE="$PWD/$dir/Hydra64-windows-setup.exe" tools/windows/installer.nsi
+        echo "==> OK : $dir/Hydra64-windows-setup.exe"
+    else
+        echo "    (makensis absent : pas d'installateur — paquet « nsis »)"
+    fi
 }
 
 if (( linux )); then build_linux; fi

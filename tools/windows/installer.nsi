@@ -65,7 +65,6 @@ VIAddVersionKey "LegalCopyright" "GNU General Public License, version 3"
 ; First and last pages: the logo (tools/windows/make_installer_art.sh)
 !define MUI_WELCOMEFINISHPAGE_BITMAP "${ROOT}\resources\windows\installer-side.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "${ROOT}\resources\windows\installer-side.bmp"
-!define MUI_COMPONENTSPAGE_NODESC
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "${LICENSE}"
@@ -85,12 +84,18 @@ VIAddVersionKey "LegalCopyright" "GNU General Public License, version 3"
 !insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_LANGUAGE "French"
 
-LangString NAME_PROGRAM ${LANG_ENGLISH} "Hydra64 (program, Stockfish, Shuffle, bundled databases)"
-LangString NAME_PROGRAM ${LANG_FRENCH} "Hydra64 (programme, Stockfish, Shuffle, bases livrées)"
+LangString NAME_PROGRAM ${LANG_ENGLISH} "Hydra64"
+LangString NAME_PROGRAM ${LANG_FRENCH} "Hydra64"
+LangString DESC_PROGRAM ${LANG_ENGLISH} "The program, Stockfish, Shuffle, the bundled databases, a Start menu entry."
+LangString DESC_PROGRAM ${LANG_FRENCH} "Le programme, Stockfish, Shuffle, les bases livrées, une entrée du menu Démarrer."
 LangString NAME_DESKTOP ${LANG_ENGLISH} "Desktop shortcut"
 LangString NAME_DESKTOP ${LANG_FRENCH} "Raccourci sur le bureau"
-LangString NAME_FILES ${LANG_ENGLISH} "Open Hydra64 databases (.hy64) with a double-click; offer Hydra64 for .pgn files"
-LangString NAME_FILES ${LANG_FRENCH} "Ouvrir les bases Hydra64 (.hy64) par double-clic ; proposer Hydra64 pour les fichiers .pgn"
+LangString DESC_DESKTOP ${LANG_ENGLISH} "A Hydra64 icon on the desktop."
+LangString DESC_DESKTOP ${LANG_FRENCH} "Une icône Hydra64 sur le bureau."
+LangString DESC_FILES ${LANG_ENGLISH} ".hy64 databases open with a double-click. Hydra64 is added to $\"Open with$\" for .pgn files."
+LangString DESC_FILES ${LANG_FRENCH} "Les bases .hy64 s'ouvrent par double-clic. Hydra64 est ajouté à « Ouvrir avec » pour les .pgn."
+LangString NAME_FILES ${LANG_ENGLISH} ".hy64 and .pgn files"
+LangString NAME_FILES ${LANG_FRENCH} "Fichiers .hy64 et .pgn"
 LangString TYPE_BASE ${LANG_ENGLISH} "Hydra64 database"
 LangString TYPE_BASE ${LANG_FRENCH} "Base Hydra64"
 LangString TYPE_PGN ${LANG_ENGLISH} "Chess games (PGN)"
@@ -183,6 +188,12 @@ Section "-Register"
   SectionGetSize ${SecProgram} $0
   WriteRegDWORD HKLM "${UNINSTALL_KEY}" "EstimatedSize" $0
 SectionEnd
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecProgram} "$(DESC_PROGRAM)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "$(DESC_DESKTOP)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFiles} "$(DESC_FILES)"
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "Uninstall"
   !insertmacro RemoveProgramFiles

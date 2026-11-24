@@ -158,8 +158,8 @@ the programs and the DLLs they depend on. Our programs embed their C++ library
 A manifest (`resources/windows/`) puts file paths in UTF-8. File offsets are 64-bit everywhere
 (`src/db/fileoffset.h`): databases over 2 GB work.
 
-Differences from Linux: no endgame tablebases in ISO images (FUSE); no tests. `./build.sh --win`
-makes the archive only: the installer is built with the releases, on the Windows machine.
+Differences from Linux: no endgame tablebases in ISO images (FUSE); no tests. With NSIS installed
+(`makensis`), `./build.sh --win` also makes the installer, `build-win/Hydra64-windows-setup.exe`.
 
 The archives of the GitHub releases (`.github/workflows/release.yml`, run by pushing a `v*` tag)
 are built on a Windows machine instead, with MSYS2 "ucrt64" — its MinGW, its Qt, its Rust — and
