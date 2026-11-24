@@ -11,7 +11,7 @@ dark, dockable interface.** C++20 / Qt 6, free software (GPL-3).
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C)
 ![Qt 6](https://img.shields.io/badge/Qt-6-41CD52)
 
-![Analysis page: board, evaluation graph, engine lines, notation](docs/screenshots/analysis.png)
+![Analysis page: board, deep analysis, evaluation graph, opening tree with statistics, notation and engine lines](docs/screenshots/analysis.png)
 
 ## What makes it different
 
@@ -37,11 +37,16 @@ dark, dockable interface.** C++20 / Qt 6, free software (GPL-3).
 
 | Databases | Play |
 |---|---|
-| ![Databases page: game list, board and notation](docs/screenshots/databases.png) | ![Play page: game against Stockfish with clocks and engine lines](docs/screenshots/play.png) |
+| ![Databases page: open databases, game list, board and notation](docs/screenshots/databases.png) | ![Play page: blitz game against Stockfish at Elo 1800, with clocks and evaluation](docs/screenshots/play.png) |
+
+**Engine tournament** — six games at once, standings with LOS, game list:
+
+![Tournament page: overview of six games in progress, participants, standings and game list](docs/screenshots/tournament.png)
 
 The interface is available in **English and French**, and so is the full user manual (every page,
-every feature, all file types): [`Manual.html`](Manual.html), to be opened in a browser — EN / FR
-buttons at the top right.
+every feature, all file types): **[read it online](https://antidote1911.github.io/Hydra64/)** — EN / FR
+buttons at the top right. It is the file [`Manual.html`](Manual.html) of this repository, which
+also opens in a browser without a connection.
 
 ## Building and running
 

@@ -1,0 +1,48 @@
+# Publishes the user manual on GitHub Pages: https://antidote1911.github.io/Hydra64/
+#
+#   push to master that changes Manual.html   publishes it again
+#   "Run workflow" button (Actions tab)        the same, by hand
+#
+# The site holds a single file: Manual.html, served as index.html (it is standalone — styles,
+# script and logo are inside it). Nothing else of the repository is published.
+# Pages must be set to "GitHub Actions" (Settings → Pages → Source).
+name: Manual
+
+on:
+  push:
+    branches: [master]
+    paths: ['Manual.html', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false # a publication under way is finished, the next one follows
+
+jobs:
+  publish:
+    name: Publish the manual
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare the site
+        run: |
+          mkdir site
+          cp Manual.html site/index.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
