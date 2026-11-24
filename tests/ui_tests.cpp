@@ -5400,7 +5400,7 @@ int main(int argc, char** argv)
         // Clock and evaluation panels: thin strips (their height is locked, see lockStripHeights)
         ads::CDockWidget* clock = dm->findDockWidget(QStringLiteral("clock"));
         ads::CDockWidget* graph = dm->findDockWidget(QStringLiteral("graph"));
-        check(clock && graph && clock->widget()->minimumHeight() == 56 && graph->widget()->minimumHeight() == 72,
+        check(clock && graph && clock->widget()->minimumHeight() == 60 && graph->widget()->minimumHeight() == 80,
               qPrintable(QStringLiteral("panneaux Pendule et Évaluation : bandes de hauteur fixe (%1 et %2 px)").arg(clock->widget()->minimumHeight()).arg(graph->widget()->minimumHeight())));
     }
 

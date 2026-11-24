@@ -1,9 +1,21 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Notice Hydra64</title>
+<title>Hydra64 Manual</title>
+<script>
+  // Language before the first paint: the remembered choice, else French for a French browser, else English.
+  (function () {
+    var lang = 'en';
+    try {
+      var saved = localStorage.getItem('hydra64-lang');
+      if (saved === 'en' || saved === 'fr') lang = saved;
+      else if (/^fr/i.test(navigator.language || '')) lang = 'fr';
+    } catch (e) {}
+    document.documentElement.lang = lang;
+  })();
+</script>
 <style>
   :root {
     --window: #18181a; --panel: #212124; --panel-alt: #262629; --header: #2a2a2e;
@@ -15,7 +27,7 @@
     --mono: "JetBrains Mono", "DejaVu Sans Mono", ui-monospace, monospace;
   }
   * { box-sizing: border-box; }
-  html { background: var(--window); scroll-behavior: smooth; scroll-padding-top: 16px; }
+  html { background: var(--window); color-scheme: dark; scroll-behavior: smooth; scroll-padding-top: 16px; }
   body {
     margin: 0; color: var(--text); background: var(--window);
     font: 15px/1.6 "Inter", "Segoe UI", "Noto Sans", "DejaVu Sans", system-ui, sans-serif;
@@ -39,6 +51,7 @@
   nav.toc {
     position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto;
     margin-top: 36px; padding: 14px 0; font-size: 13.5px;
+    scrollbar-width: thin; scrollbar-color: var(--raised) transparent;
   }
   nav.toc .toc-title { font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--text-faint); padding: 0 12px 8px; }
   nav.toc a { display: block; padding: 4px 12px; color: var(--text-dim); border-left: 2px solid transparent; text-decoration: none; }
@@ -148,6 +161,12 @@
   .board-strip i:nth-child(even) { background: var(--sq-dark); }
   footer { margin-top: 16px; font-size: 12px; color: var(--text-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 
+  /* Langue : chaque bloc existe en français (.fr) et en anglais (.en, identifiants préfixés « en- ») */
+  #lang { display: flex; flex: none; align-self: flex-start; margin-left: auto; border: 1px solid var(--border-soft); border-radius: 6px; overflow: hidden; }
+  #lang button { border: 0; border-radius: 0; background: var(--panel); color: var(--text-dim); padding: 4px 11px; font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .08em; cursor: pointer; }
+  #lang button.on { background: var(--accent); color: #18181a; }
+  html[lang="en"] .fr, html[lang="fr"] .en { display: none !important; }
+
   @media (max-width: 980px) {
     .layout { grid-template-columns: 1fr; gap: 0; }
     nav.toc { position: static; max-height: none; margin-top: 24px; columns: 2; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
@@ -157,6 +176,7 @@
   }
   @media (max-width: 640px) {
     header .wrap { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; }
+    #lang { margin-left: 0; }
     h1 { font-size: 24px; }
     h2 { font-size: 19px; }
     .wrap { padding: 0 16px; }
@@ -166,7 +186,7 @@
   }
 </style>
 </head>
-<body>
+<body data-title-en="Hydra64 Manual" data-title-fr="Notice Hydra64">
 
 <header>
   <div class="wrap">
@@ -178,54 +198,89 @@
 <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a4a"/><stop offset="1" stop-color="#b3101f"/></linearGradient>
 </defs><rect x="10" y="10" width="492" height="492" rx="104" fill="url(#halo)" stroke="url(#rim)" stroke-width="12"/><g transform="translate(256 262) scale(0.93) translate(-256 -256)"><polygon points="131,388 381,388 458,479 54,479" fill="#0a0b0f" stroke="#d3162a" stroke-width="3" stroke-linejoin="round"/><polygon points="136.0,392.0 176.0,392.0 163.5,412.8 117.3,412.8" fill="url(#sq)"/><polygon points="176.0,392.0 216.0,392.0 209.8,412.8 163.5,412.8" fill="#22242d"/><polygon points="216.0,392.0 256.0,392.0 256.0,412.8 209.8,412.8" fill="url(#sq)"/><polygon points="256.0,392.0 296.0,392.0 302.2,412.8 256.0,412.8" fill="#22242d"/><polygon points="296.0,392.0 336.0,392.0 348.5,412.8 302.2,412.8" fill="url(#sq)"/><polygon points="336.0,392.0 376.0,392.0 394.7,412.8 348.5,412.8" fill="#22242d"/><polygon points="117.3,412.8 163.5,412.8 146.3,441.4 91.4,441.4" fill="#22242d"/><polygon points="163.5,412.8 209.8,412.8 201.1,441.4 146.3,441.4" fill="url(#sq)"/><polygon points="209.8,412.8 256.0,412.8 256.0,441.4 201.1,441.4" fill="#22242d"/><polygon points="256.0,412.8 302.2,412.8 310.9,441.4 256.0,441.4" fill="url(#sq)"/><polygon points="302.2,412.8 348.5,412.8 365.7,441.4 310.9,441.4" fill="#22242d"/><polygon points="348.5,412.8 394.7,412.8 420.6,441.4 365.7,441.4" fill="url(#sq)"/><polygon points="91.4,441.4 146.3,441.4 126.7,474.0 62.0,474.0" fill="url(#sq)"/><polygon points="146.3,441.4 201.1,441.4 191.3,474.0 126.7,474.0" fill="#22242d"/><polygon points="201.1,441.4 256.0,441.4 256.0,474.0 191.3,474.0" fill="url(#sq)"/><polygon points="256.0,441.4 310.9,441.4 320.7,474.0 256.0,474.0" fill="#22242d"/><polygon points="310.9,441.4 365.7,441.4 385.3,474.0 320.7,474.0" fill="url(#sq)"/><polygon points="365.7,441.4 420.6,441.4 450.0,474.0 385.3,474.0" fill="#22242d"/><path d="M176.0 392 L126.7 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M216.0 392 L191.3 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M256.0 392 L256.0 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M296.0 392 L320.7 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M336.0 392 L385.3 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M117.3 412.8 L394.7 412.8" stroke="#8a0f1b" stroke-width="1.6"/><path d="M91.4 441.4 L420.6 441.4" stroke="#8a0f1b" stroke-width="1.6"/><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#d3162a" stroke-width="59" stroke-linecap="round" stroke-linejoin="round"/><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#d3162a" stroke-width="59" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 300 L256 372" fill="none" stroke="#d3162a" stroke-width="87" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#d3162a" stroke-width="49" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="18,-76 48,-140 58,-62" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="50,-64 96,-116 82,-42" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="70,-40 130,-68 86,-10" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="64,-6 118,-8 66,24" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-64,-6 -118,-8 -66,24" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#0a0b0f" stroke-width="51" stroke-linecap="round" stroke-linejoin="round"/><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#0a0b0f" stroke-width="51" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 300 L256 372" fill="none" stroke="#0a0b0f" stroke-width="79" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#0a0b0f" stroke-width="41" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="18,-76 48,-140 58,-62" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="50,-64 96,-116 82,-42" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="70,-40 130,-68 86,-10" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="64,-6 118,-8 66,24" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-64,-6 -118,-8 -66,24" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#1c1e26" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" /><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#1c1e26" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" /><path d="M256 300 L256 372" fill="none" stroke="#1c1e26" stroke-width="74" stroke-linecap="round" stroke-linejoin="round" /><path d="M176 250 C208 258 216 300 228 350" fill="none" stroke="#e11d2e" stroke-width="15" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M336 250 C304 258 296 300 284 350" fill="none" stroke="#e11d2e" stroke-width="15" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M256 318 L256 372" fill="none" stroke="#e11d2e" stroke-width="30" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#1c1e26" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" /><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#30333f" stroke-width="22" stroke-linejoin="round" stroke-dasharray="16 5" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#555a6a" stroke-width="5" stroke-linejoin="round" stroke-dasharray="10 11" stroke-dashoffset="-3" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#e11d2e" stroke-width="22" stroke-linejoin="round" stroke-dasharray="2.5 18.5" stroke-dashoffset="-17.2" stroke-linecap="butt"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#30333f"/><polygon points="118,30 204,-30 138,34" fill="#555a6a"/><polygon points="140,48 226,22 158,74" fill="#30333f"/><polygon points="140,48 226,22 150,56" fill="#555a6a"/><polygon points="90,24 126,-34 124,32" fill="#30333f"/><polygon points="90,24 126,-34 106,26" fill="#555a6a"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#8a0f1b"/><polygon points="126,98 76,102 40,114 76,114 120,106" fill="#e11d2e"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#1c1e26"/><polygon points="34,136 70,148 126,142 140,128 100,134 60,134" fill="#0a0b0f"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#1c1e26"/><polygon points="40,48 72,30 96,20 150,38 122,42 88,38 56,52" fill="#30333f"/><polygon points="72,30 96,20 150,38 118,32 96,26" fill="#555a6a"/><polygon points="8,56 40,48 52,54 30,64 4,68" fill="#555a6a"/><polygon points="12,62 22,59 18,66" fill="#0a0b0f"/><polygon points="112,60 152,50 160,72 132,82" fill="#8a0f1b"/><polygon points="118,62 150,55 154,66 132,74" fill="#e11d2e"/><circle cx="84" cy="50" r="30" fill="url(#glow)"/><polygon points="62,52 102,40 94,58 74,60" fill="#ff4a3d"/><polygon points="72,53 96,46 90,55" fill="#ffe1d2"/><polygon points="54,50 106,30 104,41 62,54" fill="#0a0b0f"/><polygon points="8,86 20,90 15,106" fill="#f4e7c9"/><polygon points="27,91 41,89 35,112" fill="#f4e7c9"/><polygon points="47,88 57,86 53,100" fill="#f4e7c9"/><polygon points="63,86 73,85 69,97" fill="#f4e7c9"/><polygon points="80,84 90,83 86,94" fill="#f4e7c9"/><polygon points="22,122 33,123 26,104" fill="#f4e7c9"/><polygon points="39,124 49,124 44,109" fill="#f4e7c9"/><polygon points="57,124 67,122 61,110" fill="#f4e7c9"/><polygon points="75,119 85,116 79,106" fill="#f4e7c9"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#30333f"/><polygon points="118,30 204,-30 138,34" fill="#555a6a"/><polygon points="140,48 226,22 158,74" fill="#30333f"/><polygon points="140,48 226,22 150,56" fill="#555a6a"/><polygon points="90,24 126,-34 124,32" fill="#30333f"/><polygon points="90,24 126,-34 106,26" fill="#555a6a"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#8a0f1b"/><polygon points="126,98 76,102 40,114 76,114 120,106" fill="#e11d2e"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#1c1e26"/><polygon points="34,136 70,148 126,142 140,128 100,134 60,134" fill="#0a0b0f"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#1c1e26"/><polygon points="40,48 72,30 96,20 150,38 122,42 88,38 56,52" fill="#30333f"/><polygon points="72,30 96,20 150,38 118,32 96,26" fill="#555a6a"/><polygon points="8,56 40,48 52,54 30,64 4,68" fill="#555a6a"/><polygon points="12,62 22,59 18,66" fill="#0a0b0f"/><polygon points="112,60 152,50 160,72 132,82" fill="#8a0f1b"/><polygon points="118,62 150,55 154,66 132,74" fill="#e11d2e"/><circle cx="84" cy="50" r="30" fill="url(#glow)"/><polygon points="62,52 102,40 94,58 74,60" fill="#ff4a3d"/><polygon points="72,53 96,46 90,55" fill="#ffe1d2"/><polygon points="54,50 106,30 104,41 62,54" fill="#0a0b0f"/><polygon points="8,86 20,90 15,106" fill="#f4e7c9"/><polygon points="27,91 41,89 35,112" fill="#f4e7c9"/><polygon points="47,88 57,86 53,100" fill="#f4e7c9"/><polygon points="63,86 73,85 69,97" fill="#f4e7c9"/><polygon points="80,84 90,83 86,94" fill="#f4e7c9"/><polygon points="22,122 33,123 26,104" fill="#f4e7c9"/><polygon points="39,124 49,124 44,109" fill="#f4e7c9"/><polygon points="57,124 67,122 61,110" fill="#f4e7c9"/><polygon points="75,119 85,116 79,106" fill="#f4e7c9"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#30333f"/><polygon points="0,-156 0,-70 24,-70" fill="#555a6a"/><polygon points="18,-76 48,-140 58,-62" fill="#30333f"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#30333f"/><polygon points="48,-140 40,-70 58,-62" fill="#555a6a"/><polygon points="-48,-140 -40,-70 -58,-62" fill="#555a6a"/><polygon points="50,-64 96,-116 82,-42" fill="#30333f"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#30333f"/><polygon points="96,-116 68,-52 82,-42" fill="#555a6a"/><polygon points="-96,-116 -68,-52 -82,-42" fill="#555a6a"/><polygon points="70,-40 130,-68 86,-10" fill="#30333f"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#30333f"/><polygon points="130,-68 80,-24 86,-10" fill="#555a6a"/><polygon points="-130,-68 -80,-24 -86,-10" fill="#555a6a"/><polygon points="64,-6 118,-8 66,24" fill="#30333f"/><polygon points="-64,-6 -118,-8 -66,24" fill="#30333f"/><polygon points="118,-8 66,10 66,24" fill="#555a6a"/><polygon points="-118,-8 -66,10 -66,24" fill="#555a6a"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#1c1e26"/><polygon points="0,36 35,36 31,82 13,102 0,106 -13,102 -31,82 -35,36" fill="#8a0f1b"/><polygon points="-13,100 0,68 13,100 0,105" fill="#e11d2e"/><polygon points="0,70 3,98 0,102 -3,98" fill="#8a0f1b"/><polygon points="15,102 28,90 23,70" fill="#f4e7c9"/><polygon points="-15,102 -28,90 -23,70" fill="#f4e7c9"/><polygon points="3,105 11,103 7,90" fill="#f4e7c9"/><polygon points="-3,105 -11,103 -7,90" fill="#f4e7c9"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#1c1e26"/><polygon points="0,-82 38,-68 30,-40 0,-26 -30,-40 -38,-68" fill="#30333f"/><polygon points="38,-68 72,-34 68,4 60,-22" fill="#30333f"/><polygon points="-38,-68 -72,-34 -68,4 -60,-22" fill="#30333f"/><polygon points="48,30 68,4 58,2 40,24" fill="#8a0f1b"/><polygon points="-48,30 -68,4 -58,2 -40,24" fill="#8a0f1b"/><polygon points="0,-68 11,-50 0,-32 -11,-50" fill="#e11d2e"/><polygon points="0,-68 11,-50 0,-50" fill="#ff4a3d"/><polygon points="0,-22 17,0 23,26 0,40 -23,26 -17,0" fill="#30333f"/><polygon points="0,6 15,22 0,35 -15,22" fill="#555a6a"/><polygon points="6,25 13,20 11,29" fill="#0a0b0f"/><polygon points="-6,25 -13,20 -11,29" fill="#0a0b0f"/><circle cx="36" cy="-16" r="34" fill="url(#glow)"/><circle cx="-36" cy="-16" r="34" fill="url(#glow)"/><polygon points="14,-12 56,-32 48,-8 26,-2" fill="#ff4a3d"/><polygon points="-14,-12 -56,-32 -48,-8 -26,-2" fill="#ff4a3d"/><polygon points="24,-11 48,-22 43,-11" fill="#ffe1d2"/><polygon points="-24,-11 -48,-22 -43,-11" fill="#ffe1d2"/><polygon points="6,-24 60,-48 68,-32 52,-31 12,-10" fill="#0a0b0f"/><polygon points="-6,-24 -60,-48 -68,-32 -52,-31 -12,-10" fill="#0a0b0f"/><polygon points="21,39 35,37 30,70" fill="#f4e7c9"/><polygon points="-21,39 -35,37 -30,70" fill="#f4e7c9"/><polygon points="8,43 17,41 13,57" fill="#f4e7c9"/><polygon points="-8,43 -17,41 -13,57" fill="#f4e7c9"/></g></g></svg>
     <div>
-      <div class="brand">Hydra64 · Notice d'utilisation</div>
-      <h1>Tout <span>Hydra64</span> en une page</h1>
-      <p class="lead">Les quatre pages (Bases, Analyse, Jouer, Tournoi), chacune de leurs fonctions, les outils communs, les moteurs, et tous les types de fichiers que l'application lit ou écrit : à quoi ils servent et où ils se trouvent.</p>
+      <div class="brand"><span class="fr">Hydra64 · Notice d'utilisation</span><span class="en">Hydra64 · User manual</span></div>
+      <h1 class="fr">Tout <span>Hydra64</span> en une page</h1>
+      <h1 class="en">All of <span>Hydra64</span> on one page</h1>
+      <p class="lead fr">Les quatre pages (Bases, Analyse, Jouer, Tournoi), chacune de leurs fonctions, les outils communs, les moteurs, et tous les types de fichiers que l'application lit ou écrit : à quoi ils servent et où ils se trouvent.</p>
+      <p class="lead en">The four pages (Databases, Analysis, Play, Tournament), each of their features, the common tools, the engines, and all the file types the application reads or writes: what they are for and where they are.</p>
     </div>
+    <div id="lang"><button data-lang="en">EN</button><button data-lang="fr">FR</button></div>
   </div>
 </header>
 
 <div class="wrap layout">
 
-<nav class="toc" aria-label="Sommaire">
-  <div class="toc-title">Sommaire</div>
-  <a href="#prise-en-main">Prise en main</a>
-  <a class="sub" href="#pages">Les quatre pages</a>
-  <a class="sub" href="#panneaux">Panneaux et menus</a>
-  <a class="sub" href="#echiquier">Échiquier et notation</a>
-  <a href="#bases">Page Bases de données</a>
-  <a class="sub" href="#bases-ouvrir">Ouvrir, créer, copier</a>
-  <a class="sub" href="#bases-recherche">Recherches</a>
-  <a class="sub" href="#bases-outils">Outils de base</a>
-  <a class="sub" href="#bases-statistiques">Statistiques</a>
-  <a href="#analyse">Page Analyse</a>
-  <a class="sub" href="#analyse-moteurs">Moteurs spectateurs</a>
-  <a class="sub" href="#analyse-annotation">Annotation</a>
-  <a class="sub" href="#analyse-approfondie">Analyse approfondie</a>
-  <a class="sub" href="#analyse-outils">Autres outils</a>
-  <a href="#jouer">Page Jouer</a>
-  <a class="sub" href="#jouer-regler">Régler la partie</a>
-  <a class="sub" href="#jouer-pendant">Pendant la partie</a>
-  <a class="sub" href="#jouer-aide">Coach, indice, entraînement</a>
-  <a href="#tournoi">Page Tournoi</a>
-  <a href="#outils">Outils communs</a>
-  <a class="sub" href="#outils-recueil">Vos recueils d'exercices</a>
-  <a href="#moteurs">Moteurs</a>
-  <a href="#fichiers">Types de fichiers</a>
-  <a class="sub" href="#fichiers-parties">Parties et positions</a>
-  <a class="sub" href="#fichiers-arbres">Arbres d'ouverture</a>
-  <a class="sub" href="#fichiers-autres">Analyses, finales, exports</a>
-  <a class="sub" href="#fichiers-propres">Fichiers de l'application</a>
-  <a class="sub" href="#dossiers">Dossiers</a>
-  <a href="#preferences">Préférences</a>
-  <a href="#raccourcis">Raccourcis clavier</a>
-  <a href="#origines">Données et licences</a>
+<nav class="toc" aria-label="Contents">
+  <div class="toc-title fr">Sommaire</div>
+  <div class="toc-title en">Contents</div>
+  <a class="fr" href="#prise-en-main">Prise en main</a>
+  <a class="en" href="#en-prise-en-main">Getting started</a>
+  <a class="fr sub" href="#pages">Les quatre pages</a>
+  <a class="en sub" href="#en-pages">The four pages</a>
+  <a class="fr sub" href="#panneaux">Panneaux et menus</a>
+  <a class="en sub" href="#en-panneaux">Panels and menus</a>
+  <a class="fr sub" href="#echiquier">Échiquier et notation</a>
+  <a class="en sub" href="#en-echiquier">Board and notation</a>
+  <a class="fr" href="#bases">Page Bases de données</a>
+  <a class="en" href="#en-bases">Databases page</a>
+  <a class="fr sub" href="#bases-ouvrir">Ouvrir, créer, copier</a>
+  <a class="en sub" href="#en-bases-ouvrir">Open, create, copy</a>
+  <a class="fr sub" href="#bases-recherche">Recherches</a>
+  <a class="en sub" href="#en-bases-recherche">Searches</a>
+  <a class="fr sub" href="#bases-outils">Outils de base</a>
+  <a class="en sub" href="#en-bases-outils">Database tools</a>
+  <a class="fr sub" href="#bases-statistiques">Statistiques</a>
+  <a class="en sub" href="#en-bases-statistiques">Statistics</a>
+  <a class="fr" href="#analyse">Page Analyse</a>
+  <a class="en" href="#en-analyse">Analysis page</a>
+  <a class="fr sub" href="#analyse-moteurs">Moteurs spectateurs</a>
+  <a class="en sub" href="#en-analyse-moteurs">Spectator engines</a>
+  <a class="fr sub" href="#analyse-annotation">Annotation</a>
+  <a class="en sub" href="#en-analyse-annotation">Annotation</a>
+  <a class="fr sub" href="#analyse-approfondie">Analyse approfondie</a>
+  <a class="en sub" href="#en-analyse-approfondie">Deep analysis</a>
+  <a class="fr sub" href="#analyse-outils">Autres outils</a>
+  <a class="en sub" href="#en-analyse-outils">Other tools</a>
+  <a class="fr" href="#jouer">Page Jouer</a>
+  <a class="en" href="#en-jouer">Play page</a>
+  <a class="fr sub" href="#jouer-regler">Régler la partie</a>
+  <a class="en sub" href="#en-jouer-regler">Setting up the game</a>
+  <a class="fr sub" href="#jouer-pendant">Pendant la partie</a>
+  <a class="en sub" href="#en-jouer-pendant">During the game</a>
+  <a class="fr sub" href="#jouer-aide">Coach, indice, entraînement</a>
+  <a class="en sub" href="#en-jouer-aide">Coach, hint, training</a>
+  <a class="fr" href="#tournoi">Page Tournoi</a>
+  <a class="en" href="#en-tournoi">Tournament page</a>
+  <a class="fr" href="#outils">Outils communs</a>
+  <a class="en" href="#en-outils">Common tools</a>
+  <a class="fr sub" href="#outils-recueil">Vos recueils d'exercices</a>
+  <a class="en sub" href="#en-outils-recueil">Your exercise collections</a>
+  <a class="fr" href="#moteurs">Moteurs</a>
+  <a class="en" href="#en-moteurs">Engines</a>
+  <a class="fr" href="#fichiers">Types de fichiers</a>
+  <a class="en" href="#en-fichiers">File types</a>
+  <a class="fr sub" href="#fichiers-parties">Parties et positions</a>
+  <a class="en sub" href="#en-fichiers-parties">Games and positions</a>
+  <a class="fr sub" href="#fichiers-arbres">Arbres d'ouverture</a>
+  <a class="en sub" href="#en-fichiers-arbres">Opening trees</a>
+  <a class="fr sub" href="#fichiers-autres">Analyses, finales, exports</a>
+  <a class="en sub" href="#en-fichiers-autres">Analyses, endgames, exports</a>
+  <a class="fr sub" href="#fichiers-propres">Fichiers de l'application</a>
+  <a class="en sub" href="#en-fichiers-propres">Application files</a>
+  <a class="fr sub" href="#dossiers">Dossiers</a>
+  <a class="en sub" href="#en-dossiers">Folders</a>
+  <a class="fr" href="#preferences">Préférences</a>
+  <a class="en" href="#en-preferences">Preferences</a>
+  <a class="fr" href="#raccourcis">Raccourcis clavier</a>
+  <a class="en" href="#en-raccourcis">Keyboard shortcuts</a>
+  <a class="fr" href="#origines">Données et licences</a>
+  <a class="en" href="#en-origines">Data and licences</a>
 </nav>
 
 <main>
 
 <!-- =================================================================== PRISE EN MAIN -->
-<section id="prise-en-main">
+<section id="prise-en-main" class="fr">
   <h2><span class="glyph">♙</span>Prise en main</h2>
   <p>Hydra64 est une interface d'échecs de bureau : elle gère des bases de parties, analyse avec des moteurs UCI (Stockfish, Lc0, Berserk…), fait jouer contre un moteur et organise des tournois entre moteurs. Un <strong>Stockfish est intégré</strong> : il évalue les positions en arrière-plan et sert d'adversaire ou de juge par défaut, sans rien installer.</p>
 
@@ -291,8 +346,74 @@
   <div class="note info"><div><p><strong>Analyse assistée</strong> (<span class="menu">Affichage → Analyse assistée</span>, pages Bases et Analyse, éteinte par défaut) : quand vous prenez une pièce, ses cases d'arrivée se colorent selon la qualité du coup — <strong>vert</strong> bon coup, <strong>jaune</strong> jouable, <strong>rouge</strong> faute. Le Stockfish intégré évalue tous les coups de la position affichée en un peu plus d'une seconde ; les couleurs apparaissent dès les premiers résultats et s'affinent. <span class="menu">Affichage → Menace en flèche</span> ajoute une flèche rouge : ce que l'adversaire jouerait si le camp au trait passait son tour, quand cela lui rapporte vraiment (pas de flèche si rien ne menace, ni quand le roi est en échec). Ces deux aides ne fonctionnent jamais sur la page Jouer.</p></div></div>
 </section>
 
+<section id="en-prise-en-main" class="en">
+  <h2><span class="glyph">♙</span>Getting started</h2>
+  <p>Hydra64 is a desktop chess interface: it manages game databases, analyses with UCI engines (Stockfish, Lc0, Berserk…), lets you play against an engine and runs tournaments between engines. A <strong>Stockfish is built in</strong>: it evaluates positions in the background and serves as the default opponent or judge, with nothing to install.</p>
+
+  <h3 id="en-pages">The four pages</h3>
+  <p>Pages are chosen in the bar at the bottom of the window, or with <kbd>Shift</kbd>+<kbd>1</kbd> to <kbd>4</kbd>. Each page is independent: it has <strong>its own game</strong>, its board orientation, its running analysis and its panel layout. Going from one page to another loses nothing.</p>
+  <div class="pages">
+    <a class="page-tile" href="#en-bases"><span class="key"><kbd>Shift+1</kbd></span><div class="ico">⛁</div><div class="name">Databases</div><div class="what">Browse, search, sort, classify, convert</div></a>
+    <a class="page-tile" href="#en-analyse"><span class="key"><kbd>Shift+2</kbd></span><div class="ico">♗</div><div class="name">Analysis</div><div class="what">Engines, annotation, deep analysis</div></a>
+    <a class="page-tile" href="#en-jouer"><span class="key"><kbd>Shift+3</kbd></span><div class="ico">♘</div><div class="name">Play</div><div class="what">Against an engine, with clock and coach</div></a>
+    <a class="page-tile" href="#en-tournoi"><span class="key"><kbd>Shift+4</kbd></span><div class="ico">♔</div><div class="name">Tournament</div><div class="what">Engines against engines, Elo standings</div></a>
+  </div>
+  <p class="dim">At the next launch, everything is restored: the game of each page, the game in progress against the engine (with its clocks), the tournament, the open databases, the opening tree, the spectator engines. The session is also saved every minute (option in the Preferences).</p>
+
+  <h3 id="en-panneaux">Panels and menus</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Panels</h4>
+      <p>Notation, Evaluation, Engine, Databases, Opening tree, Endgames, Clock, Deep analysis, Tournament, Opponent… Drag a tab to <strong>move</strong> it, <strong>group</strong> it with others or <strong>detach</strong> it into a floating window; the pin tucks it away in a retractable side bar.</p>
+      <p class="dim"><span class="menu">View</span> opens or closes each panel; <span class="menu">View → Reset page layout</span> returns to the original layout. <span class="menu">View → Saved layouts</span> keeps the layout of a page under a name, to bring it back later; each page has its own.</p>
+    </div>
+    <div class="card">
+      <h4>Menus per page</h4>
+      <p>Each page shows only its own menus and commands: <span class="menu">Database</span> on the Databases page, <span class="menu">Tournament</span> on the Tournament page, and so on.</p>
+      <p>The <span class="menu">Database</span> menu starts with the searches and arranges the rest by theme: <span class="menu">Other searches</span>, <span class="menu">Selected games</span>, <span class="menu">Openings</span>, <span class="menu">Statistics</span>, <span class="menu">Clipboard</span>, <span class="menu">Database upkeep</span>. The <span class="menu">Game</span> menu does the same with <span class="menu">Tools</span>, <span class="menu">Training</span>, <span class="menu">Opening repertoire</span>, <span class="menu">Board</span> and <span class="menu">Navigation</span>.</p>
+      <p>In lists, tables and menus, the chosen item is not highlighted: its text turns orange.</p>
+      <p class="dim">The menu bar can be hidden (<kbd>Ctrl+Shift+M</kbd>). The hydra head at the bottom left then opens the menus of the page; otherwise it opens the Preferences.</p>
+    </div>
+  </div>
+
+  <h3 id="en-echiquier">Board and notation</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Board</h4>
+      <ul>
+        <li>Moves by <strong>drag and drop</strong> or <strong>click-click</strong>; promotion piece of your choice.</li>
+        <li><strong>Right-click</strong> on a square: a mark; right-click and drag: an arrow. Green by default, red with <kbd>Shift</kbd>, yellow with <kbd>Ctrl</kbd>, blue with both; the same gesture erases it. Arrows and marks are <strong>saved with the move</strong> (databases, PGN, HTML pages); the notation flags them with “↗”.</li>
+        <li><strong>Wheel</strong>: next / previous move; <kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd> to navigate, <kbd>F</kbd> to flip the board.</li>
+        <li><strong>Evaluation bar</strong> beside it (built-in Stockfish), player banners with their clocks.</li>
+        <li><strong>Under the board</strong>: the code and name of the opening of the position (“B90 Sicilian Defense: Najdorf Variation”, in French when the interface is), even by transposition and after leaving theory; if there is none, the last move played. It follows navigation and moves taken back.</li>
+        <li>The pencil under the board opens the <a href="#en-outils">position editor</a>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Notation</h4>
+      <ul>
+        <li>Variations, comments, annotations (!, ?, !?, N for a novelty…), clock times.</li>
+        <li>French (Cf3), English (Nf3) or figurine (♘f3) notation, as you choose.</li>
+        <li>Click on the title: game information (<kbd>Ctrl+I</kbd>). Right-click: comment, annotate (!, ?…), promote a variation, delete from a move onwards.</li>
+        <li><kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Shift+Z</kbd>: <strong>undo</strong> and <strong>redo</strong> a change (move, deleted variation, comment, symbol, arrow, information) on the Databases and Analysis pages. On the Play page, <kbd>Ctrl+Z</kbd> takes the move back.</li>
+        <li>Right-click → <span class="menu">Diagram after this move</span> sets the “▦” marker: a diagram is placed there in the PDF and in print (the “[#]” of ChessBase databases is recognised). ChessBase <strong>medals</strong> are shown after the move (“★ tactics, endgame”).</li>
+        <li>Right-click → <span class="menu">Training question…</span>: the move becomes a question, with an optional wording. <span class="menu">Game → Training → Train on the game's questions…</span> asks them one by one: move to find on the board, hint, solution, score (10 points at the first try, 5 at the second, 2 afterwards).</li>
+        <li>Right-click on a move → <span class="menu">Replace this move…</span>: the board goes back to before that move, and the move you play takes its place; what followed is deleted. <span class="menu">Replace this move keeping what follows…</span> keeps the moves that followed as long as they stay legal, with their comments and variations. Going elsewhere in the game abandons the replacement. <span class="menu">Move the variation down</span> moves a line one rank lower (the opposite of Promote); <span class="menu">Play a null move</span> passes the turn (written “--”), useful to show a threat.</li>
+        <li><span class="menu">Game → Training → Guess the moves of the game…</span>: you replay the displayed game looking for the moves of one side (the winner's is suggested), from the move of your choice; the opponent's replies are played automatically. The game move is worth 3 points. Another move is compared with the game move by the built-in Stockfish: 2 points if it is as good, 1 if it is playable, 0 otherwise. <strong>Hint</strong> marks the piece to move (1 point at most), <strong>Show the move</strong> gives none.</li>
+        <li><span class="menu">File → Export as PDF…</span> and <span class="menu">Print the game…</span> (<kbd>Ctrl+P</kbd>): the game laid out with variations, comments and diagrams (at the “▦” markers, otherwise every ten moves).</li>
+        <li><kbd>Ctrl++</kbd> / <kbd>Ctrl+−</kbd> (or A+ / A−): font size.</li>
+        <li>Engine button of the bar: show or hide the <strong>engine notes</strong> of tournament games (“+0.23/31 2.6s”: evaluation, depth, time). Hidden, they stay in the game and in the PGN.</li>
+        <li>Right-click → <span class="menu">Save game</span>: as PGN, into an open database, or as an <a href="#en-outils-html">HTML page</a> with a board.</li>
+      </ul>
+      <div class="moves">1. e4 c5 2. Nf3 d6 3. d4 <span class="var">(3. Bb5+ Bd7)</span> 3... cxd4 <span class="cmt">{Open Sicilian}</span> 4. Nxd4 Nf6 5. Nc3 a6</div>
+    </div>
+  </div>
+  <div class="note info"><div><p><strong>Automatic evaluation</strong>: the built-in Stockfish evaluates in the background every position of the displayed game (first the current position, then the whole main line). The graph and the evaluation bar fill in without starting anything. Closing the <em>Evaluation</em> panel of a page stops this computation on that page. Never on the Tournament page, to leave all the processors to the engines.</p></div></div>
+  <div class="note info"><div><p><strong>Assisted analysis</strong> (<span class="menu">View → Assisted analysis</span>, Databases and Analysis pages, off by default): when you pick up a piece, its target squares are coloured by the quality of the move — <strong>green</strong> good move, <strong>yellow</strong> playable, <strong>red</strong> mistake. The built-in Stockfish evaluates all the moves of the displayed position in a little over a second; the colours appear with the first results and are refined. <span class="menu">View → Threat as an arrow</span> adds a red arrow: what the opponent would play if the side to move passed its turn, when it really gains something (no arrow if nothing threatens, nor when the king is in check). These two aids never work on the Play page.</p></div></div>
+</section>
+
 <!-- =================================================================== BASES -->
-<section id="bases">
+<section id="bases" class="fr">
   <h2><span class="glyph">⛁</span>Page Bases de données</h2>
   <p>La liste des parties d'une ou plusieurs bases (un onglet par base), triable par colonne, avec l'échiquier et la notation de la partie choisie. Un clic sur une partie l'ouvre sur l'échiquier et dans la notation de cette page, sans toucher à la page Analyse (<kbd>Ctrl</kbd> ou <kbd>Maj</kbd> + clic étend la sélection sans rien ouvrir) ; un double-clic ouvre ses informations, pour les corriger dans le fichier.</p>
 
@@ -419,11 +540,11 @@
     </div>
     <div class="card feat">
       <div class="feat-head"><h4>Base presse-papiers</h4></div>
-      <p>Une base de dépôt, <code>Bases/Clipboard.hy64</code> : clic droit sur des parties → <span class="menu">Copier dans la base presse-papiers</span>, ou <span class="menu">Partie → Ajouter à la base presse-papiers</span>. <span class="menu">Base → Presse-papiers</span> l'ouvre ou la vide.</p>
+      <p>Une base de dépôt, <code>databases/Clipboard.hy64</code> : clic droit sur des parties → <span class="menu">Copier dans la base presse-papiers</span>, ou <span class="menu">Partie → Ajouter à la base presse-papiers</span>. <span class="menu">Base → Presse-papiers</span> l'ouvre ou la vide.</p>
     </div>
     <div class="card feat">
       <div class="feat-head"><h4>Répertoire d'ouvertures</h4></div>
-      <p><span class="menu">Partie → Répertoire d'ouvertures</span> : un arbre de coups par camp (dossier <code>Répertoire</code>). <strong>Ajouter la ligne affichée</strong>, ouvrir le répertoire dans la page Analyse pour le retoucher, puis l'enregistrer. Le <strong>rapport</strong> confronte les parties affichées au répertoire : coups adverses non prévus, lignes à prolonger, vos écarts, avec le nombre de parties et votre score.</p>
+      <p><span class="menu">Partie → Répertoire d'ouvertures</span> : un arbre de coups par camp (dossier <code>repertoire</code>). <strong>Ajouter la ligne affichée</strong>, ouvrir le répertoire dans la page Analyse pour le retoucher, puis l'enregistrer. Le <strong>rapport</strong> confronte les parties affichées au répertoire : coups adverses non prévus, lignes à prolonger, vos écarts, avec le nombre de parties et votre score.</p>
     </div>
     <div class="card feat">
       <div class="feat-head"><h4>Textes d'une base ChessBase</h4></div>
@@ -476,8 +597,192 @@
   </div>
 </section>
 
+<section id="en-bases" class="en">
+  <h2><span class="glyph">⛁</span>Databases page</h2>
+  <p>The game list of one or more databases (one tab per database), sortable by column, with the board and the notation of the chosen game. A click on a game opens it on the board and in the notation of this page, without touching the Analysis page (<kbd>Ctrl</kbd> or <kbd>Shift</kbd> + click extends the selection without opening anything); a double-click opens its information, to correct it in the file.</p>
+
+  <h3 id="en-bases-ouvrir">Open, create, save, copy</h3>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Open a database</h4><span class="where"><kbd>Ctrl+O</kbd> · + button of the tabs · drop a file</span></div>
+      <p><strong>PGN</strong> and <strong>Hydra64</strong> databases (as four files, or as a single <code>.hy64</code>), <strong>EPD</strong> position files (one game per position), all editable; <strong>FEN</strong> files read-only. Proprietary formats (ChessBase, Chess Assistant / Aquarium) offer the <a href="#en-outils-conversion">conversion</a>. A large Hydra64 database (11 million games) opens in a few milliseconds.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Create and save</h4><span class="where"><span class="menu">File → New database…</span> · <kbd>Ctrl+S</kbd></span></div>
+      <p><strong>New database</strong>: an empty file, in Hydra64 or PGN format. <strong>Save to database</strong> (<kbd>Ctrl+S</kbd>) adds the displayed game to the open database; a game that comes from that database is updated (or added as a new game, as you choose). <span class="menu">Save to another database…</span> changes file; <span class="menu">File → Export to PGN…</span> writes the game alone.</p>
+      <p class="dim">A PGN file is rewritten atomically: the other games stay byte-for-byte identical.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Right-click on games</h4><span class="where">multiple selection with <kbd>Ctrl</kbd> / <kbd>Shift</kbd></span></div>
+      <ul>
+        <li><strong>Preview…</strong> (board and moves in a window, without loading the game), <strong>Send to analysis</strong> (<kbd>Ctrl+Shift+A</kbd>), <strong>Copy PGN</strong>, <strong>Export as an HTML page…</strong> (a <a href="#en-outils-html">standalone page</a> with a board, for one game).</li>
+        <li><strong>Edit information…</strong>: players, Elo, result, date, event, site, round, ECO, annotator, corrected directly in the file.</li>
+        <li><strong>Delete</strong> (<kbd>Del</kbd>): in a Hydra64 database, the game stays displayed, struck through, and can be <strong>restored</strong>; <span class="menu">Database → Database upkeep → Compact database</span> removes it for good. In a PGN, deletion is final, after confirmation.</li>
+        <li><strong>Flags</strong> (Hydra64 databases): six personal markers, Opening, Middlegame, Endgame, Tactics, Strategy, To review (shown as letters after the game number).</li>
+        <li><strong>Annotate games…</strong> in batch, <strong>Player profile</strong>, <strong>Tournament crosstable</strong>.</li>
+      </ul>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Copy from one database to another</h4><span class="where">drag and drop</span></div>
+      <p>Select games and drag them onto the tab of another database (orange frame when it accepts). Dragged out of Hydra64, they arrive as PGN text.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Columns</h4></div>
+        <p>Right-click on the header: show or hide each column (Site, Round, number of Moves are hidden by default). Click on a header: sort.</p>
+      </div>
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Bookmarks</h4><span class="where"><kbd>Ctrl+D</kbd></span></div>
+        <p><span class="menu">File → Bookmarks</span> remembers a game and the displayed move; choosing the bookmark reopens the database, the game and that move (up to 50).</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="en-bases-recherche">Searches</h3>
+  <div class="stack">
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Quick filter</h4></div>
+      <p>The field above the list filters by player, event, site…</p>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Advanced search</h4><span class="where"><span class="menu">Database → Advanced search…</span> · <kbd>Ctrl+Shift+H</kbd></span></div>
+      <p>Players (White, Black, or one against the other regardless of colours), event, site, round, annotator (start of a word, ignoring case and accents), Elo, years, ECO codes, result, number of moves, games with variations or comments, flags. The result replaces the search, narrows it (AND) or is added to it (OR). <span class="menu">Database → Other searches → Invert the search result</span> gives the other games; <span class="menu">Whole database</span> clears the search.</p>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Material and pattern search</h4><span class="where"><span class="menu">Database → Other searches → Material and pattern search…</span></span></div>
+      <ul>
+        <li>Number of queens, rooks, bishops, knights and pawns of each side; material difference; same-coloured or opposite-coloured bishops.</li>
+        <li>Patterns: isolated d-pawn, hanging pawns, Maroczy centre, fianchettos, opposite-side castling, passed pawn, rook sacrifice on c3…</li>
+        <li>Comparison with the board: same pawns on the same squares, same pawn files, same material.</li>
+        <li>Between two half-moves, and for at least N half-moves in a row.</li>
+      </ul>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Position search</h4><span class="where"><span class="menu">Database → Search board position</span> · <kbd>Ctrl+Shift+F</kbd></span></div>
+      <p>The games that go through the position on the board. Instant on a Hydra64 database thanks to its position index.</p>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Manoeuvre, pawn structure, similar endgames</h4><span class="where"><span class="menu">Database</span> menu · Hydra64 databases</span></div>
+      <ul>
+        <li><span class="menu">Search for a maneuver…</span>: a piece goes from one square to another in at most N moves, optionally via a third one (a knight f3 → f5 via h4, for example).</li>
+        <li><span class="menu">Search for the board's pawn structure</span>: the games where the pawns of both sides occupy exactly these squares.</li>
+        <li><span class="menu">Search for the board's material</span>: the games that go through the same material (similar endgames). The match is exact, with no degree of resemblance.</li>
+      </ul>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Index</h4><span class="where"><span class="menu">Database → Statistics → Index: players, events, annotators…</span> · Hydra64 databases</span></div>
+      <p>The players (number of games, years, best Elo, score), events, sites, annotators and sources of the database. Filter by name, sort by column; double-click: the games of the entry in the list. Right-click on a player: their profile.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Random game, game number</h4><span class="where"><kbd>Ctrl+Shift+G</kbd></span></div>
+        <p><span class="menu">Database → Random game</span> loads a game of the displayed list; <span class="menu">Go to game number…</span> by its number.</p>
+      </div>
+      <div class="card feat grey">
+        <div class="feat-head"><h4>ECO browser</h4><span class="where"><span class="menu">Database → Openings → ECO browser…</span></span></div>
+        <p>The codes A00 to E99 as a tree with their named lines and the number of games of the database. <strong>Filter the database</strong> on a code or a range, or <strong>Play the line</strong> in the Analysis page.</p>
+      </div>
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Opening surveys</h4><span class="where"><span class="menu">Database → Openings → Opening surveys…</span></span></div>
+        <p>For a database that comes with opening surveys, each in its own database (converted ChessBase opening encyclopaedia): the list of surveys sorted by ECO code, with title, author, publication and number of games. Search for a code, a title or an author; a double-click opens the survey as a database. The index is the file <code>&lt;database&gt;.surveys.json</code> next to the database; it is created with <code>hydra64-convert --survey-index &lt;base.hy64&gt; &lt;surveys folder&gt;</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="en-bases-outils">Database tools</h3>
+  <div class="grid2">
+    <div class="card feat">
+      <div class="feat-head"><h4>Classify games (ECO)</h4></div>
+      <p><span class="menu">Database → Database upkeep → Classify games (ECO)…</span> recomputes the opening code and name of each game from its moves, whatever the move order (about 3,900 openings).</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Beauty of the games</h4></div>
+      <p>The <b>Beauty</b> column of the list gives each game zero to three stars; a click on its header shows the most beautiful first. The rating comes from the moves alone, without an engine, for the winning side: sacrifices (material given and not taken back within two moves, in a game won shortly after or in which the material comes back), game ended by a mate, king hunt, underpromotion, short game. It says “spectacular”, not “well played”: the soundness of a sacrifice is not checked, and a sacrifice offered but declined does not count. Draws get no star.</p>
+      <p>A game that is added, edited or converted is rated automatically. For a database created before this feature, <span class="menu">Database → Database upkeep → Rate the beauty of the games…</span> rates all its games (Hydra64 databases; the games themselves are not modified), or on the command line <code>hydra64-convert --beauty &lt;database&gt;</code>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Twin games</h4></div>
+      <p><span class="menu">Database → Database upkeep → Twin games…</span>: same players, same length, and the ticked criteria (moves, result, year, event, round). The richest game is kept; the others are displayed or marked deleted.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Correct a name</h4></div>
+      <p><span class="menu">Database → Database upkeep → Correct a name…</span>: player, event, site, round or annotator, replaced in all the games. Choosing an existing name merges the two (“Carlsen, M” and “Carlsen, Magnus”).</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Sort, compact</h4></div>
+      <p><span class="menu">Database → Database upkeep → Sort the database in the displayed order…</span> rewrites the database in the sort order; <span class="menu">Compact database</span> removes the struck-through games. Hydra64 databases.</p>
+      <p><span class="menu">Database → Database upkeep → Integrity test…</span> rereads all the games of the database, without writing anything: location of each game in the file, names, full decoding (variations and comments included), length. The result says how many games were reread and lists the problems found (the first hundred). A database of twelve million games is reread in half a minute. On the command line: <code>hydra64-convert --check base.hy64</code>.</p>
+      <p><span class="menu">Database → Database upkeep → Improve the player names…</span> (with the <a href="#en-bases-statistiques">player encyclopedia</a>): each name the encyclopedia recognises without hesitation is offered in its “Last, First” spelling. Safe changes (word order, case, accents, punctuation) are ticked; those that complete an abbreviated first name are to be checked. Nothing is written before <strong>Apply</strong>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Export shown games</h4></div>
+      <p><span class="menu">Database → Export shown games…</span> (the search applies): <strong>PGN</strong>, <strong>EPD</strong> (final position or after N half-moves) or standalone <strong>HTML page</strong>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Merge games</h4></div>
+      <p>Select several games, right-click → <span class="menu">Merge</span>: a single game whose diverging lines become variations, in a new game or in that of the Analysis page. Each line ends with a marker “White – Black, site year, result”.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Clipboard database</h4></div>
+      <p>A holding database, <code>databases/Clipboard.hy64</code>: right-click on games → <span class="menu">Copy to the clipboard database</span>, or <span class="menu">Game → Add to the clipboard database</span>. <span class="menu">Database → Clipboard</span> opens or empties it.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Opening repertoire</h4></div>
+      <p><span class="menu">Game → Opening repertoire</span>: one tree of moves per side (<code>repertoire</code> folder). <strong>Add the displayed line</strong>, open the repertoire in the Analysis page to touch it up, then save it. The <strong>report</strong> compares the displayed games with the repertoire: unforeseen opponent moves, lines to extend, your deviations, with the number of games and your score.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Texts of a ChessBase database</h4></div>
+      <p><span class="menu">Database → Texts of the ChessBase database…</span> displays the introductions and lessons of an open <code>.cbh</code> database. On conversion, each text stays in its place among the games: White = its title, event “Texte”, the text as a comment. Links to games and images are not taken over; the texts of <code>.2cbh</code> databases are not read.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Find the novelty</h4></div>
+      <p><span class="menu">Game → Tools → Find novelty</span>: the first move of the game that no game of the reference database has played. It receives the N mark.</p>
+    </div>
+  </div>
+
+  <h3 id="en-bases-statistiques">Statistics</h3>
+  <div class="grid2">
+    <div class="card feat green">
+      <div class="feat-head"><h4>Player profile</h4></div>
+      <p>Score with each colour, years of play, highest Elo and Elo curve, favourite openings, frequent opponents. <strong>Their games</strong> displays them; the profile exports to HTML.</p>
+      <p><strong>Player encyclopedia</strong>: if you own the ChessBase one (“Playbase”), give its folder in <a href="#en-preferences">Preferences → Databases</a>. The profile then adds the player's photo, title, federation, dates, Elo and world rank, and the curve of their Elo in the FIDE lists (1976 to the date of the encyclopedia). The bottom of the window says whether it is loaded; a player who is not in it is flagged in orange. Names are recognised in several forms: “Last, First”, “Last” alone, “First Last”, “Last First (FED)”.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Prepare against a player</h4></div>
+      <p><span class="menu">Database → Statistics → Prepare against a player…</span>, or <strong>Prepare against this player…</strong> in their profile (Hydra64 databases). Type their name, then choose the colour they will have against you: the report shows the tree of what they play with that colour (their moves in bold; games, score and last year for each choice), the lines where they score least and those where they score most, their openings by ECO code, the length of their losses and their shortest losses.</p>
+      <p>A click on a number of games displays them in the list. Three settings: the number of moves followed, the year from which their games count, and the number of games below which a move is not displayed. Transpositions are merged: the figures of a move are those of all the games in which it was played in that position, whatever the move order; a position reached by several orders is developed only once, the other orders refer to it (“→ continued under…”). The report exports to HTML.</p>
+      <p><strong>Against your repertoire</strong>: if you have a repertoire (<span class="menu">Game → Opening repertoire</span>) for the colour you will have, the report lists the player's lines that leave it — a move they play that your repertoire does not plan, or the place where your repertoire stops — from the most played to the least played, and the tree says for each line whether it is in your repertoire.</p>
+      <p><strong>Error report</strong>: <strong>Analyse the losses</strong> has the engine examine their most recent losses with that colour (30 by default, 0.2 s per position; both can be set). In each one, it keeps the move that cost them the most winning chances. The “Mistakes” section then says at what point they crack (opening, middlegame, endgame), in what kind of position (they were better, equal, already worse), and lists the mistakes with the best move and the evaluation before and after; <strong>view</strong> opens the game at the position where the move was played. The analysis runs in the background and can be stopped at any time; it skips the first four moves and stops as soon as the game is lost beyond appeal. Results are kept in a <code>.errors.json</code> file next to the database: a game already analysed is not analysed again, unless you ask for a longer time.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Crosstable</h4></div>
+      <p>The players of the game's tournament, ranked, with Elo, cross results, points and performance. Double-click: the games concerned.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Opening report</h4></div>
+      <p><span class="menu">Database → Openings → Opening report…</span>: for the position on the board, results, Elo, next moves, popularity by period, frequent players, best games, typical pawn structures. Exportable to HTML.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Pieces over the displayed games</h4></div>
+      <p><span class="menu">Database → Statistics → Pieces over the displayed games…</span> (Hydra64 databases): for all the games of the list — filter first by player, opening or period — a map of the board shows <strong>where the pieces stand</strong> for one kind of piece (share of the positions in which a white knight, for example, occupies each square), over the whole game or by slices of ten moves. <strong>First move of a piece</strong> shows where each of the thirty-two starting pieces goes first, in what share of the games it moves and at which move on average.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Filter graphs</h4></div>
+      <p><span class="menu">Database → Statistics → Filter graphs…</span>: the displayed games by year and by average Elo, as bars (White wins, draws, Black wins) with White's score.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Database tree</h4></div>
+      <p><span class="menu">Database → Openings → Database tree</span>: in the Opening tree panel, the moves played in the database from the position, with their results.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Endgame tables</h4></div>
+      <p>The <a href="#en-outils-finales">Endgames</a> panel is on this page too.</p>
+    </div>
+  </div>
+</section>
+
 <!-- =================================================================== ANALYSE -->
-<section id="analyse">
+<section id="analyse" class="fr">
   <h2><span class="glyph">♗</span>Page Analyse</h2>
   <p>Un échiquier libre pour étudier une partie ou une position : variantes, commentaires, moteurs, annotation automatique et arbre d'analyse. Les parties y arrivent par <strong>Envoyer dans l'analyse</strong> (<kbd>Ctrl+Maj+A</kbd>) depuis les pages Bases et Jouer, par un collage de FEN ou de PGN (<kbd>Ctrl+Maj+V</kbd>), ou par l'éditeur de position.</p>
 
@@ -537,8 +842,68 @@
   </div>
 </section>
 
+<section id="en-analyse" class="en">
+  <h2><span class="glyph">♗</span>Analysis page</h2>
+  <p>A free board to study a game or a position: variations, comments, engines, automatic annotation and analysis tree. Games arrive there through <strong>Send to analysis</strong> (<kbd>Ctrl+Shift+A</kbd>) from the Databases and Play pages, by pasting a FEN or a PGN (<kbd>Ctrl+Shift+V</kbd>), or through the position editor.</p>
+
+  <h3 id="en-analyse-moteurs">Spectator engines</h3>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>As many engines as you like</h4><span class="where">+ button of an engine panel · <kbd>Ctrl+Shift+K</kbd></span></div>
+      <p>Each engine analyses the displayed position without ever playing, with its <strong>Play / Stop</strong> button, the number of lines (<strong>−</strong> and <strong>+</strong> buttons, 1 to 10), the <strong>CPU</strong> button (its options) and the <strong>analysed side</strong> (both, White only, Black only). It draws its arrow in its own colour; arrows on the same move are stacked, each thinner than the last.</p>
+      <p class="dim">Leaving the page stops the engines; none restarts by itself on return (Play button). Double-click on a line: play its first move.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Right-click on a line</h4></div>
+      <ul>
+        <li><strong>Add the line</strong> (or all of them) to the notation.</li>
+        <li><strong>Exclude</strong> its first move: the engine searches among the others (“what if I don't play that?”).</li>
+        <li><strong>Lock</strong> the engine on the position (also the padlock): it goes on analysing while you navigate elsewhere.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="en-analyse-annotation">Automatic annotation</h3>
+  <div class="card feat">
+    <div class="feat-head"><h4>Annotate the game</h4><span class="where"><span class="menu">Game → Annotate game…</span> · <kbd>Ctrl+Shift+N</kbd></span></div>
+    <p>The engine analyses each position of the main line (1 s by default). A move that loses winning chances receives <strong>?!</strong>, <strong>?</strong> or <strong>??</strong> (thresholds of 10 / 20 / 30 % of chances, as on Lichess), its evaluation as a comment and the best continuation as a variation. Options: annotated side, first moves ignored, missed mates, <strong>end of book</strong> (last move known to the opening tree), <strong>tactical exercises</strong> (blunders become positions to solve, added to an EPD collection that can be replayed in Training).</p>
+    <div class="moves">23. Qd2 <span class="cmt">{+0.4}</span> 23... Rc8?? <span class="cmt">{+3.1}</span> <span class="var">(23... Nd7 24. Rad1 Rc8 25. h4 {+0.5})</span> 24. Nxe6</div>
+  </div>
+
+  <h3 id="en-analyse-approfondie">Deep analysis</h3>
+  <p><span class="menu">Engine → Deep analysis</span> panel, after Aquarium's IDeA and BanksiaGUI's ECA: an <strong>analysis tree</strong> that grows by itself from one or more positions, and that you can steer while it runs. Transpositions are merged, scores are backed up by minimax, good moves are extended and alternative moves are searched where the best move is not certain. You stop, and resume days later.</p>
+  <div class="grid2">
+    <div class="card feat">
+      <div class="feat-head"><h4>Tree</h4><span class="where">Tree tab</span></div>
+      <p>It follows the board: for each move, minimax score, engine evaluation and depth, size of the branch, notes. Orange arrow: best move of the tree. Right-click: <strong style="color:var(--good)">green</strong> (only move analysed here), <strong style="color:var(--bad)">red</strong> (excluded). <kbd>F4</kbd> copies the best line into the notation.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Tasks</h4><span class="where">Tasks tab</span></div>
+      <p>Buttons: <strong>Position</strong> (<kbd>Ctrl+Shift+T</kbd>), <strong>Alternative</strong>, <strong>All</strong> the positions of the notation, <strong>Root</strong>, <strong>Auto-play</strong>, <strong>Custom</strong>, <strong>Infinite</strong>. The current stage as squares: grey done, green running, yellow waiting, red manual.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Projects</h4><span class="where">Projects tab</span></div>
+      <p>One project per analysis: roots, share of the processor, master tree, quality (time, depth), width of the tree, number of alternatives, preferred side (repertoire preparation), thematic moves, score bounds, EPD mode. Several projects share the engines.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Notes and exports</h4><span class="where">Notes tab · panel menu</span></div>
+      <p>Four lists of positions (good, interesting, critical, dubious). Exports: <strong>PGN</strong>, <strong>.hy64book</strong> tree (with the evaluation of each move), <strong>Polyglot</strong> book. Start / stop: <kbd>Ctrl+Shift+D</kbd>.</p>
+    </div>
+  </div>
+
+  <h3 id="en-analyse-outils">Other tools of the page</h3>
+  <div class="grid3">
+    <div class="card feat grey"><h4>Finish the game</h4><p><span class="menu">Game → Tools → Finish the game (engine)…</span>: the engine plays both sides to the end.</p></div>
+    <div class="card feat grey"><h4>Variation calculation</h4><p><span class="menu">Game → Tools → Variation calculation…</span>: you write down your variations and their evaluation, Stockfish judges them (Stoyko exercise).</p></div>
+    <div class="card feat grey"><h4>Piece tracker</h4><p><span class="menu">Game → Tools → Piece tracker…</span>: map of the squares occupied by a piece or a type of piece over the game.</p></div>
+    <div class="card feat grey"><h4>Identify the opening</h4><p><span class="menu">Game → Tools → Identify the opening</span>: ECO code and name in the headers.</p></div>
+    <div class="card feat grey"><h4>Evaluation graph</h4><p>Clickable, like a timeline: a click goes to the move.</p></div>
+    <div class="card feat grey"><h4>Opening tree, endgames</h4><p><a href="#en-outils-arbre">Opening tree</a> and <a href="#en-outils-finales">Endgames</a> panels.</p></div>
+  </div>
+</section>
+
 <!-- =================================================================== JOUER -->
-<section id="jouer">
+<section id="jouer" class="fr">
   <h2><span class="glyph">♘</span>Page Jouer</h2>
   <p>La partie contre un moteur, avec sa propre partie. <strong>Il suffit de jouer un coup</strong> pour lancer une partie avec les derniers réglages : vous prenez le camp de la pièce jouée, depuis la position affichée.</p>
 
@@ -599,8 +964,69 @@
   </div>
 </section>
 
+<section id="en-jouer" class="en">
+  <h2><span class="glyph">♘</span>Play page</h2>
+  <p>The game against an engine, with its own game. <strong>Just play a move</strong> to start a game with the last settings used: you take the side of the piece played, from the displayed position.</p>
+
+  <h3 id="en-jouer-regler">Setting up the game</h3>
+  <div class="card feat">
+    <div class="feat-head"><h4>Play against the engine</h4><span class="where"><span class="menu">Game → Play against the engine…</span> · <kbd>Ctrl+G</kbd></span></div>
+    <ul>
+      <li><strong>Side</strong>: White, Black or random; your name goes into the PGN header.</li>
+      <li><strong>Strength</strong>: a single stepped slider — at the far left the <strong>beginner</strong> levels 1 to 3 below 1320 Elo, then the Elo in steps of 50 (1320 to 3150), and at the far right full strength, without then with the endgame tables (the engine makes human mistakes, not random moves); or fixed depth (4 to 20 half-moves).</li>
+      <li><strong>Time control</strong>: Bullet, Blitz, Rapid, Classical, custom (minutes + increment), a different time control for the engine (handicap), or no clock with a fixed time per move.</li>
+      <li><strong>Set opening</strong>: an ECO code (“B90”), moves (“1. e4 c5 2. Nf3”) or a line chosen in the ECO browser.</li>
+      <li><strong>Coach</strong>, engine <strong>pondering</strong>, start from the displayed position.</li>
+    </ul>
+  </div>
+
+  <h3 id="en-jouer-pendant">During the game</h3>
+  <div class="grid2">
+    <div class="card feat">
+      <div class="feat-head"><h4>Opponent tab</h4></div>
+      <p>The engine's name (click: <strong>change opponent</strong> without starting over), the <strong>Elo</strong> button (click: the same slider, to change its strength even during the game; at “Full strength” the engine uses the endgame tables), its thinking (evaluation, depth, lines), the tab's icon green when it is ready, red when it is working (click on the evaluation line or <kbd>Ctrl+Space</kbd>: it plays its best move at once). <strong>Play / Stop</strong> (<kbd>Space</kbd>): Stop frees the moves of both sides; Play makes it play the side to move. The book button makes it play the moves of the open opening tree.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Clock</h4></div>
+      <p>The engine manages its time according to the clock. Flag fallen: lost (or drawn if the opponent cannot mate); playing a move afterwards <strong>continues the same game</strong>: notation and clocks kept, the fallen clock stays at 0:00 and does not fall again. The PGN records the time control and the time after each move. The <span class="menu">View → Clock</span> panel shows it in large.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Take back, look through</h4></div>
+      <p><kbd>Ctrl+Z</kbd> takes back your last move. Going back lets you look through the game without the engine replaying. Playing another move from a past position leaves the old continuation as a variation. <span class="menu">Game → Resign</span>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>End of the game</h4></div>
+      <p>Mate, stalemate, insufficient material, 50 moves, threefold repetition are detected. The banner offers: <strong>Save to database</strong>, <strong>Analyse the game</strong>, <strong>Rematch</strong> (colours reversed), <strong>New game…</strong></p>
+    </div>
+  </div>
+  <p class="dim">Leaving the Play page pauses the game (engine and clock stopped). On return, and even at the next launch, the game is there but nothing restarts by itself, neither engine nor clock: if it is your move, the game resumes when you play it; if it was the opponent's move, it waits for the Play button (<kbd>Space</kbd>). Spectator engines can also follow the game: <strong>+</strong> button at the right of the Opponent tab (or <kbd>Ctrl+Shift+K</kbd> on this page); each has its panel under the opponent, stopped until its Play button.</p>
+
+  <h3 id="en-jouer-aide">Coach, hint, training</h3>
+  <div class="grid2">
+    <div class="card feat green">
+      <div class="feat-head"><h4>Coach</h4></div>
+      <p>After each of your moves, clocks stopped, a separate Stockfish judges the move. An inaccuracy, a mistake or a blunder is reported with the best move: you can take it back or play it anyway.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Hint</h4><span class="where"><kbd>Ctrl+Shift+I</kbd></span></div>
+      <p>A green arrow shows a good move when it is your turn.</p>
+    </div>
+  </div>
+  <div class="card feat green" style="margin-top:14px">
+    <div class="feat-head"><h4>Training</h4><span class="where"><span class="menu">Game → Training → Training…</span></span></div>
+    <ul>
+      <li><strong>Opening with the opening tree</strong>: the open opening tree answers you; leaving the tree is reported with the expected moves.</li>
+      <li><strong>Find the best move</strong>: built-in databases <code>best_move_easy</code> (&lt; 1500), <code>best_move_medium</code> (1500–2000) and <code>best_move_hard</code> (&gt; 2000), 600 exercises each.</li>
+      <li><strong>Mate in N</strong>: built-in databases <code>mate_in_1</code> to <code>mate_in_5</code> (1,765 positions, every solution verified). Stockfish defends as well as possible and checks that the mate stays forced.</li>
+    </ul>
+    <p><strong>My collections</strong>: your collections in <code>~/Documents/hydra64/exercises</code> (see <a href="#en-outils-recueil">Add to collection</a>) are offered automatically, for both exercises, in the order of the file. “Other file…” takes one from elsewhere.</p>
+    <p><strong>Spaced repetition</strong> (ticked by default): a position solved comes back after 1, 3, 7, 14 then 30 days; a position missed comes back 4 positions later and goes to the head of the next session. The window shows, for the collection, the positions to review, new and learned, and your success rate. <strong>Reset</strong> forgets the progress of the collection; the collections themselves are never modified. <strong>Check…</strong> opens the <a href="#en-moteurs-verifier">collection check</a>.</p>
+    <p class="dim">The 3,565 exercises of the built-in databases (<code>databases/training/</code>, in Hydra64 format, openable in the Databases page) come from the public Lichess puzzle database (public domain) and arrive in random order. <strong>Solution</strong> shows the full continuation; <strong>Analyse</strong> opens the position in the Analysis page.</p>
+  </div>
+</section>
+
 <!-- =================================================================== TOURNOI -->
-<section id="tournoi">
+<section id="tournoi" class="fr">
   <h2><span class="glyph">♔</span>Page Tournoi de moteurs</h2>
   <p>Des moteurs s'affrontent à la pendule, une partie après l'autre ou plusieurs à la fois, et la partie suivie s'affiche en direct. Pas d'évaluation automatique sur cette page : les moteurs gardent tous les processeurs.</p>
   <div class="stack">
@@ -651,8 +1077,59 @@
   </div>
 </section>
 
+<section id="en-tournoi" class="en">
+  <h2><span class="glyph">♔</span>Engine tournament page</h2>
+  <p>Engines face each other on the clock, one game after another or several at a time, and the game followed is displayed live. No automatic evaluation on this page: the engines keep all the processors.</p>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Setting up</h4><span class="where">Tournament panel · <span class="menu">Tournament → New tournament</span></span></div>
+      <ul>
+        <li><strong>Participants</strong>: at least two engines of the engine manager, each with its options.</li>
+        <li><strong>Pairings</strong>: round robin, <strong>gauntlet</strong> (the first against each of the others, to test a new version) or <strong>Swiss system</strong> (score groups, no rematch, balanced colours, bye worth 1 point).</li>
+        <li><strong>Cycles</strong> and <strong>double round</strong> (each pairing with both colours).</li>
+        <li><strong>Limit</strong>: clock (minutes + increment), time per move or fixed depth.</li>
+        <li><strong>A single button, depending on the state</strong>: <em>Start the tournament</em> when there is none, <em>Interrupt</em> while it runs, <em>Resume the tournament</em> after an interruption (with <em>New tournament</em> beside it to abandon it), <em>New tournament</em> once finished.</li>
+      </ul>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Concurrent games</h4><span class="where">Adjudication… button · Overview button · <kbd>Ctrl+Shift+G</kbd></span></div>
+      <ul>
+        <li><strong>Number of games played at the same time</strong>: in <em>Adjudication…</em> (1 by default). Each game starts its two engines and has its clock: count the processors.</li>
+        <li><strong>Follow another game</strong>: double-click on a game marked “in progress” in the list; it goes onto the board and into the notation.</li>
+        <li><strong>Overview</strong> (<span class="menu">Tournament → Overview of the games in progress</span>): one board per game in progress, with the names, the move number and the clocks. <strong>Click</strong> on a board: its game is shown in the notation (it is marked “●”); <strong>double-click</strong>: it goes large.</li>
+        <li>When the game followed ends, the board switches to another game in progress. Engines stay open from one game to the next, and thinking time is measured apart from the interface.</li>
+      </ul>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Openings</h4></div>
+      <ul>
+        <li><strong>Starting position</strong>.</li>
+        <li><strong>Start positions</strong>: an EPD, PGN or Hydra64 file, each position played with both colours. This is the fairest way to compare engines. Provided: <code>databases/tournament-openings/</code> (Nunn, UHO, Drawkiller…).</li>
+        <li><strong>Engine book</strong>: a Hydra64 tree or a Polyglot book, up to the chosen move; moves noted “book” in the PGN.</li>
+      </ul>
+    </div>
+    <div class="grid2">
+      <div class="card feat">
+        <div class="feat-head"><h4>Adjudication</h4><span class="where">Adjudication… button</span></div>
+        <p><strong>Draw</strong> when both engines see an evaluation close to 0 for N moves; <strong>resignation</strong> when both see one side lost; evaluation, depth and time of each move as a comment (“+0.23/31 2.6s”, which can be hidden in the <a href="#en-echiquier">notation</a>); pondering; number of concurrent games.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Results</h4></div>
+        <p>Standings (points, +, =, −, %), <strong>Elo difference ± margin</strong> (95 %) and <strong>LOS</strong> (likelihood of superiority), <strong>crosstable</strong>, game list: double-click to review one, <span class="menu">Tournament → Follow the game in progress</span> to return to the live game.</p>
+      </div>
+    </div>
+    <div class="card feat grey">
+      <p><kbd>Space</kbd> starts or interrupts the tournament; an interrupted game is replayed. Games are saved in a Hydra64 database (<code>.hy64</code>), one per tournament, created at the first finished game (a tournament interrupted before that leaves no empty file; a game finished without any move played is not written to it), in the <code>engines_tournaments</code> folder of your Hydra64 folder (<code>~/Documents/hydra64</code>; on Windows, <code>Documents\hydra64</code>), and <span class="menu">Tournament → Export the games…</span> copies them elsewhere. The whole tournament is restored at the next launch.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Export as an HTML page</h4><span class="where">export button of the panel · <span class="menu">Tournament → Export as an HTML page…</span></span></div>
+      <p>The whole tournament in a <a href="#en-outils-html">standalone page</a>: standings with the Elo difference, crosstable, game list and a board to replay them, evaluation graph of each game, PGN download. The forced moves (start positions, engine book) are in grey, followed by “end of book”. Beyond 3,000 games, a warning says that the page will be heavy.</p>
+    </div>
+  </div>
+</section>
+
 <!-- =================================================================== OUTILS COMMUNS -->
-<section id="outils">
+<section id="outils" class="fr">
   <h2><span class="glyph">♖</span>Outils communs</h2>
   <div class="stack">
     <div class="card feat" id="outils-arbre">
@@ -719,8 +1196,75 @@
   </div>
 </section>
 
+<section id="en-outils" class="en">
+  <h2><span class="glyph">♖</span>Common tools</h2>
+  <div class="stack">
+    <div class="card feat" id="en-outils-arbre">
+      <div class="feat-head"><h4>Opening tree</h4><span class="where">panel · Databases, Analysis, Play pages</span></div>
+      <p>Opens a <strong>Hydra64</strong> tree (<code>.hy64book</code>) or a <strong>Polyglot</strong> book (<code>.bin</code>). For each move of the position: number of games, wins / draws / losses, score, annotation, average Elo and performance as a tooltip; <span style="color:var(--good)">green dot</span> for a recommended move, <span style="color:var(--bad)">red</span> for a move to avoid. Double-click: play the move. The name of the tree lists the last trees opened.</p>
+    </div>
+    <div class="card feat green" id="en-outils-recueil">
+      <div class="feat-head"><h4>Add to collection (your exercises)</h4><span class="where"><span class="menu">Game → Training → Add to collection…</span> · <kbd>Ctrl+Shift+R</kbd> · all pages</span></div>
+      <p>The displayed position becomes an exercise; its solution is <strong>the next move of the notation</strong>. Play the solution on the board, go back one move, then <kbd>Ctrl+Shift+R</kbd>. You choose:</p>
+      <ul>
+        <li>the <strong>collection</strong>: an EPD file, a PGN or a Hydra64 database of <code>~/Documents/hydra64/exercises</code>, or “Choose or create a file…”;</li>
+        <li>a <strong>name</strong> (suggested from the players and the move) and a <strong>comment</strong>;</li>
+        <li>the <strong>type</strong>: best move or <strong>mate in N</strong>, recognised by itself when the continuation in the notation ends with a mate;</li>
+        <li>whether to <strong>keep the following moves</strong> of the notation (up to the mate, or 20 half-moves), shown by “Solution” in training.</li>
+      </ul>
+      <p class="dim">Your collections open in the Databases page to be corrected, completed or sorted. In a PGN or a Hydra64 database, an exercise stays an ordinary game, readable everywhere: FEN header, the solution as first move, a “?” variation for a move to avoid, and <code>dm 3; c0 "comment"</code> as the opening comment.</p>
+    </div>
+    <div class="card feat" id="en-outils-finales">
+      <div class="feat-head"><h4>Endgames (Syzygy tables)</h4><span class="where">panel · all pages · <span class="menu">Preferences → Endgames</span></span></div>
+      <p>For a position covered by your tables: the exact result (win, draw, loss, saved by the 50-move rule) and that of each move, with the distance (DTZ). Double-click: play the move. The pencil button opens <span class="menu">Preferences → Endgames</span>, where everything is set:</p>
+      <ul>
+        <li><strong>Sources</strong>: folders of tables, and <strong><code>.iso</code> disc images</strong> used as they are, without copying anything (ChessBase's “Endgame Turbo” DVDs, for example). Choosing a folder that contains images is enough: they are recognised. The summary says what is covered, for example “3 to 5 pieces: complete; 6 pieces: 27 endgames out of 365”.</li>
+        <li><strong>Engines</strong>: three boxes decide whether the engines use the tables — in analysis, when you play against an engine at full strength, in tournaments. An opponent of limited level never receives them. The change applies from the engine's next search, without restarting it.</li>
+        <li><strong>Download</strong>: from the lightest to the most complete — 3, 4 and 5 pieces (about 1 GB), up to 6 pieces results only (about 74 GB), up to 6 pieces complete (about 161 GB). The space needed and the free space are displayed. Speed and time left are shown during the download. You can interrupt and resume; each file is checked. The download goes on if the window is closed, and stops with Hydra64.</li>
+        <li><strong>Tournaments</strong>: in the settings of a tournament, “Stop the game as soon as the position is in the endgame tables” awards the result of the tables without playing out the endgame (off by default).</li>
+        <li><strong>Lichess online service</strong> (off by default): for the panel only, up to 7 pieces; the displayed position is then sent to <code>tablebase.lichess.ovh</code>.</li>
+      </ul>
+      <p class="dim">ISO images require Linux. 6-piece tables are much faster on an SSD. 7-piece tables (several terabytes) are not offered for download.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat blue" id="en-outils-html">
+        <div class="feat-head"><h4>HTML pages with a board</h4><span class="where">notation · list of a database · tournament</span></div>
+        <p>A game or a tournament in <strong>a single file</strong>, readable in any browser without a connection: board with your pieces and your colours, clickable moves, <strong>variations</strong>, comments, symbols, clocks, evaluations and their graph when the game contains them.</p>
+        <p class="dim">In the page: <kbd>←</kbd> <kbd>→</kbd> for the moves, <kbd>↑</kbd> <kbd>↓</kbd> to change game (tournament), <kbd>Home</kbd> <kbd>End</kbd>, <kbd>F</kbd> to flip. <strong>EN / FR</strong> buttons at the top right (English by default): texts, dates, move notation and end reasons follow the language.</p>
+      </div>
+      <div class="card feat blue" id="en-outils-960">
+        <div class="feat-head"><h4>Chess960</h4><span class="where"><span class="menu">File → New Chess960 game…</span></span></div>
+        <p>Starting position of a number (0 to 959, drawn at random by default; 518 = classical position). <strong>Castling</strong> is played by dropping the king on its rook, or on its target square (g or c). FEN with rook files (“HAha”), PGN, Hydra64 databases and ChessBase / Chess Assistant conversions are handled; engines receive the <code>UCI_Chess960</code> option when the position requires it.</p>
+        <p class="dim"><code>.ctg</code> books and Aquarium trees only know classical castling: they stay silent on a Chess960 position.</p>
+      </div>
+    </div>
+    <div class="card feat" id="en-outils-conversion">
+      <div class="feat-head"><h4>Conversion</h4><span class="where"><span class="menu">File → Convert…</span></span></div>
+      <p>Proprietary formats do not open directly: they are converted once. ChessBase databases and Chess Assistant / Aquarium databases → Hydra64 database or PGN; ChessBase books, Aquarium / Chess Assistant trees → Hydra64 tree or Polyglot; EPD → editable database. A <strong>game database</strong> can also become an <strong>opening tree</strong> (<span class="menu">Database → Openings → Create the opening tree of the database…</span>, or by choosing “Hydra64 tree” or “Polyglot book” as the target format): for each position, the moves played with the wins, draws and losses of the side that plays, the highest Elo and the last year. Two settings: the depth (50 half-moves by default) and the number of games that must know a position for the games to be followed beyond it (2 by default: the continuation that a single game plays does not enter the tree; 1: everything enters). With the default settings, the tree is the one ChessOK ships with its databases. For the Mega Database (11 million games), reading the games takes about fifteen seconds, before the position index is computed. Also on the command line: <code>hydra64-convert source destination</code>.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat">
+        <div class="feat-head"><h4>Position editor</h4><span class="where"><kbd>Ctrl+E</kbd> · pencil under the board</span></div>
+        <p>Piece palette (click, drag to paint, eraser), side to move, castling rights (including in Chess960, king and rooks on any files), en passant, move number, mirror, colour swap, editable FEN. The position is checked live; OK starts a game from it.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Game information</h4><span class="where"><kbd>Ctrl+I</kbd></span></div>
+        <p>Players, Elo, result, date, event, site, round, ECO, annotator.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Board as an image</h4><span class="where">Game menu</span></div>
+        <p><span class="menu">Copy the board as an image</span> (clipboard) or <span class="menu">Save the board as an image…</span> (PNG, JPEG), arrows included.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>FEN and PGN</h4><span class="where"><kbd>Ctrl+Shift+C</kbd> / <kbd>Ctrl+Shift+V</kbd></span></div>
+        <p>Copy the FEN of the position; paste a FEN or a PGN game (even in French notation).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- =================================================================== MOTEURS -->
-<section id="moteurs">
+<section id="moteurs" class="fr">
   <h2><span class="glyph">⚙</span>Moteurs</h2>
   <div class="stack">
     <div class="card feat">
@@ -753,8 +1297,41 @@
   </div>
 </section>
 
+<section id="en-moteurs" class="en">
+  <h2><span class="glyph">⚙</span>Engines</h2>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Engine management</h4><span class="where"><span class="menu">Engine → Manage engines…</span> · <kbd>Ctrl+Shift+E</kbd></span></div>
+      <p>Add or remove <strong>UCI</strong> engines (Stockfish, Lc0, Berserk, Komodo…), check them, choose the default engine and set their options (Threads, Hash, SyzygyPath, Skill Level…). The grid is generated from what each engine declares; changed values are in orange. These are the settings of the engine itself: every tab that uses it inherits them.</p>
+      <p><strong>Settings per tab</strong>: the <strong>CPU</strong> button of a tab (Opponent, Spectator 1, 2…) opens the engine's settings <em>for that tab only</em>. An option changed there (Threads, Hash…) affects neither the other tabs that use the same engine, nor the engine manager; “Use the engine's settings again” clears it. During a game, the options set by the game (strength, lines) are greyed out there in the Opponent tab, and in it alone.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat">
+        <div class="feat-head"><h4>Built-in Stockfish</h4></div>
+        <p>Built with Hydra64, always present (“Stockfish … (built-in)”): it evaluates in the background, and serves as opponent, coach and judge. Its options can be set, but it cannot be removed. <span class="menu">Preferences → Evaluation</span>: processors, memory, depth and time of the automatic evaluation.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Built-in Shuffle</h4></div>
+        <p>The in-house engine, in Rust, always present too (“Shuffle … (built-in)”): it plays silly moves, almost at random. Useful for testing, or for a sure win. Like Stockfish, it cannot be removed from the list.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Your engines</h4><span class="where"><code>uci_engines</code> folder</span></div>
+        <p>Stockfish and Shuffle are the only two engines shipped. The others are added with <strong>Add…</strong>, which opens in the <code>uci_engines</code> folder of your Hydra64 folder: put your UCI executables there (Lc0, Komodo, Berserk…). This folder is empty at first; the two built-in engines are not in it, they stay with the program so as not to be deleted by mistake.</p>
+      </div>
+    </div>
+    <div class="card feat green" id="en-moteurs-verifier">
+      <div class="feat-head"><h4>Check a collection</h4><span class="where"><span class="menu">Engine → Check a collection…</span> · Check… button of Training</span></div>
+      <p>Stockfish searches each position of a collection (1 s by default) and classifies each exercise: <strong style="color:var(--good)">correct</strong>, <strong style="color:var(--accent)">ambiguous</strong> (another move is worth almost as much: less than 0.6 pawn apart, or both win clearly), <strong style="color:var(--accent)">shorter mate</strong>, <strong style="color:var(--bad)">dubious solution</strong> (the engine clearly prefers another move), <strong style="color:var(--bad)">move to avoid played</strong>, <strong style="color:var(--bad)">mate not forced</strong>. Each line gives the evaluations; double-click: the position in the Analysis page.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Solution test</h4><span class="where"><span class="menu">Engine → Solution test…</span></span></div>
+      <p>The engine searches each position of a collection (EPD, PGN or Hydra64 database) for a set time; for each position, the proposed move live, since when it has held the solution, and the result; at the end, the number of positions solved. Provided: the <em>Tactics Marathon</em> (210 positions, <code>databases/engine-tests/</code>).</p>
+    </div>
+  </div>
+</section>
+
 <!-- =================================================================== FICHIERS -->
-<section id="fichiers">
+<section id="fichiers" class="fr">
   <h2><span class="glyph">▤</span>Types de fichiers</h2>
   <p>Ce que Hydra64 lit et écrit, à quoi sert chaque format, et comment l'application s'en sert.</p>
   <p>
@@ -836,15 +1413,97 @@
   </div>
 </section>
 
+<section id="en-fichiers" class="en">
+  <h2><span class="glyph">▤</span>File types</h2>
+  <p>What Hydra64 reads and writes, what each format is for, and how the application uses it.</p>
+  <p>
+    <span class="chips">
+      <span class="chip r">read</span><span class="chip w">written</span><span class="chip ro">read-only</span><span class="chip c">by conversion</span>
+    </span>
+    <span class="dim" style="font-size:13px; margin-left:8px">“by conversion”: to be put through File → Convert… before use.</span>
+  </p>
+
+  <h3 id="en-fichiers-parties">Games and positions</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Extension</th><th>Format</th><th>What it is for</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td class="ext">.pgn</td><td>PGN, the standard format for games</td><td>Game databases readable by all software: headers, moves, variations, comments, annotations, clock times (<code>[%clk]</code>). Databases, saving your games, tournaments, exports, start positions, exercise collections. A PGN in French notation is accepted.</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.hy64i<br>.hy64n<br>.hy64g<br>.hy64p</td><td>Hydra64 database (in-house format)</td><td>For large databases: instant opening and sorting, position search, flags, restorable deletion. <code>.hy64i</code>: index (one 64-byte row per game, this is the file you open); <code>.hy64n</code>: names of players, events, sites; <code>.hy64g</code>: the moves (one byte per move) and the text; <code>.hy64p</code>: position index (recomputable). The four files go together.</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.hy64</td><td>Single-file Hydra64 database</td><td>The four files of a Hydra64 database joined into one, simpler to copy or share. Opens as it is, without extraction, as fast as the ordinary database, position search included, and is edited in the same way. What is added is written to disk at once, in a journal at the end of the file; the line under the game list says so (“journal: …”), and it is tidied into the body of the database automatically on closing when it grows. Nothing needs to be done to lose nothing. Form offered first by <span class="menu">File → New database…</span> and the conversion. Made and unmade by <a href="#en-outils-conversion">File → Convert…</a> (a plain copy: under a second for 8 million games).</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.epd</td><td>EPD, one position per line (open format of the PGN standard)</td><td>Collections of positions: solution test, training (best move, mate in N), your exercise collections, start positions of tournaments, tasks and results of the deep analysis, tactical exercises, export of positions. Operations: <code>bm</code> (best move), <code>am</code> (move to avoid), <code>id</code>, <code>pv</code> (continuation), <code>dm</code> (mate in N), <code>ce</code>, <code>acd</code>, <code>c0</code>… Opens like a database, one game per position, and can be edited: each change rewrites the file as EPD (other headers, move comments and sub-variations have no place in it).</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.cbh<br>.2cbh</td><td>ChessBase database (and ChessBase 18)</td><td>Commercial databases (Mega Database…), with their companion files <code>.cbg .cba .cbj .cbp .cbt .cbs</code>. Converted to a Hydra64 database or to PGN, without losing comments or variations.</td><td><span class="chips"><span class="chip c">by conversion</span></span></td></tr>
+        <tr><td class="ext">.cdp</td><td>Chess Assistant / Aquarium database (ChessOK, “Chess Data Pro”)</td><td>ChessOK game databases, with their companion files (<code>.d00 .d02 .a02 .emb .dxx</code>…): moves, variations, comments, evaluations, clocks, headers and names. Read by Hydra64 itself, without Aquarium; deleted games are skipped. Converted to a Hydra64 database or to PGN (any of the database's files can be designated).</td><td><span class="chips"><span class="chip c">by conversion</span></span></td></tr>
+        <tr><td class="ext">.cbv<br>.2cbv</td><td>ChessBase archive (and ChessBase 18)</td><td>Compressed ChessBase database (<code>.2cbv</code>: a ZIP file): extracted once (into <code>~/Documents/hydra64/databases</code>), then converted.</td><td><span class="chips"><span class="chip c">by conversion</span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="en-fichiers-arbres">Opening trees</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Extension</th><th>Format</th><th>What it is for</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td class="ext">.hy64book</td><td>Hydra64 tree</td><td>Complete opening tree: moves, annotations, recommended / to-avoid moves, games, wins / draws / losses, average Elo, performance, or evaluation and depth (tree produced by the deep analysis). Opening tree panel, book of the opponent and of tournaments, opening training.</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.bin</td><td>Polyglot book (free format)</td><td>The most widespread opening book (moves and weights). Same uses as the Hydra64 tree, with less information. Produced by the conversion and the deep analysis.</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.ctg<br>.cto<br>.ctb</td><td>ChessBase book (Fritz…)</td><td>Commercial opening books, the three files together. Converted to a Hydra64 tree (nothing is lost) or to Polyglot.</td><td><span class="chips"><span class="chip c">by conversion</span></span></td></tr>
+        <tr><td class="ext">.hsh<br>.elm</td><td>Aquarium / Chess Assistant tree (ChessOK)</td><td>ChessOK opening trees, read without Aquarium and converted to a Hydra64 tree or to Polyglot.</td><td><span class="chips"><span class="chip c">by conversion</span></span></td></tr>
+        <tr><td class="ext">.txt</td><td>Text export of an Aquarium tree</td><td>Produced in Aquarium by the script <code>tools/aquarium/Hydra64_ExportTree.tsc</code>, then converted.</td><td><span class="chips"><span class="chip c">by conversion</span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="en-fichiers-autres">Analyses, endgames, exports</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Extension</th><th>Format</th><th>What it is for</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td class="ext">.hy64deep</td><td>Deep analysis project</td><td>The analysis tree of a project (positions, evaluations, green and red moves, notes, waiting tasks) and its options. Saved every minute; the analysis resumes where it stopped.</td><td><span class="chips"><span class="chip r">read</span><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.rtbw<br>.rtbz</td><td>Syzygy endgame tables</td><td>Exact result of endgames up to 7 pieces (<code>.rtbw</code>: win / draw / loss; <code>.rtbz</code>: distance to the next pawn move or capture). Endgames panel; to be downloaded separately, then give their folder.</td><td><span class="chips"><span class="chip r">read</span></span></td></tr>
+        <tr><td class="ext">.html</td><td>Standalone web page</td><td>Exports readable in a browser: games of a database, player profile, opening report; <a href="#en-outils-html">pages with a board</a> for a game or a whole tournament.</td><td><span class="chips"><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">.player<br>.rating<br>.media</td><td>ChessBase player encyclopedia (“Playbase” folder)</td><td>Records of 525,000 players, their Elo in the FIDE lists and the records of their photos (folders <code>PlayBase.MMA</code> … <code>MMZ</code>). Completes the <a href="#en-bases-statistiques">player profile</a>; the folder is chosen in the Preferences. Not supplied with Hydra64.</td><td><span class="chips"><span class="chip r">read</span></span></td></tr>
+        <tr><td class="ext">.png<br>.jpg</td><td>Image</td><td>The board as it is displayed, arrows and marks included.</td><td><span class="chips"><span class="chip w">written</span></span></td></tr>
+        <tr><td class="ext">(executable)</td><td>UCI engine</td><td>Any engine that speaks the UCI protocol: analysis, opponent, tournaments, tests.</td><td><span class="chips"><span class="chip r">run</span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="en-fichiers-propres">Application files</h3>
+  <p class="dim">Created and kept up to date by Hydra64; there is no need to edit them by hand. <span class="menu">Help → Reset Hydra64…</span> makes them new again (your databases are not touched).</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>File</th><th>Content</th></tr></thead>
+      <tbody>
+        <tr><td class="path">~/.config/Hydra64/Hydra64.conf</td><td>Preferences, panel layout of each page, recent databases and trees, bookmarks, last settings of the dialogs (game against the engine, training, searches…).</td></tr>
+        <tr><td class="path">~/.local/share/Hydra64/Hydra64/engines.json</td><td>The registered engines and their UCI options.</td></tr>
+        <tr><td class="path">~/.local/share/Hydra64/Hydra64/training-progress.json</td><td>Progress of the spaced repetition: for each collection and each position, the box, the next review, the tries and the successes.</td></tr>
+        <tr><td class="path">~/.local/share/Hydra64/Hydra64/session.json</td><td>The session: game of each page, game in progress against the engine (clocks included), tournament, spectator engines.</td></tr>
+        <tr><td class="path">~/.config/Hydra64/Hydra64/diagnostic.log</td><td>Diagnostic log, written only if a known display problem occurs; useful for a bug report.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="en-dossiers">Your Hydra64 folder</h3>
+  <p class="dim">In your Documents, on every system: <code>~/Documents/hydra64</code> (<code>Documents\hydra64</code> on Windows). File choosers open there first.</p>
+  <div class="grid3">
+    <div class="card"><h4><code>databases</code></h4><p class="dim">Game databases: the bundled ones (<code>games</code>, <code>training</code>, <code>tournament-openings</code>, <code>engine-tests</code>, copied at first launch) and your own.</p></div>
+    <div class="card"><h4><code>openingbooks</code></h4><p class="dim">Opening trees (<code>.hy64book</code>, <code>.bin</code>).</p></div>
+    <div class="card"><h4><code>tablebases</code></h4><p class="dim">Endgame tables.</p></div>
+    <div class="card"><h4><code>uci_engines</code></h4><p class="dim">Your UCI engines. Empty at first: the built-in Stockfish and Shuffle are not in it.</p></div>
+    <div class="card"><h4><code>engines_tournaments</code></h4><p class="dim">Games of the engine tournaments, one Hydra64 database (<code>.hy64</code>) per tournament.</p></div>
+    <div class="card"><h4><code>exercises</code>, <code>analyses</code>, <code>repertoire</code>, <code>themes</code></h4><p class="dim">Your exercise collections, deep analysis projects, opening repertoire, piece sets and boards; created when they are needed.</p></div>
+  </div>
+</section>
+
 <!-- =================================================================== PRÉFÉRENCES -->
-<section id="preferences">
+<section id="preferences" class="fr">
   <h2><span class="glyph">✦</span>Préférences</h2>
   <p><span class="menu">Édition → Préférences…</span> (<kbd>Ctrl+,</kbd>) ou clic sur la tête d'hydre.</p>
   <div class="grid3">
     <div class="card"><h4>Langue</h4><p class="dim">Français ou anglais (au redémarrage).</p></div>
     <div class="card"><h4>Notation</h4><p class="dim">Française, anglaise ou figurines, avec aperçu. Les fichiers PGN restent au format standard.</p></div>
     <div class="card"><h4>Navigation</h4><p class="dim">Molette sur l'échiquier, sens inversable.</p></div>
-    <div class="card"><h4>Affichage</h4><p class="dim">8 jeux de pièces (en SVG ou PNG) et 26 échiquiers (images ou SVG), dont le jeu et l'échiquier <strong>Hydra64</strong> par défaut, à l'orange et aux gris de l'interface, plus les vôtres et un échiquier <strong>Couleurs unies</strong> dont vous choisissez la couleur des cases claires et des cases foncées : ce sont des dossiers de ~/Documents/hydra64/themes (Pieces/&lt;jeu&gt; et Boards/&lt;échiquier&gt; ; formats décrits dans Themes/format.html), copiés au premier lancement, que vous pouvez compléter, renommer ou supprimer ; un bouton restaure les jeux livrés manquants. Barre d'évaluation, barre de menu.</p></div>
+    <div class="card"><h4>Affichage</h4><p class="dim">8 jeux de pièces (en SVG ou PNG) et 26 échiquiers (images ou SVG), dont le jeu et l'échiquier <strong>Hydra64</strong> par défaut, à l'orange et aux gris de l'interface, plus les vôtres et un échiquier <strong>Couleurs unies</strong> dont vous choisissez la couleur des cases claires et des cases foncées : ce sont des dossiers de ~/Documents/hydra64/themes (Pieces/&lt;jeu&gt; et Boards/&lt;échiquier&gt; ; formats décrits dans themes/format.html), copiés au premier lancement, que vous pouvez compléter, renommer ou supprimer ; un bouton restaure les jeux livrés manquants. Barre d'évaluation, barre de menu.</p></div>
     <div class="card"><h4>Évaluation</h4><p class="dim">Processeurs, mémoire, profondeur et temps du Stockfish d'arrière-plan.</p></div>
     <div class="card"><h4>Démarrage</h4><p class="dim">Restaurer la partie de chaque page.</p></div>
     <div class="card"><h4>Bases</h4><p class="dim">Dossier de l'encyclopédie des joueurs de ChessBase (« Playbase »), vérifié dès qu'il est choisi.</p></div>
@@ -852,8 +1511,23 @@
   </div>
 </section>
 
+<section id="en-preferences" class="en">
+  <h2><span class="glyph">✦</span>Preferences</h2>
+  <p><span class="menu">Edit → Preferences…</span> (<kbd>Ctrl+,</kbd>) or click on the hydra head.</p>
+  <div class="grid3">
+    <div class="card"><h4>Language</h4><p class="dim">French or English (on restart).</p></div>
+    <div class="card"><h4>Notation</h4><p class="dim">French, English or figurines, with a preview. PGN files stay in the standard format.</p></div>
+    <div class="card"><h4>Navigation</h4><p class="dim">Wheel over the board, direction reversible.</p></div>
+    <div class="card"><h4>Display</h4><p class="dim">8 piece sets (SVG or PNG) and 26 boards (images or SVG), including the default <strong>Hydra64</strong> set and board, in the orange and greys of the interface, plus your own and a <strong>Plain colours</strong> board for which you choose the colour of the light and dark squares: these are folders of ~/Documents/hydra64/themes (Pieces/&lt;set&gt; and Boards/&lt;board&gt;; formats described in themes/format.html), copied at first launch, which you can add to, rename or delete; a button restores the missing bundled sets. Evaluation bar, menu bar.</p></div>
+    <div class="card"><h4>Evaluation</h4><p class="dim">Processors, memory, depth and time of the background Stockfish.</p></div>
+    <div class="card"><h4>Startup</h4><p class="dim">Restore the game of each page.</p></div>
+    <div class="card"><h4>Databases</h4><p class="dim">Folder of the ChessBase player encyclopedia (“Playbase”), checked as soon as it is chosen.</p></div>
+    <div class="card"><h4>Endgames</h4><p class="dim">Folders and ISO images of <a href="#en-outils-finales">endgame tables</a>, use by the engines, download.</p></div>
+  </div>
+</section>
+
 <!-- =================================================================== RACCOURCIS -->
-<section id="raccourcis">
+<section id="raccourcis" class="fr">
   <h2><span class="glyph">⌨</span>Raccourcis clavier</h2>
   <div class="grid2">
     <div class="table-wrap">
@@ -909,8 +1583,64 @@
   <p class="dim" style="margin-top:12px">À la souris : clic droit (glissé) sur l'échiquier pour les marques et les flèches ; double-clic sur une ligne de moteur, de l'arbre d'ouverture ou des finales pour jouer le coup ; molette sur l'échiquier pour avancer ou reculer.</p>
 </section>
 
+<section id="en-raccourcis" class="en">
+  <h2><span class="glyph">⌨</span>Keyboard shortcuts</h2>
+  <div class="grid2">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="2">Everywhere</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd></td><td>Navigate in the game</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Flip the board</td></tr>
+          <tr><td><kbd>Shift+1</kbd> … <kbd>Shift+4</kbd></td><td>Databases, Analysis, Play, Tournament pages</td></tr>
+          <tr><td><kbd>Ctrl+E</kbd></td><td>Edit the position</td></tr>
+          <tr><td><kbd>Ctrl+I</kbd></td><td>Game information</td></tr>
+          <tr><td><kbd>Ctrl+S</kbd></td><td>Save to database</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Shift+Z</kbd></td><td>Undo / redo a change to the game (Databases and Analysis pages)</td></tr>
+          <tr><td><kbd>Ctrl+P</kbd></td><td>Print the game</td></tr>
+          <tr><td><kbd>Ctrl+Shift+A</kbd></td><td>Send to analysis</td></tr>
+          <tr><td><kbd>Ctrl+Shift+C</kbd> / <kbd>V</kbd></td><td>Copy the FEN / paste a FEN or a PGN</td></tr>
+          <tr><td><kbd>Ctrl+D</kbd></td><td>Add a bookmark</td></tr>
+          <tr><td><kbd>Ctrl+Shift+R</kbd></td><td>Add the position to the collection</td></tr>
+          <tr><td><kbd>Ctrl+Shift+E</kbd></td><td>Engine management</td></tr>
+          <tr><td><kbd>Ctrl++</kbd> / <kbd>Ctrl+−</kbd></td><td>Notation font</td></tr>
+          <tr><td><kbd>Ctrl+Shift+M</kbd></td><td>Menu bar</td></tr>
+          <tr><td><kbd>Ctrl+,</kbd></td><td>Preferences</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="2">Databases</td></tr>
+          <tr><td><kbd>Ctrl+O</kbd></td><td>Open a database</td></tr>
+          <tr><td><kbd>Ctrl+Shift+H</kbd></td><td>Advanced search</td></tr>
+          <tr><td><kbd>Ctrl+Shift+F</kbd></td><td>Search the position</td></tr>
+          <tr><td><kbd>Ctrl+Shift+G</kbd></td><td>Go to game number</td></tr>
+          <tr class="group"><td colspan="2">Analysis</td></tr>
+          <tr><td><kbd>Ctrl+Shift+K</kbd></td><td>Add a spectator engine</td></tr>
+          <tr><td><kbd>Ctrl+Space</kbd></td><td>Move now (opponent engine)</td></tr>
+          <tr><td><kbd>Ctrl+Shift+N</kbd></td><td>Annotate the game</td></tr>
+          <tr><td><kbd>Ctrl+Shift+D</kbd></td><td>Start / stop the deep analysis</td></tr>
+          <tr><td><kbd>Ctrl+Shift+T</kbd></td><td>Send the position to the deep analysis</td></tr>
+          <tr><td><kbd>F4</kbd></td><td>Best line of the tree into the notation</td></tr>
+          <tr class="group"><td colspan="2">Play and Tournament</td></tr>
+          <tr><td><kbd>Ctrl+G</kbd></td><td>Play against the engine</td></tr>
+          <tr><td><kbd>Space</kbd></td><td>Engine Play / Stop; start / interrupt the tournament</td></tr>
+          <tr><td><kbd>Ctrl+Shift+G</kbd></td><td>Tournament: overview of the games in progress</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>Take back the move</td></tr>
+          <tr><td><kbd>Ctrl+Shift+I</kbd></td><td>Hint</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="dim" style="margin-top:12px">With the mouse: right-click (drag) on the board for marks and arrows; double-click on a line of an engine, of the opening tree or of the endgames to play the move; wheel over the board to go forward or back.</p>
+</section>
+
 <!-- =================================================================== ORIGINES -->
-<section id="origines">
+<section id="origines" class="fr">
   <h2><span class="glyph">❦</span>Données et licences</h2>
   <dl class="card" style="margin:0">
     <dt><strong>Stockfish</strong></dt><dd class="dim" style="margin:2px 0 10px">Moteur libre (GPLv3), compilé depuis ses sources officielles.</dd>
@@ -925,11 +1655,70 @@
   </dl>
 </section>
 
+<section id="en-origines" class="en">
+  <h2><span class="glyph">❦</span>Data and licences</h2>
+  <dl class="card" style="margin:0">
+    <dt><strong>Stockfish</strong></dt><dd class="dim" style="margin:2px 0 10px">Free engine (GPLv3), built from its official sources.</dd>
+    <dt><strong>ECO openings</strong></dt><dd class="dim" style="margin:2px 0 10px">Open data from Lichess (<code>lichess-org/chess-openings</code>, public domain).</dd>
+    <dt><strong>Training exercises</strong></dt><dd class="dim" style="margin:2px 0 10px">Lichess puzzle database, public domain (CC0): 3,565 selected exercises, in eight Hydra64 databases.</dd>
+    <dt><strong>Pieces and boards</strong></dt><dd class="dim" style="margin:2px 0 10px">Lichess sets and boards under a free licence (AGPL, MIT, CC BY), without the non-commercial licences; default set and board drawn for Hydra64 (CC0).</dd>
+    <dt><strong>Database icons</strong></dt><dd class="dim" style="margin:2px 0 10px">Drawings by Lucide (ISC licence; some derived from Feather, MIT licence).</dd>
+    <dt><strong>Endgame tables</strong></dt><dd class="dim" style="margin:2px 0 10px">Syzygy probing by Fathom (MIT); Lichess online service, optional.</dd>
+    <dt><strong>ChessBase databases</strong></dt><dd class="dim" style="margin:2px 0 10px">Read by the cbvault library (MIT), independent of ChessBase; Hydra64 embeds a copy of it with two additions for conversion.</dd>
+    <dt><strong>Chess Assistant databases and player encyclopedia</strong></dt><dd class="dim" style="margin:2px 0 10px">Formats read by Hydra64 itself, from the study of existing files. No data from ChessOK or ChessBase is supplied: you use your own databases.</dd>
+    <dt><strong>Panels</strong></dt><dd class="dim" style="margin:2px 0 0">Qt Advanced Docking System (LGPL 2.1), interface in Qt 6.</dd>
+  </dl>
+</section>
+
 <div class="board-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-<footer><span>Hydra64 0.1 · Notice d'utilisation</span><span>Mise à jour le 16/11/2026</span></footer>
+<footer class="fr"><span>Hydra64 0.1 · Notice d'utilisation</span><span>Mise à jour le 24/11/2026</span></footer>
+<footer class="en"><span>Hydra64 0.1 · User manual</span><span>Updated 2026.11.24</span></footer>
 
 </main>
 </div>
 
+<script>
+(function () {
+  var root = document.documentElement, lang = root.lang === 'fr' ? 'fr' : 'en';
+  // The same place in the other language: « bases » <-> « en-bases ».
+  function twin(id, to) { var bare = id.replace(/^en-/, ''); return to === 'en' ? 'en-' + bare : bare; }
+  function apply() {
+    root.lang = lang;
+    document.title = document.body.getAttribute('data-title-' + lang);
+    var buttons = document.querySelectorAll('#lang button');
+    for (var i = 0; i < buttons.length; ++i) buttons[i].className = buttons[i].getAttribute('data-lang') === lang ? 'on' : '';
+  }
+  // The last titled block that starts above the top of the window, and how far above.
+  function place() {
+    var marks = document.querySelectorAll('main .' + lang + '[id], main .' + lang + ' [id]'), best = null;
+    for (var i = 0; i < marks.length; ++i) {
+      var top = marks[i].getBoundingClientRect().top;
+      if (top <= 24 && (!best || top >= best.top)) best = { id: marks[i].id, top: top };
+    }
+    return best;
+  }
+  function jump(id, top) {
+    var el = document.getElementById(id);
+    if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - top, behavior: 'instant' });
+  }
+  apply();
+  // A link written for the other language (#bases while reading in English) leads to the same section.
+  function followHash() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (id && twin(id, lang) !== id && document.getElementById(twin(id, lang))) jump(twin(id, lang), 16);
+  }
+  followHash();
+  window.addEventListener('hashchange', followHash);
+  document.getElementById('lang').addEventListener('click', function (e) {
+    var l = e.target.getAttribute('data-lang');
+    if (!l || l === lang) return;
+    var at = place();
+    lang = l;
+    try { localStorage.setItem('hydra64-lang', lang); } catch (err) {}
+    apply();
+    if (at) jump(twin(at.id, lang), at.top);
+  });
+})();
+</script>
 </body>
 </html>

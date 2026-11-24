@@ -1,0 +1,72 @@
+# Builds Hydra64 on Linux and runs all its tests: chess core (core_tests), interface off screen
+# (ui_tests), Shuffle and the ChessBase bridge (cargo test). The same thing as "./build.sh --test".
+#
+#   push to master, pull request        builds and runs the tests
+#   "Run workflow" button (Actions tab) the same, on the chosen branch
+#
+# Changes that only touch the documentation do not start it. The tests on real data
+# (HYDRA64_TEST_CBH, HYDRA64_PLAYBASE…) are skipped here: those databases are not in the repository.
+name: Tests
+
+on:
+  push:
+    branches: [master]
+    paths-ignore: ['**.md', '**.html', 'docs/**', 'LICENSE']
+  pull_request:
+    paths-ignore: ['**.md', '**.html', 'docs/**', 'LICENSE']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  QT_VERSION: '6.12.0' # the version of the Linux release (release.yml)
+
+jobs:
+  linux:
+    name: Linux (x86_64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the tools
+        # fonts-dejavu-core: the interface tests draw real windows off screen, they need a font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+              g++-14 ninja-build zlib1g-dev libfuse3-dev libgl1-mesa-dev libxkbcommon-dev libcups2 \
+              libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+              libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+              libfontconfig1 libdbus-1-3 libegl1 libwayland-client0 libwayland-cursor0 libwayland-egl1 \
+              fonts-dejavu-core
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+
+      - name: Build
+        # Everything, tests included. x86-64-avx2: the machines of the runs do not all have the
+        # same processor, Stockfish must not be tuned for the one that builds.
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DSTOCKFISH_ARCH=x86-64-avx2
+          cmake --build build --parallel "$(nproc)"
+
+      - name: Run the tests
+        # ui_tests isolates its configuration and its user folder itself (build/ui_tests_home).
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure --timeout 1800

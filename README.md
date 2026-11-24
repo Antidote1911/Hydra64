@@ -1,10 +1,47 @@
 # Hydra64
 
-A desktop interface to play and analyse chess games and run engine tournaments, in C++20 / Qt 6,
-with a dark theme inspired by DaVinci Resolve.
+**A chess workbench for Linux and Windows: databases, analysis, play and engine tournaments in one
+dark, dockable interface.** C++20 / Qt 6, free software (GPL-3).
 
-Full user manual (every page, every feature, all file types): [`Manual.html`](Manual.html), to be
-opened in a browser (in French).
+[![Tests](https://github.com/Antidote1911/Hydra64/actions/workflows/tests.yml/badge.svg)](https://github.com/Antidote1911/Hydra64/actions/workflows/tests.yml)
+[![Release](https://github.com/Antidote1911/Hydra64/actions/workflows/release.yml/badge.svg)](https://github.com/Antidote1911/Hydra64/actions/workflows/release.yml)
+[![Latest release](https://img.shields.io/github/v/release/Antidote1911/Hydra64)](https://github.com/Antidote1911/Hydra64/releases/latest)
+[![Licence: GPL-3.0](https://img.shields.io/badge/licence-GPL--3.0-blue)](LICENSE)
+![Platforms: Linux, Windows](https://img.shields.io/badge/platforms-Linux%20%7C%20Windows-lightgrey)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C)
+![Qt 6](https://img.shields.io/badge/Qt-6-41CD52)
+
+![Analysis page: board, evaluation graph, engine lines, notation](docs/screenshots/analysis.png)
+
+## What makes it different
+
+- **Your proprietary databases, converted without loss.** ChessBase (`.cbh`, `.2cbh`), Chess
+  Assistant / Aquarium databases and `.ctg` / ChessOK opening books are converted to an open,
+  documented format — the 11.7 million games of the Mega Database 2026 in 25 seconds, every game
+  checked against the source one by one. No game is dropped, and no Windows or Wine is needed.
+- **Fast on very large databases.** An 11-million-game database opens in 13 ms; sorting a column
+  takes a fraction of a second, a position search a few tens of milliseconds. The format is
+  specified in [`docs/format-hy64db.md`](docs/format-hy64db.md) and a database can be a single
+  `.hy64` file, editable in place.
+- **Four pages, one window.** *Databases*, *Analysis*, *Play* and *Tournament* each keep their own
+  game, layout and engines; panels dock, float and stack as in a video editing suite (the theme is
+  inspired by DaVinci Resolve).
+- **Tools for preparing and understanding.** Preparation report against a player (their tree,
+  their weak lines, where they leave your repertoire), report of a player's costliest mistakes,
+  searches by manoeuvre, pawn structure or material, deep analysis projects, a coach while you
+  play.
+- **Engine tournaments that share their results.** Round robin or gauntlet, simultaneous games,
+  adjudication, Elo difference ± margin and LOS, and a standalone HTML page with a replay board.
+- **Ready out of the box.** Stockfish is built in, along with 1,000 master games, training
+  positions and the usual tournament opening collections; Chess960 is supported throughout.
+
+| Databases | Play |
+|---|---|
+| ![Databases page: game list, board and notation](docs/screenshots/databases.png) | ![Play page: game against Stockfish with clocks and engine lines](docs/screenshots/play.png) |
+
+The interface is available in **English and French**, and so is the full user manual (every page,
+every feature, all file types): [`Manual.html`](Manual.html), to be opened in a browser — EN / FR
+buttons at the top right.
 
 ## Building and running
 
@@ -25,16 +62,6 @@ Optional tests on real data: `HYDRA64_TEST_2CBV=<.2cbv archive>` (ChessBase 18),
 `HYDRA64_PLAYBASE=<Playbase folder>` (players encyclopedia, `core_tests` and `ui_tests`),
 `HYDRA64_TEST_HY64` / `HYDRA64_TEST_CBH` (ChessBase database, see below).
 The script of the exported HTML pages is run by Qt's JavaScript engine (Qt6Qml) if it is installed.
-
-### Former name: Basilisk64
-
-The program was called Basilisk64 until 22 November 2026. The file formats did not change with the
-name — the magic bytes written at the head of the files still read `B64DB-…`, `B64BOOK1` and
-`B64DEEP1`, so that existing files stay readable — only the extensions did: `.b64` → `.hy64`,
-`.b64book` → `.hy64book`, `.b64deep` → `.hy64deep`, `.b64i/.b64n/.b64g/.b64p` → `.hy64i/…`. A
-`Documents/basilisk64` folder is taken over at first launch (renamed `hydra64`, its files given
-the new extensions); elsewhere, `hydra64-convert --rename-legacy <folder>` renames the files of a
-folder and of its subfolders, without touching their content.
 
 ### User folder
 
@@ -778,6 +805,16 @@ Credits: `CREDITS.txt` of each folder. To ship another: a folder
 the database before the screenshot), `--info` (opens the game information), `--prefs` (opens the
 preferences), `--about` (opens "About"), `--panel NAME` (opens a panel: clock, graph…),
 `--screenshot FILE` (takes a screenshot then quits: handy to check the rendering).
+
+## Former name: Basilisk64
+
+The program was called Basilisk64 until 22 November 2026. The file formats did not change with the
+name — the magic bytes written at the head of the files still read `B64DB-…`, `B64BOOK1` and
+`B64DEEP1`, so that existing files stay readable — only the extensions did: `.b64` → `.hy64`,
+`.b64book` → `.hy64book`, `.b64deep` → `.hy64deep`, `.b64i/.b64n/.b64g/.b64p` → `.hy64i/…`. A
+`Documents/basilisk64` folder is taken over at first launch (renamed `hydra64`, its files given
+the new extensions); elsewhere, `hydra64-convert --rename-legacy <folder>` renames the files of a
+folder and of its subfolders, without touching their content.
 
 ## Licence
 
