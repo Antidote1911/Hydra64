@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hydra64 — chess databases, analysis, play and engine tournaments</title>
+<meta name="description" content="Hydra64 is a free chess workbench for Linux and Windows: game databases, engine analysis, play against Stockfish and engine tournaments in one dark, dockable interface.">
+<meta property="og:title" content="Hydra64 — a chess workbench for Linux and Windows">
+<meta property="og:description" content="Game databases, engine analysis, play and engine tournaments in one dark, dockable interface. Free software (GPL-3).">
+<meta property="og:image" content="https://antidote1911.github.io/Hydra64/screenshots/analysis.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="hydra64.svg">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Language before the first paint: the remembered choice (shared with the manual), else French
+  // for a French browser, else English.
+  (function () {
+    var lang = 'en';
+    try {
+      var saved = localStorage.getItem('hydra64-lang');
+      if (saved === 'en' || saved === 'fr') lang = saved;
+      else if (/^fr/i.test(navigator.language || '')) lang = 'fr';
+    } catch (e) {}
+    document.documentElement.lang = lang;
+  })();
+</script>
+</head>
+<body data-title-en="Hydra64 — chess databases, analysis, play and engine tournaments"
+      data-title-fr="Hydra64 — bases de parties, analyse, jeu et tournois de moteurs">
+
+<!-- ======================================================================= MENU -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="hydra64.svg" alt=""><span>Hydra<b>64</b></span></a>
+    <nav class="menu" aria-label="Menu">
+      <a href="#features"><span class="en">Features</span><span class="fr">Fonctions</span></a>
+      <a href="#tour"><span class="en">Tour</span><span class="fr">Visite</span></a>
+      <a href="#formats">Formats</a>
+      <a href="#engines"><span class="en">Engines</span><span class="fr">Moteurs</span></a>
+      <a href="#download"><span class="en">Download</span><span class="fr">Télécharger</span></a>
+      <a href="manual/"><span class="en">Manual</span><span class="fr">Notice</span></a>
+      <a href="#links"><span class="en">Links</span><span class="fr">Liens</span></a>
+    </nav>
+    <div class="nav-end">
+      <div id="lang"><button data-lang="en">EN</button><button data-lang="fr">FR</button></div>
+      <a class="gh" href="https://github.com/Antidote1911/Hydra64" aria-label="GitHub">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ======================================================================= HERO -->
+<div class="hero">
+  <div class="wrap">
+    <img class="hero-logo" src="hydra64.svg" alt="Hydra64">
+    <div class="kicker"><span class="en">Free software · Linux &amp; Windows</span><span class="fr">Logiciel libre · Linux et Windows</span></div>
+    <h1 class="en">A chess workbench with <em>many heads</em></h1>
+    <h1 class="fr">Un atelier d'échecs à <em>plusieurs têtes</em></h1>
+    <p class="lead en">Game databases, engine analysis, play against Stockfish and engine tournaments — four pages in one dark, dockable interface. Opens an 11-million-game database in 13 ms and converts your ChessBase and Chess Assistant collections without losing a game.</p>
+    <p class="lead fr">Bases de parties, analyse avec les moteurs, parties contre Stockfish et tournois de moteurs — quatre pages dans une seule interface sombre, aux panneaux ancrables. Ouvre une base de 11 millions de parties en 13 ms et convertit vos collections ChessBase et Chess Assistant sans perdre une partie.</p>
+    <div class="cta">
+      <a class="btn primary" href="#download"><span class="en">Download</span><span class="fr">Télécharger</span></a>
+      <a class="btn" href="manual/"><span class="en">Read the manual</span><span class="fr">Lire la notice</span></a>
+      <a class="btn" href="https://github.com/Antidote1911/Hydra64"><span class="en">Source code</span><span class="fr">Code source</span></a>
+    </div>
+    <p class="fine"><span class="en">Version 0.1 · GPL-3 · interface in English and French · Stockfish built in</span><span class="fr">Version 0.1 · GPL-3 · interface en français et en anglais · Stockfish intégré</span></p>
+    <div class="hero-shot">
+      <div class="frame">
+        <button class="shot" data-full="screenshots/analysis.png" aria-label="Enlarge the screenshot">
+          <img src="screenshots/analysis.png" width="1918" height="1013" alt="Hydra64, Analysis page: board with an engine arrow, deep analysis, evaluation graph, opening tree with statistics, notation and engine lines">
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================= FIGURES -->
+<div class="figures">
+  <div class="wrap">
+    <div class="figure"><div class="n">13<small>ms</small></div><div class="l"><span class="en">to open 11 million games</span><span class="fr">pour ouvrir 11 millions de parties</span></div></div>
+    <div class="figure"><div class="n">25<small>s</small></div><div class="l"><span class="en">to convert the Mega Database 2026</span><span class="fr">pour convertir la Mega Database 2026</span></div></div>
+    <div class="figure"><div class="n">0</div><div class="l"><span class="en">games dropped on conversion</span><span class="fr">partie perdue à la conversion</span></div></div>
+    <div class="figure"><div class="n">4</div><div class="l"><span class="en">pages, each with its own game</span><span class="fr">pages, chacune avec sa partie</span></div></div>
+  </div>
+</div>
+
+<!-- ======================================================================= FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="eyebrow"><span class="en">Features</span><span class="fr">Fonctions</span></div>
+    <h2 class="en">What makes it different</h2>
+    <h2 class="fr">Ce qui le distingue</h2>
+    <p class="intro en">Hydra64 is built for people who own large game collections and want to work on them with engines, without Windows-only software.</p>
+    <p class="intro fr">Hydra64 est fait pour ceux qui possèdent de grandes collections de parties et veulent les travailler avec des moteurs, sans logiciel réservé à Windows.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="ico">⛁</div>
+        <h3 class="en">Your databases, converted without loss</h3>
+        <h3 class="fr">Vos bases, converties sans perte</h3>
+        <p class="en">ChessBase (<code>.cbh</code>, <code>.2cbh</code>), Chess Assistant / Aquarium databases and <code>.ctg</code> or ChessOK opening books become open, documented files. Every game is checked against the source, one by one.</p>
+        <p class="fr">Les bases ChessBase (<code>.cbh</code>, <code>.2cbh</code>), Chess Assistant / Aquarium et les livres <code>.ctg</code> ou ChessOK deviennent des fichiers ouverts et documentés. Chaque partie est comparée à l'original, une par une.</p>
+      </div>
+      <div class="card">
+        <div class="ico">⚡</div>
+        <h3 class="en">Fast on very large databases</h3>
+        <h3 class="fr">Rapide sur les très grandes bases</h3>
+        <p class="en">Sorting a column of 11 million games takes a fraction of a second, a position search a few tens of milliseconds. A database can be a single <code>.hy64</code> file, edited in place.</p>
+        <p class="fr">Trier une colonne de 11 millions de parties prend une fraction de seconde, chercher une position quelques dizaines de millisecondes. Une base peut tenir en un seul fichier <code>.hy64</code>, modifiable sur place.</p>
+      </div>
+      <div class="card">
+        <div class="ico">▦</div>
+        <h3 class="en">Four pages, one window</h3>
+        <h3 class="fr">Quatre pages, une fenêtre</h3>
+        <p class="en">Databases, Analysis, Play and Tournament each keep their own game, layout and engines. Panels dock, float and stack as in a video editing suite.</p>
+        <p class="fr">Bases, Analyse, Jouer et Tournoi gardent chacune leur partie, leur disposition et leurs moteurs. Les panneaux s'ancrent, flottent et s'empilent comme dans un logiciel de montage.</p>
+      </div>
+      <div class="card">
+        <div class="ico">♟</div>
+        <h3 class="en">Preparing against a player</h3>
+        <h3 class="fr">Se préparer contre un joueur</h3>
+        <p class="en">The tree of what they play with each colour, the lines where they score worst, where they leave your repertoire, and an engine report of their costliest mistakes.</p>
+        <p class="fr">L'arbre de ce qu'il joue avec chaque couleur, les lignes où il marque le moins, là où il sort de votre répertoire, et un rapport du moteur sur ses fautes les plus coûteuses.</p>
+      </div>
+      <div class="card">
+        <div class="ico">♔</div>
+        <h3 class="en">Engine tournaments</h3>
+        <h3 class="fr">Tournois de moteurs</h3>
+        <p class="en">Round robin, gauntlet or Swiss, several games at once, adjudication, Elo difference with its margin and LOS — and a standalone HTML page to share the result.</p>
+        <p class="fr">Toutes rondes, gauntlet ou système suisse, plusieurs parties à la fois, arbitrage, écart d'Elo avec sa marge et LOS — et une page HTML autonome pour partager le résultat.</p>
+      </div>
+      <div class="card">
+        <div class="ico">✦</div>
+        <h3 class="en">Ready out of the box</h3>
+        <h3 class="fr">Prêt à l'emploi</h3>
+        <p class="en">Stockfish is built in, with 1,000 master games, 3,565 training exercises and the usual tournament opening collections. Chess960 is supported throughout.</p>
+        <p class="fr">Stockfish est intégré, avec 1 000 parties de maîtres, 3 565 exercices d'entraînement et les collections d'ouvertures de tournoi habituelles. Le Chess960 est géré partout.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= TOUR -->
+<section id="tour">
+  <div class="wrap">
+    <div class="eyebrow"><span class="en">Tour</span><span class="fr">Visite</span></div>
+    <h2 class="en">The four pages</h2>
+    <h2 class="fr">Les quatre pages</h2>
+    <p class="intro en">Pages are chosen in the bar at the bottom of the window. Going from one to another loses nothing, and everything is restored at the next launch. Click a screenshot to enlarge it.</p>
+    <p class="intro fr">Les pages se choisissent dans la barre en bas de la fenêtre. Passer de l'une à l'autre ne perd rien, et tout est restauré au lancement suivant. Cliquez sur une capture pour l'agrandir.</p>
+
+    <div class="tour">
+      <div class="tour-text">
+        <h3><span class="glyph">⛁</span><span class="en">Databases</span><span class="fr">Bases de données</span><span class="key"><span class="en">Shift+1</span><span class="fr">Maj+1</span></span></h3>
+        <p class="en">The game list of one or more databases, sortable by column, with the board and the notation of the chosen game.</p>
+        <p class="fr">La liste des parties d'une ou plusieurs bases, triable par colonne, avec l'échiquier et la notation de la partie choisie.</p>
+        <ul class="en">
+          <li>Search by header, position, material, pawn structure or manoeuvre</li>
+          <li>Player profile, opening report, crosstable, ECO browser</li>
+          <li>Twin games, name correction, integrity test, ECO classification</li>
+          <li>Drag games from one database to another</li>
+        </ul>
+        <ul class="fr">
+          <li>Recherche par en-tête, position, matériel, structure de pions ou manœuvre</li>
+          <li>Fiche du joueur, rapport d'ouverture, tableau croisé, navigateur ECO</li>
+          <li>Doublons, correction des noms, test d'intégrité, classement ECO</li>
+          <li>Glisser des parties d'une base à l'autre</li>
+        </ul>
+        <a class="more" href="manual/#bases"><span class="en">Databases page in the manual →</span><span class="fr">La page Bases dans la notice →</span></a>
+      </div>
+      <div class="frame"><button class="shot" data-full="screenshots/databases.png" aria-label="Enlarge the screenshot"><img loading="lazy" src="screenshots/databases.png" width="1915" height="1006" alt="Databases page: open databases, game list of 1,000 master games, board and notation"></button></div>
+    </div>
+
+    <div class="tour flip">
+      <div class="tour-text">
+        <h3><span class="glyph">♗</span><span class="en">Analysis</span><span class="fr">Analyse</span><span class="key"><span class="en">Shift+2</span><span class="fr">Maj+2</span></span></h3>
+        <p class="en">A free board to study a game or a position, with as many engines as you like looking on.</p>
+        <p class="fr">Un échiquier libre pour étudier une partie ou une position, avec autant de moteurs spectateurs que voulu.</p>
+        <ul class="en">
+          <li>Automatic annotation: ?!, ? and ?? with the best line as a variation</li>
+          <li>Deep analysis: a tree that grows by itself and that you steer, for days if needed</li>
+          <li>Opening tree with results, Syzygy endgame tables, evaluation graph</li>
+          <li>Assisted analysis: target squares coloured by the quality of the move</li>
+        </ul>
+        <ul class="fr">
+          <li>Annotation automatique : ?!, ? et ?? avec la meilleure suite en variante</li>
+          <li>Analyse approfondie : un arbre qui grandit tout seul et que l'on guide, pendant des jours s'il le faut</li>
+          <li>Arbre d'ouverture avec résultats, tables de finales Syzygy, courbe d'évaluation</li>
+          <li>Analyse assistée : cases d'arrivée colorées selon la qualité du coup</li>
+        </ul>
+        <a class="more" href="manual/#analyse"><span class="en">Analysis page in the manual →</span><span class="fr">La page Analyse dans la notice →</span></a>
+      </div>
+      <div class="frame"><button class="shot" data-full="screenshots/analysis.png" aria-label="Enlarge the screenshot"><img loading="lazy" src="screenshots/analysis.png" width="1918" height="1013" alt="Analysis page: board, deep analysis panel, evaluation graph, opening tree, notation and a spectator engine"></button></div>
+    </div>
+
+    <div class="tour">
+      <div class="tour-text">
+        <h3><span class="glyph">♘</span><span class="en">Play</span><span class="fr">Jouer</span><span class="key"><span class="en">Shift+3</span><span class="fr">Maj+3</span></span></h3>
+        <p class="en">Just play a move to start a game against the engine, on the clock or not.</p>
+        <p class="fr">Il suffit de jouer un coup pour lancer une partie contre le moteur, à la pendule ou non.</p>
+        <ul class="en">
+          <li>Strength from beginner to full strength, changeable during the game</li>
+          <li>Coach: inaccuracies, mistakes and blunders reported before the reply</li>
+          <li>Training: mates in N, best moves, your own collections, spaced repetition</li>
+          <li>Change opponent without restarting the game</li>
+        </ul>
+        <ul class="fr">
+          <li>Force du débutant à la force maximale, modifiable en cours de partie</li>
+          <li>Coach : imprécisions, erreurs et gaffes signalées avant la réponse</li>
+          <li>Entraînement : mats en N, meilleurs coups, vos recueils, révision espacée</li>
+          <li>Changer d'adversaire sans recommencer la partie</li>
+        </ul>
+        <a class="more" href="manual/#jouer"><span class="en">Play page in the manual →</span><span class="fr">La page Jouer dans la notice →</span></a>
+      </div>
+      <div class="frame"><button class="shot" data-full="screenshots/play.png" aria-label="Enlarge the screenshot"><img loading="lazy" src="screenshots/play.png" width="1917" height="1009" alt="Play page: blitz game against Stockfish at Elo 1800, clocks, notation, evaluation and the Opponent tab"></button></div>
+    </div>
+
+    <div class="tour flip">
+      <div class="tour-text">
+        <h3><span class="glyph">♔</span><span class="en">Tournament</span><span class="fr">Tournoi</span><span class="key"><span class="en">Shift+4</span><span class="fr">Maj+4</span></span></h3>
+        <p class="en">Engines face each other on the clock, one game after another or several at a time, and you watch live.</p>
+        <p class="fr">Des moteurs s'affrontent à la pendule, une partie après l'autre ou plusieurs à la fois, et vous suivez en direct.</p>
+        <ul class="en">
+          <li>Overview: one board per game in progress</li>
+          <li>Start positions (Nunn, UHO, Drawkiller…) or an engine book</li>
+          <li>Draw and resignation adjudication, endgame tables</li>
+          <li>Standings with Elo difference ± margin and LOS, crosstable</li>
+        </ul>
+        <ul class="fr">
+          <li>Vue d'ensemble : un échiquier par partie en cours</li>
+          <li>Positions de départ (Nunn, UHO, Drawkiller…) ou livre des moteurs</li>
+          <li>Arbitrage des nulles et des abandons, tables de finales</li>
+          <li>Classement avec écart d'Elo ± marge et LOS, tableau croisé</li>
+        </ul>
+        <a class="more" href="manual/#tournoi"><span class="en">Tournament page in the manual →</span><span class="fr">La page Tournoi dans la notice →</span></a>
+      </div>
+      <div class="frame"><button class="shot" data-full="screenshots/tournament.png" aria-label="Enlarge the screenshot"><img loading="lazy" src="screenshots/tournament.png" width="1917" height="1080" alt="Tournament page: overview of six games in progress, participants, standings and game list"></button></div>
+    </div>
+
+    <div class="tour">
+      <div class="tour-text">
+        <h3><span class="glyph">♖</span><span class="en">And on every page</span><span class="fr">Et sur toutes les pages</span></h3>
+        <p class="en">The tools you expect are one shortcut away, whatever the page.</p>
+        <p class="fr">Les outils attendus sont à un raccourci, quelle que soit la page.</p>
+        <ul class="en">
+          <li>Position editor, Chess960 castling rights included</li>
+          <li>Arrows and marks saved with the moves, in databases and PGN</li>
+          <li>PDF, print and standalone HTML pages with a replay board</li>
+          <li>8 piece sets and 26 boards, plus your own</li>
+        </ul>
+        <ul class="fr">
+          <li>Éditeur de position, droits de roque du Chess960 compris</li>
+          <li>Flèches et marques enregistrées avec les coups, dans les bases et le PGN</li>
+          <li>PDF, impression et pages HTML autonomes avec échiquier</li>
+          <li>8 jeux de pièces et 26 échiquiers, plus les vôtres</li>
+        </ul>
+        <a class="more" href="manual/#outils"><span class="en">Common tools in the manual →</span><span class="fr">Les outils communs dans la notice →</span></a>
+      </div>
+      <div class="frame"><button class="shot" data-full="screenshots/editor.png" aria-label="Enlarge the screenshot"><img loading="lazy" src="screenshots/editor.png" width="1000" height="700" alt="Position editor: board, piece palette, side to move, castling rights, FEN"></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= FORMATS -->
+<section id="formats">
+  <div class="wrap">
+    <div class="eyebrow">Formats</div>
+    <h2 class="en">Open formats in, proprietary formats converted</h2>
+    <h2 class="fr">Formats ouverts lus, formats propriétaires convertis</h2>
+    <p class="intro en">PGN, EPD and Polyglot open directly. Proprietary files go once through <strong>File → Convert…</strong> (or the <code>hydra64-convert</code> command) and come out as a Hydra64 database or tree — a format <a href="https://github.com/Antidote1911/Hydra64/blob/master/docs/format-hy64db.md">specified in the repository</a> — or as PGN and Polyglot.</p>
+    <p class="intro fr">PGN, EPD et Polyglot s'ouvrent directement. Les fichiers propriétaires passent une fois par <strong>Fichier → Convertir…</strong> (ou la commande <code>hydra64-convert</code>) et deviennent une base ou un arbre Hydra64 — un format <a href="https://github.com/Antidote1911/Hydra64/blob/master/docs/format-hy64db.md">décrit dans le dépôt</a> — ou du PGN et du Polyglot.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th><span class="en">Source</span><span class="fr">Source</span></th>
+          <th><span class="en">Files</span><span class="fr">Fichiers</span></th>
+          <th><span class="en">Becomes</span><span class="fr">Devient</span></th>
+          <th><span class="en">Access</span><span class="fr">Accès</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>PGN</td><td><span class="ext">.pgn</span></td><td><span class="en">read and written as it is</span><span class="fr">lu et écrit tel quel</span></td><td><span class="chip direct"><span class="en">direct</span><span class="fr">direct</span></span></td></tr>
+          <tr><td><span class="en">Hydra64 database</span><span class="fr">Base Hydra64</span></td><td><span class="ext">.hy64</span> · <span class="ext">.hy64i/n/g/p</span></td><td><span class="en">single file or four files, editable</span><span class="fr">un fichier ou quatre, modifiable</span></td><td><span class="chip direct">direct</span></td></tr>
+          <tr><td><span class="en">EPD positions</span><span class="fr">Positions EPD</span></td><td><span class="ext">.epd</span></td><td><span class="en">one game per position</span><span class="fr">une partie par position</span></td><td><span class="chip direct">direct</span></td></tr>
+          <tr><td>ChessBase</td><td><span class="ext">.cbh</span> · <span class="ext">.2cbh</span> · <span class="ext">.cbv</span> · <span class="ext">.2cbv</span></td><td><span class="en">Hydra64 database or PGN</span><span class="fr">base Hydra64 ou PGN</span></td><td><span class="chip conv"><span class="en">converted</span><span class="fr">converti</span></span></td></tr>
+          <tr><td>Chess Assistant / Aquarium</td><td><span class="ext">.cdp</span></td><td><span class="en">Hydra64 database or PGN</span><span class="fr">base Hydra64 ou PGN</span></td><td><span class="chip conv"><span class="en">converted</span><span class="fr">converti</span></span></td></tr>
+          <tr><td><span class="en">ChessBase opening book</span><span class="fr">Livre d'ouvertures ChessBase</span></td><td><span class="ext">.ctg</span> + <span class="ext">.cto</span> + <span class="ext">.ctb</span></td><td><span class="en">Hydra64 tree or Polyglot</span><span class="fr">arbre Hydra64 ou Polyglot</span></td><td><span class="chip conv"><span class="en">converted</span><span class="fr">converti</span></span></td></tr>
+          <tr><td><span class="en">ChessOK / Aquarium tree</span><span class="fr">Arbre ChessOK / Aquarium</span></td><td><span class="ext">.hsh</span> + <span class="ext">.elm</span></td><td><span class="en">Hydra64 tree or Polyglot</span><span class="fr">arbre Hydra64 ou Polyglot</span></td><td><span class="chip conv"><span class="en">converted</span><span class="fr">converti</span></span></td></tr>
+          <tr><td><span class="en">Polyglot book, Hydra64 tree</span><span class="fr">Livre Polyglot, arbre Hydra64</span></td><td><span class="ext">.bin</span> · <span class="ext">.hy64book</span></td><td><span class="en">opening tree panel, engine book</span><span class="fr">panneau Arbre d'ouverture, livre des moteurs</span></td><td><span class="chip direct">direct</span></td></tr>
+          <tr><td><span class="en">Syzygy endgame tables</span><span class="fr">Tables de finales Syzygy</span></td><td><span class="ext">.rtbw</span> · <span class="ext">.rtbz</span> · <span class="ext">.iso</span></td><td><span class="en">folders, or disc images used as they are (Linux)</span><span class="fr">dossiers, ou images de disque utilisées telles quelles (Linux)</span></td><td><span class="chip direct">direct</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="split">
+      <div class="card">
+        <h3 class="en">Nothing is dropped</h3>
+        <h3 class="fr">Rien n'est perdu</h3>
+        <p class="en">The converted database has as many games as the source, with the same numbers. A game damaged in the original keeps its place, with a comment that says so, and the conversion report lists them.</p>
+        <p class="fr">La base convertie a autant de parties que la source, avec les mêmes numéros. Une partie abîmée dans l'original garde sa place, avec un commentaire qui le dit, et le rapport de conversion les énumère.</p>
+      </div>
+      <div class="card">
+        <h3 class="en">No Windows, no Wine</h3>
+        <h3 class="fr">Ni Windows ni Wine</h3>
+        <p class="en">ChessBase databases are read through the independent <a href="https://github.com/itshak/cbvault">cbvault</a> library; Chess Assistant databases, ChessOK trees and the ChessBase player encyclopedia by Hydra64 itself. You use your own files: none is supplied.</p>
+        <p class="fr">Les bases ChessBase sont lues par la bibliothèque indépendante <a href="https://github.com/itshak/cbvault">cbvault</a> ; les bases Chess Assistant, les arbres ChessOK et l'encyclopédie des joueurs de ChessBase par Hydra64 lui-même. Vous utilisez vos propres fichiers : aucun n'est fourni.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= ENGINES -->
+<section id="engines">
+  <div class="wrap">
+    <div class="eyebrow"><span class="en">Engines</span><span class="fr">Moteurs</span></div>
+    <h2 class="en">Stockfish inside, every UCI engine welcome</h2>
+    <h2 class="fr">Stockfish à l'intérieur, tous les moteurs UCI bienvenus</h2>
+    <p class="intro en">Hydra64 is an interface: the chess strength comes from the engines it drives. Two are shipped; the others are yours to add.</p>
+    <p class="intro fr">Hydra64 est une interface : la force aux échecs vient des moteurs qu'elle pilote. Deux sont livrés ; les autres, c'est vous qui les ajoutez.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="ico">♛</div>
+        <h3><a href="https://stockfishchess.org/">Stockfish</a></h3>
+        <p class="en">Built from its official sources and always present. It evaluates in the background, plays against you from beginner level to full strength, and serves as coach and judge.</p>
+        <p class="fr">Compilé depuis ses sources officielles et toujours présent. Il évalue en arrière-plan, joue contre vous du niveau débutant à la force maximale, et sert de coach et de juge.</p>
+      </div>
+      <div class="card">
+        <div class="ico">♞</div>
+        <h3>Shuffle</h3>
+        <p class="en">The in-house engine, written in Rust: it plays silly moves, almost at random. Useful for testing a tournament setup — or for a sure win. Its binary works in any UCI interface.</p>
+        <p class="fr">Le moteur maison, écrit en Rust : il joue des coups stupides, presque au hasard. Utile pour essayer un réglage de tournoi — ou pour gagner à coup sûr. Son exécutable fonctionne dans toute interface UCI.</p>
+      </div>
+      <div class="card">
+        <div class="ico">⚙</div>
+        <h3 class="en">Your engines</h3>
+        <h3 class="fr">Vos moteurs</h3>
+        <p class="en">Add any UCI engine — <a href="https://lczero.org/">Lc0</a>, <a href="https://github.com/jhonnold/berserk">Berserk</a>, Komodo… The options grid is generated from what each engine declares, and each tab can have its own settings.</p>
+        <p class="fr">Ajoutez n'importe quel moteur UCI — <a href="https://lczero.org/">Lc0</a>, <a href="https://github.com/jhonnold/berserk">Berserk</a>, Komodo… La grille d'options est générée d'après ce que chaque moteur déclare, et chaque onglet peut avoir ses propres réglages.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= DOWNLOAD -->
+<section id="download">
+  <div class="wrap">
+    <div class="eyebrow"><span class="en">Download</span><span class="fr">Télécharger</span></div>
+    <h2 class="en">Get Hydra64</h2>
+    <h2 class="fr">Obtenir Hydra64</h2>
+    <p class="intro en">Version 0.1.0, free of charge and free software under the GNU GPL version 3. Both downloads contain Stockfish, Shuffle and the bundled databases; nothing else is needed.</p>
+    <p class="intro fr">Version 0.1.0, gratuite et libre, sous licence GNU GPL version 3. Les deux téléchargements contiennent Stockfish, Shuffle et les bases livrées ; rien d'autre n'est nécessaire.</p>
+    <div class="downloads">
+      <div class="card dl">
+        <div class="os">Linux</div>
+        <div class="file">Hydra64-v0.1.0-linux-x86_64.AppImage · 134 MB</div>
+        <ul class="en">
+          <li>x86-64 processor with AVX2</li>
+          <li>glibc 2.39 or later (Ubuntu 24.04, Fedora 40, Arch…)</li>
+          <li>Make the file executable, then run it</li>
+        </ul>
+        <ul class="fr">
+          <li>Processeur x86-64 avec AVX2</li>
+          <li>glibc 2.39 ou plus récente (Ubuntu 24.04, Fedora 40, Arch…)</li>
+          <li>Rendez le fichier exécutable, puis lancez-le</li>
+        </ul>
+        <a class="btn primary" href="https://github.com/Antidote1911/Hydra64/releases/latest"><span class="en">Download the AppImage</span><span class="fr">Télécharger l'AppImage</span></a>
+      </div>
+      <div class="card dl">
+        <div class="os">Windows</div>
+        <div class="file">Hydra64-v0.1.0-windows-x64.zip · 134 MB</div>
+        <ul class="en">
+          <li>Windows 10 (1903) or 11, 64-bit, processor with AVX2</li>
+          <li>Unzip anywhere and run <code>hydra64.exe</code>: nothing to install</li>
+          <li>No endgame tables from ISO images on Windows</li>
+        </ul>
+        <ul class="fr">
+          <li>Windows 10 (1903) ou 11, 64 bits, processeur avec AVX2</li>
+          <li>Décompressez où vous voulez et lancez <code>hydra64.exe</code> : rien à installer</li>
+          <li>Pas de tables de finales dans des images ISO sous Windows</li>
+        </ul>
+        <a class="btn primary" href="https://github.com/Antidote1911/Hydra64/releases/latest"><span class="en">Download the archive</span><span class="fr">Télécharger l'archive</span></a>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 class="en">Build it yourself</h3>
+      <h3 class="fr">Le compiler soi-même</h3>
+      <p class="en">C++20, Qt 6, CMake and Rust. On Arch Linux and its derivatives:</p>
+      <p class="fr">C++20, Qt 6, CMake et Rust. Sous Arch Linux et ses dérivées :</p>
+<pre>sudo pacman -S --needed qt6-base qt6-svg qt6-tools cmake git rust
+git clone https://github.com/Antidote1911/Hydra64.git &amp;&amp; cd Hydra64
+./build.sh        <span class="c"># Release build in build/, Stockfish included</span>
+./run.sh          <span class="c"># starts the application</span></pre>
+      <p style="margin-top:12px" class="en">Details, options and the Windows cross-build are in the <a href="https://github.com/Antidote1911/Hydra64#building-and-running">README</a>.</p>
+      <p style="margin-top:12px" class="fr">Les détails, les options et la compilation croisée pour Windows sont dans le <a href="https://github.com/Antidote1911/Hydra64#building-and-running">README</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================= LINKS -->
+<section id="links">
+  <div class="wrap">
+    <div class="eyebrow"><span class="en">Links</span><span class="fr">Liens</span></div>
+    <h2 class="en">Standing on these shoulders</h2>
+    <h2 class="fr">Sur les épaules de ces projets</h2>
+    <p class="intro en">Hydra64 embeds or relies on the work of these projects. Each keeps its own licence.</p>
+    <p class="intro fr">Hydra64 embarque le travail de ces projets ou s'appuie dessus. Chacun garde sa propre licence.</p>
+    <div class="links">
+      <a class="link" href="https://stockfishchess.org/"><div class="name">Stockfish</div><div class="what"><span class="en">The built-in engine: evaluation, opponent, coach, judge</span><span class="fr">Le moteur intégré : évaluation, adversaire, coach, juge</span></div><div class="lic">GPL-3.0</div></a>
+      <a class="link" href="https://www.qt.io/"><div class="name">Qt 6</div><div class="what"><span class="en">The interface toolkit</span><span class="fr">La bibliothèque d'interface</span></div><div class="lic">LGPL-3.0</div></a>
+      <a class="link" href="https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"><div class="name">Qt Advanced Docking System</div><div class="what"><span class="en">Panels that dock, float and stack</span><span class="fr">Les panneaux qui s'ancrent, flottent et s'empilent</span></div><div class="lic">LGPL-2.1</div></a>
+      <a class="link" href="https://github.com/itshak/cbvault"><div class="name">cbvault</div><div class="what"><span class="en">Reading of ChessBase databases, in Rust</span><span class="fr">Lecture des bases ChessBase, en Rust</span></div><div class="lic">MIT</div></a>
+      <a class="link" href="https://github.com/jdart1/Fathom"><div class="name">Fathom</div><div class="what"><span class="en">Probing of Syzygy endgame tables</span><span class="fr">Lecture des tables de finales Syzygy</span></div><div class="lic">MIT</div></a>
+      <a class="link" href="https://syzygy-tables.info/"><div class="name">Syzygy tables</div><div class="what"><span class="en">Exact results of endgames up to 7 pieces</span><span class="fr">Résultats exacts des finales jusqu'à 7 pièces</span></div><div class="lic"><span class="en">downloaded separately</span><span class="fr">téléchargées à part</span></div></a>
+      <a class="link" href="https://github.com/lichess-org/chess-openings"><div class="name">Lichess chess-openings</div><div class="what"><span class="en">Names and ECO codes of about 3,900 openings</span><span class="fr">Noms et codes ECO d'environ 3 900 ouvertures</span></div><div class="lic">CC0</div></a>
+      <a class="link" href="https://database.lichess.org/#puzzles"><div class="name">Lichess puzzles</div><div class="what"><span class="en">The 3,565 bundled training exercises</span><span class="fr">Les 3 565 exercices d'entraînement livrés</span></div><div class="lic">CC0</div></a>
+      <a class="link" href="https://github.com/lichess-org/lila/tree/master/public/piece"><div class="name">Lichess pieces &amp; boards</div><div class="what"><span class="en">7 piece sets and 24 boards under free licences</span><span class="fr">7 jeux de pièces et 24 échiquiers sous licence libre</span></div><div class="lic">AGPL · MIT · CC BY · GPL</div></a>
+      <a class="link" href="https://lucide.dev/"><div class="name">Lucide</div><div class="what"><span class="en">Icons of the databases</span><span class="fr">Les icônes des bases</span></div><div class="lic">ISC</div></a>
+      <a class="link" href="https://www.chessprogramming.org/UCI"><div class="name">UCI</div><div class="what"><span class="en">The protocol every engine speaks</span><span class="fr">Le protocole que parlent tous les moteurs</span></div><div class="lic">Chess Programming Wiki</div></a>
+      <a class="link" href="https://github.com/Antidote1911/Hydra64"><div class="name">Hydra64 on GitHub</div><div class="what"><span class="en">Source code, issues, releases</span><span class="fr">Code source, tickets, versions</span></div><div class="lic">GPL-3.0</div></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<footer>
+  <div class="wrap">
+    <div><span class="en">Hydra64 0.1 · free software under the GNU GPL version 3, with no warranty.</span><span class="fr">Hydra64 0.1 · logiciel libre sous licence GNU GPL version 3, sans aucune garantie.</span></div>
+    <nav>
+      <a href="manual/"><span class="en">Manual</span><span class="fr">Notice</span></a>
+      <a href="https://github.com/Antidote1911/Hydra64/releases"><span class="en">Releases</span><span class="fr">Versions</span></a>
+      <a href="https://github.com/Antidote1911/Hydra64/issues"><span class="en">Report a problem</span><span class="fr">Signaler un problème</span></a>
+      <a href="https://github.com/Antidote1911/Hydra64/blob/master/LICENSE"><span class="en">Licence</span><span class="fr">Licence</span></a>
+    </nav>
+  </div>
+</footer>
+
+<dialog id="zoom"><img alt=""></dialog>
+
+<script>
+(function () {
+  var root = document.documentElement, lang = root.lang === 'fr' ? 'fr' : 'en';
+  function apply() {
+    root.lang = lang;
+    document.title = document.body.getAttribute('data-title-' + lang);
+    var buttons = document.querySelectorAll('#lang button');
+    for (var i = 0; i < buttons.length; ++i) buttons[i].className = buttons[i].getAttribute('data-lang') === lang ? 'on' : '';
+  }
+  apply();
+  document.getElementById('lang').addEventListener('click', function (e) {
+    var l = e.target.getAttribute('data-lang');
+    if (!l || l === lang) return;
+    // The same place after the change: the texts of the two languages do not have the same height.
+    var marks = document.querySelectorAll('main section, .hero'), at = null;
+    for (var i = 0; i < marks.length; ++i) {
+      var top = marks[i].getBoundingClientRect().top;
+      if (top <= 80 && (!at || top >= at.top)) at = { el: marks[i], top: top };
+    }
+    lang = l;
+    try { localStorage.setItem('hydra64-lang', lang); } catch (err) {}
+    apply();
+    if (at) window.scrollTo({ top: window.scrollY + at.el.getBoundingClientRect().top - at.top, behavior: 'instant' });
+  });
+
+  // Screenshots: a click shows them full size.
+  var zoom = document.getElementById('zoom'), big = zoom.querySelector('img');
+  document.addEventListener('click', function (e) {
+    var shot = e.target.closest && e.target.closest('button.shot');
+    if (shot && zoom.showModal) {
+      big.src = shot.getAttribute('data-full');
+      big.alt = shot.querySelector('img').alt;
+      zoom.showModal();
+    } else if (e.target === zoom || e.target === big) zoom.close();
+  });
+
+  // Menu: the section being read is highlighted.
+  var links = document.querySelectorAll('.menu a[href^="#"]');
+  if ('IntersectionObserver' in window) {
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        for (var i = 0; i < links.length; ++i) links[i].classList.toggle('on', links[i].getAttribute('href') === '#' + entry.target.id);
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    document.querySelectorAll('main section[id]').forEach(function (s) { seen.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

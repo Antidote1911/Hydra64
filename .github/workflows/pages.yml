@@ -1,17 +1,18 @@
-# Publishes the user manual on GitHub Pages: https://antidote1911.github.io/Hydra64/
+# Publishes the website on GitHub Pages: https://antidote1911.github.io/Hydra64/
 #
-#   push to master that changes Manual.html   publishes it again
-#   "Run workflow" button (Actions tab)        the same, by hand
+#   push to master that changes the site   publishes it again
+#   "Run workflow" button (Actions tab)     the same, by hand
 #
-# The site holds a single file: Manual.html, served as index.html (it is standalone — styles,
-# script and logo are inside it). Nothing else of the repository is published.
+# The site is assembled by tools/website/build.sh from files of the repository: the home page
+# (website/), the user manual (Manual.html, served under /manual/), the screenshots and the logo.
+# Nothing else of the repository is published.
 # Pages must be set to "GitHub Actions" (Settings → Pages → Source).
-name: Manual
+name: Website
 
 on:
   push:
     branches: [master]
-    paths: ['Manual.html', '.github/workflows/pages.yml']
+    paths: ['website/**', 'Manual.html', 'docs/screenshots/**', 'resources/hydra64.svg', 'tools/website/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -25,7 +26,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish the manual
+    name: Publish the site
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -33,10 +34,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepare the site
-        run: |
-          mkdir site
-          cp Manual.html site/index.html
+      - name: Assemble the site
+        run: tools/website/build.sh site
 
       - uses: actions/configure-pages@v5
 

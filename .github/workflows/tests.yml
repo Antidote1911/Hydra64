@@ -4,16 +4,16 @@
 #   push to master, pull request        builds and runs the tests
 #   "Run workflow" button (Actions tab) the same, on the chosen branch
 #
-# Changes that only touch the documentation do not start it. The tests on real data
+# Changes that only touch the documentation or the website do not start it. The tests on real data
 # (HYDRA64_TEST_CBH, HYDRA64_PLAYBASE…) are skipped here: those databases are not in the repository.
 name: Tests
 
 on:
   push:
     branches: [master]
-    paths-ignore: ['**.md', '**.html', 'docs/**', 'LICENSE']
+    paths-ignore: ['**.md', '**.html', 'docs/**', 'website/**', 'tools/website/**', '.github/workflows/pages.yml', 'LICENSE']
   pull_request:
-    paths-ignore: ['**.md', '**.html', 'docs/**', 'LICENSE']
+    paths-ignore: ['**.md', '**.html', 'docs/**', 'website/**', 'tools/website/**', '.github/workflows/pages.yml', 'LICENSE']
   workflow_dispatch:
 
 permissions:

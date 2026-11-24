@@ -3,6 +3,8 @@
 **A chess workbench for Linux and Windows: databases, analysis, play and engine tournaments in one
 dark, dockable interface.** C++20 / Qt 6, free software (GPL-3).
 
+**Website: <https://antidote1911.github.io/Hydra64/>** — tour, downloads, manual.
+
 [![Tests](https://github.com/Antidote1911/Hydra64/actions/workflows/tests.yml/badge.svg)](https://github.com/Antidote1911/Hydra64/actions/workflows/tests.yml)
 [![Release](https://github.com/Antidote1911/Hydra64/actions/workflows/release.yml/badge.svg)](https://github.com/Antidote1911/Hydra64/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/Antidote1911/Hydra64)](https://github.com/Antidote1911/Hydra64/releases/latest)
@@ -44,7 +46,7 @@ dark, dockable interface.** C++20 / Qt 6, free software (GPL-3).
 ![Tournament page: overview of six games in progress, participants, standings and game list](docs/screenshots/tournament.png)
 
 The interface is available in **English and French**, and so is the full user manual (every page,
-every feature, all file types): **[read it online](https://antidote1911.github.io/Hydra64/)** — EN / FR
+every feature, all file types): **[read it online](https://antidote1911.github.io/Hydra64/manual/)** — EN / FR
 buttons at the top right. It is the file [`Manual.html`](Manual.html) of this repository, which
 also opens in a browser without a connection.
 
