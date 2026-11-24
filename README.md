@@ -86,9 +86,17 @@ databases next to its executable), with links in `/usr/bin` for `hydra64` and `h
 the bundled databases are in `/usr/share/hydra64/`. The menu entry and the AppStream description
 are in `packaging/linux/`.
 
-`packaging/aur/hydra64-bin/` is the recipe of the Arch Linux (AUR) package made from the AppImage
-of a release. The Windows installer of the releases is built by NSIS from
-`tools/windows/installer.nsi`.
+The releases carry, for Linux, an AppImage, a `.tar.gz` archive, a Debian package and a Flatpak
+bundle, all built by `.github/workflows/release.yml`; the recipes are in `packaging/`:
+
+    packaging/
+      linux/                menu entry and AppStream description, shared by all
+      debian/control        the Debian package (the AppImage's folder in /opt/hydra64)
+      flatpak/              manifest of the Flatpak (KDE runtime)
+      aur/hydra64-bin/      Arch Linux (AUR): the AppImage of a release, unpacked
+      aur/hydra64/          Arch Linux (AUR): built from the sources, with the system's Qt and Stockfish
+
+The Windows installer of the releases is built by NSIS from `tools/windows/installer.nsi`.
 
 ### User folder
 

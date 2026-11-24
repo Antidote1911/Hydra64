@@ -293,7 +293,7 @@ jobs:
         # session bus, no FUSE), which says nothing about the bundle. Look at the result of the step.
         continue-on-error: true
         run: |
-          dbus-run-session -- flatpak-builder --disable-rofiles-fuse --run flatpak_app \
+          dbus-run-session -- flatpak-builder --run flatpak_app \
               packaging/flatpak/io.github.antidote1911.hydra64.yml env QT_QPA_PLATFORM=offscreen hydra64 --version
 
       - uses: actions/upload-artifact@v4
