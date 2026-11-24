@@ -31,4 +31,7 @@ command -v rsvg-convert >/dev/null && rsvg-convert -w 256 -h 256 resources/hydra
 # The menu entry of the packages (packaging/linux), pointing at this installation
 sed "s|^Exec=hydra64 |Exec=$opt/hydra64 |" packaging/linux/hydra64.desktop > "$apps/hydra64.desktop"
 command -v update-desktop-database >/dev/null && update-desktop-database "$apps" >/dev/null 2>&1 || true
+# The icon cache of the folder, if there is one, must list the icon: a cache that is out of date
+# hides it from the menus that read it.
+command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q -f -t "$icons" >/dev/null 2>&1 || true
 echo "Hydra64 installé dans $opt — lanceur : $bin/hydra64, entrée de menu « Hydra64 »."
