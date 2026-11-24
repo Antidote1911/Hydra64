@@ -1,6 +1,11 @@
 ; Installer of Hydra64 for Windows (NSIS 3, https://nsis.sourceforge.io).
 ;
-;   makensis -DVERSION=1.0.0 -DSTAGE=<Hydra64 folder> -DROOT=<repository> -DOUTFILE=<setup.exe> installer.nsi
+;   makensis -DVERSION=1.0.0 -DSTAGE=<Hydra64 folder> -DROOT=<repository> -DOUTFILE=<setup.exe>
+;            [-DLICENSE=<licence text>] installer.nsi
+;
+; LICENSE: the text of the licence page. NSIS reads a file without a byte order mark in the
+; Windows code page ("©" comes out wrong): the workflow passes a copy of LICENSE that starts
+; with the UTF-8 mark. Without it, the LICENSE file of the repository is taken as it is.
 ;
 ; STAGE is the folder gathered by tools/windows/package.py (the one the zip archive holds): the
 ; installer copies it as it is. Built by .github/workflows/release.yml on the Windows machine.
@@ -24,6 +29,9 @@ SetCompressor /SOLID lzma
 !endif
 !ifndef ROOT
   !error "ROOT is missing (-DROOT=<repository>)"
+!endif
+!ifndef LICENSE
+  !define LICENSE "${ROOT}\LICENSE"
 !endif
 !ifndef OUTFILE
   !define OUTFILE "Hydra64-${VERSION}-windows-x64-setup.exe"
@@ -54,10 +62,13 @@ VIAddVersionKey "LegalCopyright" "GNU General Public License, version 3"
 !define MUI_ICON "${ROOT}\resources\windows\hydra64.ico"
 !define MUI_UNICON "${ROOT}\resources\windows\hydra64.ico"
 !define MUI_ABORTWARNING
+; First and last pages: the logo (tools/windows/make_installer_art.sh)
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${ROOT}\resources\windows\installer-side.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "${ROOT}\resources\windows\installer-side.bmp"
 !define MUI_COMPONENTSPAGE_NODESC
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${ROOT}\LICENSE"
+!insertmacro MUI_PAGE_LICENSE "${LICENSE}"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES

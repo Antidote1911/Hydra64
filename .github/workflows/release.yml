@@ -83,7 +83,9 @@ jobs:
         run: |
           version=${GITHUB_REF_NAME#v}
           [[ $GITHUB_REF_NAME == v* ]] || version=$(sed -n 's/^project(Hydra64 VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          printf '\xEF\xBB\xBF' > build-win/LICENSE.txt && cat LICENSE >> build-win/LICENSE.txt # UTF-8 mark: see the script
           makensis -V2 -DVERSION="$version" -DROOT="$(cygpath -w "$PWD")" \
+              -DLICENSE="$(cygpath -w "$PWD/build-win/LICENSE.txt")" \
               -DSTAGE="$(cygpath -w "$PWD/build-win/Hydra64")" \
               -DOUTFILE="$(cygpath -w "$PWD")\\Hydra64-${GITHUB_REF_NAME//\//-}-windows-x64-setup.exe" \
               tools/windows/installer.nsi
