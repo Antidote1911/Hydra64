@@ -4164,8 +4164,13 @@ int main(int argc, char** argv)
                     auto* oppDock = w4.findChild<ads::CDockManager*>()->findDockWidget(QStringLiteral("playEngine"));
                     if (game->useBook()) game->setUseBook(false);
                     const qint64 idleKey = oppDock->icon().cacheKey();
+                    const QString depthBefore = w4.findChild<PlayEnginePanel*>()->findChild<QLabel*>(QStringLiteral("PlayDepth"))->text();
                     emit b4->moveRequested(sj->current()->pos.parseUci("e2e4"));
-                    const bool thinking = waitFor([&] { return game->isThinking(); }, 15000);
+                    // "Thinking" starts before the engine has begun its search (options, isready): the click is
+                    // only meant for a search under way, so wait for its first line (a depth is displayed)
+                    auto* depthLabel = panel->findChild<QLabel*>(QStringLiteral("PlayDepth"));
+                    const bool thinking = waitFor([&] { return game->isThinking(); }, 15000)
+                                          && waitFor([&] { return depthLabel && depthLabel->text() != depthBefore && depthLabel->text().contains(QRegularExpression(QStringLiteral("\\d"))); }, 30000);
                     wait(300);
                     const bool red = oppDock->icon().cacheKey() != idleKey;
                     auto* stats = panel->findChild<QWidget*>(QStringLiteral("PlayStats"));
