@@ -10,7 +10,7 @@ Hydra64 is a chess workbench: game databases, engine analysis, play against an e
 | Debian 13, Ubuntu 24.04 and later, Mint 22 | `hydra64_{VERSION}_amd64.deb` | `sudo apt install ./hydra64_{VERSION}_amd64.deb` |
 | Linux with Flatpak | `Hydra64-{TAG}-linux-x86_64.flatpak` | `flatpak install Hydra64-{TAG}-linux-x86_64.flatpak` (the KDE runtime comes from Flathub) |
 | Linux, without installing | `Hydra64-{TAG}-linux-x86_64.tar.gz` | Extract anywhere and run `Hydra64/hydra64`. |
-| Arch Linux | AUR: `hydra64-bin` (this AppImage) or `hydra64` (built from the sources) | |
+| Arch Linux | AUR: [`hydra64-bin`](https://aur.archlinux.org/packages/hydra64-bin) (this AppImage) or [`hydra64`](https://aur.archlinux.org/packages/hydra64) (built from the sources) | `yay -S hydra64-bin` |
 
 The AppImage, the `.deb` and the `.tar.gz` need glibc 2.39 or later. All the files need a processor with AVX2 and contain Stockfish, Shuffle and the bundled databases. `SHA256SUMS` lists the checksums of the files: `sha256sum -c SHA256SUMS`.
 

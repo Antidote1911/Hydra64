@@ -5,6 +5,8 @@ dark, dockable interface.** C++20 / Qt 6, free software (GPL-3).
 
 **Website: <https://antidote1911.github.io/Hydra64/>** — tour, downloads, manual.
 
+**Arch Linux (AUR):** `yay -S hydra64-bin` — or [`hydra64`](https://aur.archlinux.org/packages/hydra64), built from the sources.
+
 [![Tests](https://github.com/Antidote1911/Hydra64/actions/workflows/tests.yml/badge.svg)](https://github.com/Antidote1911/Hydra64/actions/workflows/tests.yml)
 [![Release](https://github.com/Antidote1911/Hydra64/actions/workflows/release.yml/badge.svg)](https://github.com/Antidote1911/Hydra64/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/Antidote1911/Hydra64)](https://github.com/Antidote1911/Hydra64/releases/latest)
@@ -95,6 +97,16 @@ bundle, all built by `.github/workflows/release.yml`; the recipes are in `packag
       flatpak/              manifest of the Flatpak (KDE runtime)
       aur/hydra64-bin/      Arch Linux (AUR): the AppImage of a release, unpacked
       aur/hydra64/          Arch Linux (AUR): built from the sources, with the system's Qt and Stockfish
+
+On Arch Linux and its derivatives, both packages are in the AUR:
+
+```sh
+yay -S hydra64-bin   # the AppImage of the release, unpacked in /opt/hydra64
+yay -S hydra64       # built from the sources, with the system's Qt and Stockfish
+```
+
+[`hydra64-bin`](https://aur.archlinux.org/packages/hydra64-bin) and [`hydra64`](https://aur.archlinux.org/packages/hydra64) replace each other. For a new
+version, the header of each `PKGBUILD` says what to change.
 
 The Windows installer of the releases is built by NSIS from `tools/windows/installer.nsi`.
 
