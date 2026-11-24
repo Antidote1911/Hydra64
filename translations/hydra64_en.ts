@@ -2293,10 +2293,6 @@ then add it in Engine → Manage engines…</translation>
         <source>%1 (intégré)</source>
         <translation>%1 (built-in)</translation>
     </message>
-    <message>
-        <source>intégré</source>
-        <translation>built-in</translation>
-    </message>
 </context>
 <context>
     <name>EngineTabDialog</name>

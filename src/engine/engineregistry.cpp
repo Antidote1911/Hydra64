@@ -80,6 +80,19 @@ EngineRegistry::EngineRegistry()
     registerBundled();
 }
 
+// The mark of a built-in engine in its name, "(intégré)" or "(built-in)". The name is saved and the
+// interface language can change afterwards: the mark is recognised in both languages.
+static int builtinMarks(const QString& name)
+{
+    return name.count(QStringLiteral("(intégré)")) + name.count(QStringLiteral("(built-in)"));
+}
+
+static QString withoutBuiltinMarks(QString name)
+{
+    name.remove(QStringLiteral(" (intégré)")).remove(QStringLiteral(" (built-in)"));
+    return name.trimmed();
+}
+
 void EngineRegistry::registerBundled()
 {
     // Engines that were shipped on trial (Berserk, PlentyChess, Rodent IV, Shallow Blue) are no longer:
@@ -106,7 +119,7 @@ void EngineRegistry::registerBundled()
                 }
         EngineConfig cfg;
         if (!repaired && create(path, cfg, nullptr)) {
-            if (!cfg.name.contains(tr("intégré"))) cfg.name = tr("%1 (intégré)").arg(cfg.name);
+            if (builtinMarks(cfg.name) == 0) cfg.name = tr("%1 (intégré)").arg(cfg.name);
             if (QLatin1String(kind) == QLatin1String("stockfish")) m_engines.prepend(cfg);
             else m_engines.append(cfg);
         }
@@ -114,8 +127,15 @@ void EngineRegistry::registerBundled()
     }
     // Shuffle registered before it became a built-in engine: same "(intégré)" mark as Stockfish
     for (EngineConfig& e : m_engines)
-        if (bundledKind(e) == QLatin1String("shuffle") && !e.name.contains(tr("intégré"))) {
+        if (bundledKind(e) == QLatin1String("shuffle") && builtinMarks(e.name) == 0) {
             e.name = tr("%1 (intégré)").arg(e.name);
+            changed = true;
+        }
+    // A name marked once per language ("Shuffle 0.1 (intégré) (built-in)": the mark used to be looked
+    // for in the current language only) keeps a single mark.
+    for (EngineConfig& e : m_engines)
+        if (isBuiltin(e) && builtinMarks(e.name) > 1) {
+            e.name = tr("%1 (intégré)").arg(withoutBuiltinMarks(e.name));
             changed = true;
         }
     if (changed) save();
