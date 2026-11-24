@@ -1,6 +1,6 @@
 pkgbase = hydra64-bin
 	pkgdesc = Chess databases, engine analysis, play against an engine and engine tournaments
-	pkgver = 0.1.0
+	pkgver = 1.0.0
 	pkgrel = 1
 	url = https://antidote1911.github.io/Hydra64/
 	arch = x86_64
@@ -18,11 +18,11 @@ pkgbase = hydra64-bin
 	depends = e2fsprogs
 	depends = hicolor-icon-theme
 	optdepends = fuse3: endgame tablebases read from ISO disc images
-	provides = hydra64=0.1.0
+	provides = hydra64=1.0.0
 	conflicts = hydra64
 	options = !strip
 	options = !debug
-	source = Hydra64-v0.1.0-linux-x86_64.AppImage::https://github.com/Antidote1911/Hydra64/releases/download/v0.1.0/Hydra64-v0.1.0-linux-x86_64.AppImage
-	sha256sums = 5ff91beb5a74113c9e4d0376547ec0a7556d72f0b6145cc2f86319878d349f03
+	source = Hydra64-v1.0.0-linux-x86_64.AppImage::https://github.com/Antidote1911/Hydra64/releases/download/v1.0.0/Hydra64-v1.0.0-linux-x86_64.AppImage
+	sha256sums = 9e0199e37817764679dfa416d4ad33e60b86df55accc07d94113d00b6c7748b6
 
 pkgname = hydra64-bin
