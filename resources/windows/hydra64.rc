@@ -1,0 +1,4 @@
+// Windows resources: the icon of the executable (tools/logo/make_logo.py), then the manifest
+// (paths in UTF-8, sharp display on high-density screens).
+IDI_ICON1 ICON "hydra64.ico"
+1 24 "hydra64.manifest"

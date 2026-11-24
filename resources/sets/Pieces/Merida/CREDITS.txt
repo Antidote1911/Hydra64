@@ -1,0 +1,7 @@
+Armando Hernandez Marroquin, GPLv2+ (Lichess)
+
+Jeu de pièces « merida » de Lichess (https://github.com/lichess-org/lila, public/piece/merida),
+fichiers SVG d'origine. C'était le jeu par défaut « Hydra64 » jusqu'en novembre 2026.
+
+Auteur : Armando Hernandez Marroquin
+Licence : GPLv2+ (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

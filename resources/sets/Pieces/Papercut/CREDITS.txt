@@ -1,0 +1,7 @@
+Nikolay Anzarov, CC BY 4.0 (Lichess)
+
+Jeu de pièces « papercut » de Lichess (https://github.com/lichess-org/lila, public/piece/papercut),
+fichiers SVG d'origine.
+
+Auteur : Nikolay Anzarov — https://nikoichu.itch.io/
+Licence : CC BY 4.0 (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

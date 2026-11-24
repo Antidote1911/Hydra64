@@ -1,0 +1,7 @@
+James Faure, CC BY 4.0 (Lichess)
+
+Jeu de pièces « firi » de Lichess (https://github.com/lichess-org/lila, public/piece/firi),
+fichiers SVG d'origine.
+
+Auteur : James Faure — https://github.com/jfaure/Firi-pieceset
+Licence : CC BY 4.0 (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

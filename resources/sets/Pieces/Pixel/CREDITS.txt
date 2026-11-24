@@ -1,0 +1,7 @@
+therealqtpi, AGPLv3+ (Lichess)
+
+Jeu de pièces « pixel » de Lichess (https://github.com/lichess-org/lila, public/piece/pixel),
+fichiers SVG d'origine.
+
+Auteur : therealqtpi
+Licence : AGPLv3+ (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

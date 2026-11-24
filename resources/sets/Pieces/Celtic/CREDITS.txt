@@ -1,0 +1,7 @@
+Maurizio Monge, MIT (Lichess)
+
+Jeu de pièces « celtic » de Lichess (https://github.com/lichess-org/lila, public/piece/celtic),
+fichiers SVG d'origine.
+
+Auteur : Maurizio Monge — https://github.com/maurimo/chess-art
+Licence : MIT (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

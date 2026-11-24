@@ -1,0 +1,6 @@
+Jeu de pièces « Hydra64 » : pièces aux formes rondes, ombrées par paliers sous un contour sombre ;
+roi et dame posés sur le même pied droit, tour à quatre merlons, cavalier agressif à l'œil rouge,
+fou à boule de la couleur opposée. Les douze fichiers SVG de ce dossier en sont la source.
+
+Auteur : antidote1911, 2012
+Licence : Creative Commons CC0 1.0 (domaine public)

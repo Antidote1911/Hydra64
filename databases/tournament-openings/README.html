@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starting positions for tournaments — Hydra64</title>
+<style>
+:root {
+  --window: #18181a; --panel: #212124; --panel-alt: #262629; --header: #2a2a2e;
+  --raised: #333338; --border: #0e0e10; --border-soft: #36363b;
+  --text: #d6d6da; --text-dim: #8e8e96; --text-faint: #5c5c64;
+  --accent: #e68a35; --accent-soft: rgba(230, 138, 53, .16);
+  --good: #5cb87e; --bad: #e05a50; --comment: #86b095;
+  --sq-light: #c4c8ce; --sq-dark: #707a87;
+  --mono: "JetBrains Mono", "DejaVu Sans Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { background: var(--window); }
+body {
+  margin: 0; color: var(--text); background: var(--window);
+  font: 15px/1.6 "Inter", "Segoe UI", "Noto Sans", "DejaVu Sans", system-ui, sans-serif;
+}
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 64px; }
+
+/* ---- En-tête ---- */
+header {
+  background: linear-gradient(180deg, var(--header), var(--window));
+  border-bottom: 1px solid var(--border);
+}
+header .wrap { display: flex; align-items: center; gap: 20px; padding-top: 36px; padding-bottom: 32px; }
+header svg { width: 76px; height: 76px; flex: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+.brand { font-size: 11px; font-weight: 600; letter-spacing: .22em; color: var(--text-faint); text-transform: uppercase; }
+h1 { margin: 2px 0 4px; font-size: 28px; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+h1 span span { color: var(--accent); } /* (le premier niveau de <span> porte la langue) */
+.lead { margin: 0; color: var(--text-dim); max-width: 60ch; }
+
+/* ---- Sections ---- */
+section { margin-top: 44px; }
+h2 {
+  margin: 0 0 14px; font-size: 11px; font-weight: 600; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--text-faint);
+  display: flex; align-items: center; gap: 10px;
+}
+h2::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+p { margin: 0 0 12px; }
+.dim { color: var(--text-dim); }
+strong { color: #ececef; font-weight: 600; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+code { background: var(--raised); padding: 1px 6px; border-radius: 4px; color: #ececef; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; box-shadow: 0 1px 0 var(--border-soft) inset;
+}
+
+/* ---- Notation (comme dans l'application) ---- */
+.notation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.notation { background: var(--panel-alt); border-radius: 6px; padding: 14px 16px; border: 1px solid var(--border); }
+.notation .tag { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+.notation .moves { font-family: var(--mono); font-size: 13.5px; line-height: 1.9; }
+.notation .book { color: var(--text); font-weight: 600; }
+.notation .engine { color: var(--text-dim); }
+.notation .cmt { color: var(--comment); font-family: inherit; }
+.notation .fen { color: var(--text-faint); font-size: 12px; word-break: break-all; }
+
+/* ---- Guide de choix ---- */
+.rule {
+  display: flex; gap: 14px; align-items: center; margin-bottom: 16px;
+  background: var(--accent-soft); border: 1px solid rgba(230,138,53,.45); border-radius: 8px; padding: 14px 18px;
+}
+.rule .big { font-size: 26px; font-weight: 700; color: var(--accent); white-space: nowrap; font-family: var(--mono); }
+.meter { position: relative; height: 8px; border-radius: 4px; margin: 6px 0 2px;
+  background: linear-gradient(90deg, var(--bad) 0%, var(--bad) 30%, var(--good) 45%, var(--good) 60%, var(--bad) 75%, var(--bad) 100%); opacity: .8; }
+.meter-legend { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-faint); }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 12px; vertical-align: top; }
+th { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); border-bottom: 1px solid var(--border-soft); }
+tbody tr { border-bottom: 1px solid var(--border-soft); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--panel-alt); }
+td.file { font-family: var(--mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+th.num, td.num { text-align: right; white-space: nowrap; }
+td.num { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* ---- Fichiers ---- */
+.files { display: grid; gap: 14px; }
+.file-card { position: relative; overflow: hidden; }
+.file-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+.file-card.epd::before { background: var(--text-faint); }
+.file-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; margin-bottom: 8px; }
+.file-name { font-family: var(--mono); font-size: 14.5px; font-weight: 600; color: #ececef; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 11.5px; padding: 1px 9px; border-radius: 999px; background: var(--raised); color: var(--text-dim); white-space: nowrap; }
+.chip.moves { background: rgba(92,184,126,.16); color: var(--good); }
+.chip.nomoves { background: rgba(224,90,80,.14); color: var(--bad); }
+.chip.rec { background: var(--accent-soft); color: var(--accent); }
+.file-card p:last-child { margin-bottom: 0; }
+
+/* ---- Divers ---- */
+ul.tips { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+ul.tips li { display: flex; gap: 12px; }
+ul.tips li::before { content: "♞"; color: var(--accent); flex: none; }
+.origin dt { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-top: 12px; }
+.origin dt:first-child { margin-top: 0; }
+.origin dd { margin: 2px 0 0; color: var(--text-dim); }
+.board-strip { display: flex; height: 6px; margin-top: 44px; border-radius: 3px; overflow: hidden; }
+.board-strip i { flex: 1; background: var(--sq-light); }
+.board-strip i:nth-child(even) { background: var(--sq-dark); }
+footer { margin-top: 16px; font-size: 12px; color: var(--text-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 640px) {
+  header .wrap { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; }
+  h1 { font-size: 23px; }
+  .notation-grid { grid-template-columns: 1fr; }
+  .rule { flex-direction: column; align-items: flex-start; }
+  table.choice th:nth-child(3), table.choice td:nth-child(3) { display: none; }
+  td.file { white-space: normal; word-break: break-all; }
+}
+
+/* ---- Langue : boutons EN / FR, comme sur les pages exportées par Hydra64 ---- */
+header .wrap > div { flex: 1; }
+#lang { display: flex; flex: none; align-self: flex-start; border: 1px solid var(--border-soft); border-radius: 6px; overflow: hidden; }
+#lang button { border: 0; border-radius: 0; background: var(--panel); color: var(--text-dim); padding: 4px 11px; font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .08em; cursor: pointer; }
+#lang button.on { background: var(--accent); color: #18181a; }
+html[lang="en"] .fr, html[lang="fr"] .en { display: none !important; }
+.folders { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 14px; }
+.folders a.card { display: block; color: inherit; }
+.folders a.card:hover { text-decoration: none; border-color: var(--accent); }
+.folders .file-name { display: block; margin-bottom: 6px; color: var(--accent); }
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; }
+ul.tips + .card, p + .card { margin-top: 14px; }
+</style>
+</head>
+<body data-title-fr="Positions de départ pour les tournois — Hydra64" data-title-en="Starting positions for tournaments — Hydra64">
+
+<header>
+<div class="wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs>
+<radialGradient id="glow"><stop offset="0" stop-color="#ff2a2a" stop-opacity="0.75"/><stop offset="1" stop-color="#ff2a2a" stop-opacity="0"/></radialGradient>
+<radialGradient id="halo" cx="0.5" cy="0.42" r="0.6"><stop offset="0" stop-color="#5a0f1a"/><stop offset="0.55" stop-color="#1a1016"/><stop offset="1" stop-color="#0b0d12"/></radialGradient>
+<linearGradient id="sq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d7180"/><stop offset="1" stop-color="#b9bcc6"/></linearGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4a3d"/><stop offset="1" stop-color="#7a0c18"/></linearGradient>
+<linearGradient id="ink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a4a"/><stop offset="1" stop-color="#b3101f"/></linearGradient>
+</defs><rect x="10" y="10" width="492" height="492" rx="104" fill="url(#halo)" stroke="url(#rim)" stroke-width="12"/><g transform="translate(256 262) scale(0.93) translate(-256 -256)"><polygon points="131,388 381,388 458,479 54,479" fill="#0a0b0f" stroke="#d3162a" stroke-width="3" stroke-linejoin="round"/><polygon points="136.0,392.0 176.0,392.0 163.5,412.8 117.3,412.8" fill="url(#sq)"/><polygon points="176.0,392.0 216.0,392.0 209.8,412.8 163.5,412.8" fill="#22242d"/><polygon points="216.0,392.0 256.0,392.0 256.0,412.8 209.8,412.8" fill="url(#sq)"/><polygon points="256.0,392.0 296.0,392.0 302.2,412.8 256.0,412.8" fill="#22242d"/><polygon points="296.0,392.0 336.0,392.0 348.5,412.8 302.2,412.8" fill="url(#sq)"/><polygon points="336.0,392.0 376.0,392.0 394.7,412.8 348.5,412.8" fill="#22242d"/><polygon points="117.3,412.8 163.5,412.8 146.3,441.4 91.4,441.4" fill="#22242d"/><polygon points="163.5,412.8 209.8,412.8 201.1,441.4 146.3,441.4" fill="url(#sq)"/><polygon points="209.8,412.8 256.0,412.8 256.0,441.4 201.1,441.4" fill="#22242d"/><polygon points="256.0,412.8 302.2,412.8 310.9,441.4 256.0,441.4" fill="url(#sq)"/><polygon points="302.2,412.8 348.5,412.8 365.7,441.4 310.9,441.4" fill="#22242d"/><polygon points="348.5,412.8 394.7,412.8 420.6,441.4 365.7,441.4" fill="url(#sq)"/><polygon points="91.4,441.4 146.3,441.4 126.7,474.0 62.0,474.0" fill="url(#sq)"/><polygon points="146.3,441.4 201.1,441.4 191.3,474.0 126.7,474.0" fill="#22242d"/><polygon points="201.1,441.4 256.0,441.4 256.0,474.0 191.3,474.0" fill="url(#sq)"/><polygon points="256.0,441.4 310.9,441.4 320.7,474.0 256.0,474.0" fill="#22242d"/><polygon points="310.9,441.4 365.7,441.4 385.3,474.0 320.7,474.0" fill="url(#sq)"/><polygon points="365.7,441.4 420.6,441.4 450.0,474.0 385.3,474.0" fill="#22242d"/><path d="M176.0 392 L126.7 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M216.0 392 L191.3 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M256.0 392 L256.0 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M296.0 392 L320.7 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M336.0 392 L385.3 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M117.3 412.8 L394.7 412.8" stroke="#8a0f1b" stroke-width="1.6"/><path d="M91.4 441.4 L420.6 441.4" stroke="#8a0f1b" stroke-width="1.6"/><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#d3162a" stroke-width="59" stroke-linecap="round" stroke-linejoin="round"/><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#d3162a" stroke-width="59" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 300 L256 372" fill="none" stroke="#d3162a" stroke-width="87" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#d3162a" stroke-width="49" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="18,-76 48,-140 58,-62" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="50,-64 96,-116 82,-42" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="70,-40 130,-68 86,-10" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="64,-6 118,-8 66,24" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-64,-6 -118,-8 -66,24" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#0a0b0f" stroke-width="51" stroke-linecap="round" stroke-linejoin="round"/><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#0a0b0f" stroke-width="51" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 300 L256 372" fill="none" stroke="#0a0b0f" stroke-width="79" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#0a0b0f" stroke-width="41" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="18,-76 48,-140 58,-62" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="50,-64 96,-116 82,-42" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="70,-40 130,-68 86,-10" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="64,-6 118,-8 66,24" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-64,-6 -118,-8 -66,24" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#1c1e26" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" /><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#1c1e26" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" /><path d="M256 300 L256 372" fill="none" stroke="#1c1e26" stroke-width="74" stroke-linecap="round" stroke-linejoin="round" /><path d="M176 250 C208 258 216 300 228 350" fill="none" stroke="#e11d2e" stroke-width="15" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M336 250 C304 258 296 300 284 350" fill="none" stroke="#e11d2e" stroke-width="15" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M256 318 L256 372" fill="none" stroke="#e11d2e" stroke-width="30" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#1c1e26" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" /><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#30333f" stroke-width="22" stroke-linejoin="round" stroke-dasharray="16 5" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#555a6a" stroke-width="5" stroke-linejoin="round" stroke-dasharray="10 11" stroke-dashoffset="-3" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#e11d2e" stroke-width="22" stroke-linejoin="round" stroke-dasharray="2.5 18.5" stroke-dashoffset="-17.2" stroke-linecap="butt"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#30333f"/><polygon points="118,30 204,-30 138,34" fill="#555a6a"/><polygon points="140,48 226,22 158,74" fill="#30333f"/><polygon points="140,48 226,22 150,56" fill="#555a6a"/><polygon points="90,24 126,-34 124,32" fill="#30333f"/><polygon points="90,24 126,-34 106,26" fill="#555a6a"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#8a0f1b"/><polygon points="126,98 76,102 40,114 76,114 120,106" fill="#e11d2e"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#1c1e26"/><polygon points="34,136 70,148 126,142 140,128 100,134 60,134" fill="#0a0b0f"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#1c1e26"/><polygon points="40,48 72,30 96,20 150,38 122,42 88,38 56,52" fill="#30333f"/><polygon points="72,30 96,20 150,38 118,32 96,26" fill="#555a6a"/><polygon points="8,56 40,48 52,54 30,64 4,68" fill="#555a6a"/><polygon points="12,62 22,59 18,66" fill="#0a0b0f"/><polygon points="112,60 152,50 160,72 132,82" fill="#8a0f1b"/><polygon points="118,62 150,55 154,66 132,74" fill="#e11d2e"/><circle cx="84" cy="50" r="30" fill="url(#glow)"/><polygon points="62,52 102,40 94,58 74,60" fill="#ff4a3d"/><polygon points="72,53 96,46 90,55" fill="#ffe1d2"/><polygon points="54,50 106,30 104,41 62,54" fill="#0a0b0f"/><polygon points="8,86 20,90 15,106" fill="#f4e7c9"/><polygon points="27,91 41,89 35,112" fill="#f4e7c9"/><polygon points="47,88 57,86 53,100" fill="#f4e7c9"/><polygon points="63,86 73,85 69,97" fill="#f4e7c9"/><polygon points="80,84 90,83 86,94" fill="#f4e7c9"/><polygon points="22,122 33,123 26,104" fill="#f4e7c9"/><polygon points="39,124 49,124 44,109" fill="#f4e7c9"/><polygon points="57,124 67,122 61,110" fill="#f4e7c9"/><polygon points="75,119 85,116 79,106" fill="#f4e7c9"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#30333f"/><polygon points="118,30 204,-30 138,34" fill="#555a6a"/><polygon points="140,48 226,22 158,74" fill="#30333f"/><polygon points="140,48 226,22 150,56" fill="#555a6a"/><polygon points="90,24 126,-34 124,32" fill="#30333f"/><polygon points="90,24 126,-34 106,26" fill="#555a6a"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#8a0f1b"/><polygon points="126,98 76,102 40,114 76,114 120,106" fill="#e11d2e"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#1c1e26"/><polygon points="34,136 70,148 126,142 140,128 100,134 60,134" fill="#0a0b0f"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#1c1e26"/><polygon points="40,48 72,30 96,20 150,38 122,42 88,38 56,52" fill="#30333f"/><polygon points="72,30 96,20 150,38 118,32 96,26" fill="#555a6a"/><polygon points="8,56 40,48 52,54 30,64 4,68" fill="#555a6a"/><polygon points="12,62 22,59 18,66" fill="#0a0b0f"/><polygon points="112,60 152,50 160,72 132,82" fill="#8a0f1b"/><polygon points="118,62 150,55 154,66 132,74" fill="#e11d2e"/><circle cx="84" cy="50" r="30" fill="url(#glow)"/><polygon points="62,52 102,40 94,58 74,60" fill="#ff4a3d"/><polygon points="72,53 96,46 90,55" fill="#ffe1d2"/><polygon points="54,50 106,30 104,41 62,54" fill="#0a0b0f"/><polygon points="8,86 20,90 15,106" fill="#f4e7c9"/><polygon points="27,91 41,89 35,112" fill="#f4e7c9"/><polygon points="47,88 57,86 53,100" fill="#f4e7c9"/><polygon points="63,86 73,85 69,97" fill="#f4e7c9"/><polygon points="80,84 90,83 86,94" fill="#f4e7c9"/><polygon points="22,122 33,123 26,104" fill="#f4e7c9"/><polygon points="39,124 49,124 44,109" fill="#f4e7c9"/><polygon points="57,124 67,122 61,110" fill="#f4e7c9"/><polygon points="75,119 85,116 79,106" fill="#f4e7c9"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#30333f"/><polygon points="0,-156 0,-70 24,-70" fill="#555a6a"/><polygon points="18,-76 48,-140 58,-62" fill="#30333f"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#30333f"/><polygon points="48,-140 40,-70 58,-62" fill="#555a6a"/><polygon points="-48,-140 -40,-70 -58,-62" fill="#555a6a"/><polygon points="50,-64 96,-116 82,-42" fill="#30333f"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#30333f"/><polygon points="96,-116 68,-52 82,-42" fill="#555a6a"/><polygon points="-96,-116 -68,-52 -82,-42" fill="#555a6a"/><polygon points="70,-40 130,-68 86,-10" fill="#30333f"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#30333f"/><polygon points="130,-68 80,-24 86,-10" fill="#555a6a"/><polygon points="-130,-68 -80,-24 -86,-10" fill="#555a6a"/><polygon points="64,-6 118,-8 66,24" fill="#30333f"/><polygon points="-64,-6 -118,-8 -66,24" fill="#30333f"/><polygon points="118,-8 66,10 66,24" fill="#555a6a"/><polygon points="-118,-8 -66,10 -66,24" fill="#555a6a"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#1c1e26"/><polygon points="0,36 35,36 31,82 13,102 0,106 -13,102 -31,82 -35,36" fill="#8a0f1b"/><polygon points="-13,100 0,68 13,100 0,105" fill="#e11d2e"/><polygon points="0,70 3,98 0,102 -3,98" fill="#8a0f1b"/><polygon points="15,102 28,90 23,70" fill="#f4e7c9"/><polygon points="-15,102 -28,90 -23,70" fill="#f4e7c9"/><polygon points="3,105 11,103 7,90" fill="#f4e7c9"/><polygon points="-3,105 -11,103 -7,90" fill="#f4e7c9"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#1c1e26"/><polygon points="0,-82 38,-68 30,-40 0,-26 -30,-40 -38,-68" fill="#30333f"/><polygon points="38,-68 72,-34 68,4 60,-22" fill="#30333f"/><polygon points="-38,-68 -72,-34 -68,4 -60,-22" fill="#30333f"/><polygon points="48,30 68,4 58,2 40,24" fill="#8a0f1b"/><polygon points="-48,30 -68,4 -58,2 -40,24" fill="#8a0f1b"/><polygon points="0,-68 11,-50 0,-32 -11,-50" fill="#e11d2e"/><polygon points="0,-68 11,-50 0,-50" fill="#ff4a3d"/><polygon points="0,-22 17,0 23,26 0,40 -23,26 -17,0" fill="#30333f"/><polygon points="0,6 15,22 0,35 -15,22" fill="#555a6a"/><polygon points="6,25 13,20 11,29" fill="#0a0b0f"/><polygon points="-6,25 -13,20 -11,29" fill="#0a0b0f"/><circle cx="36" cy="-16" r="34" fill="url(#glow)"/><circle cx="-36" cy="-16" r="34" fill="url(#glow)"/><polygon points="14,-12 56,-32 48,-8 26,-2" fill="#ff4a3d"/><polygon points="-14,-12 -56,-32 -48,-8 -26,-2" fill="#ff4a3d"/><polygon points="24,-11 48,-22 43,-11" fill="#ffe1d2"/><polygon points="-24,-11 -48,-22 -43,-11" fill="#ffe1d2"/><polygon points="6,-24 60,-48 68,-32 52,-31 12,-10" fill="#0a0b0f"/><polygon points="-6,-24 -60,-48 -68,-32 -52,-31 -12,-10" fill="#0a0b0f"/><polygon points="21,39 35,37 30,70" fill="#f4e7c9"/><polygon points="-21,39 -35,37 -30,70" fill="#f4e7c9"/><polygon points="8,43 17,41 13,57" fill="#f4e7c9"/><polygon points="-8,43 -17,41 -13,57" fill="#f4e7c9"/></g></g></svg>
+<div>
+<div class="brand"><span class="fr">Hydra64 · Tournoi de moteurs</span><span class="en">Hydra64 · Engine tournament</span></div>
+<h1><span class="fr">Positions de départ <span>pour les tournois</span></span><span class="en">Starting positions <span>for tournaments</span></span></h1>
+<p class="fr lead">Des recueils d'ouvertures pour que chaque appariement parte d'une position différente, la même pour les deux moteurs, couleurs inversées.</p>
+<p class="en lead">Opening collections so that every pairing starts from a different position, the same for both engines, with colours reversed.</p>
+</div>
+<div id="lang"><button data-lang="en">EN</button><button data-lang="fr">FR</button></div>
+</div>
+</header>
+
+<main class="wrap">
+
+<section>
+<h2><span class="fr">Pourquoi</span><span class="en">Why</span></h2>
+<p class="fr">Deux moteurs déterministes qui partent toujours de la position initiale rejouent souvent les mêmes parties : le résultat ne mesure presque rien. En faisant partir chaque appariement d'une ouverture différente, jouée une fois avec chaque couleur (<strong>aller-retour</strong>), on obtient des parties variées et une comparaison <strong>équitable</strong>.</p>
+<p class="en">Two deterministic engines that always start from the initial position often replay the same games, and the result measures almost nothing. Starting each pairing from a different opening, played once with each colour (<strong>reversed colours</strong>), gives varied games and a <strong>fair</strong> comparison.</p>
+<p class="fr note">Dans la page <strong>Tournoi</strong> : choisissez « Positions de départ », puis un fichier de ce dossier, et lancez le tournoi.</p>
+<p class="en note">On the <strong>Tournament</strong> page: choose “Starting positions”, pick a file from this folder, and start the tournament.</p>
+</section>
+<section>
+<h2><span class="fr">Coups de l'ouverture</span><span class="en">Opening moves</span></h2>
+<p class="fr">La plupart des recueils contiennent les coups de l'ouverture. Hydra64 les joue, les affiche dans la notation et les enregistre dans la base du tournoi, suivis du repère <span style="color:var(--comment)">Fin des coups de la base</span>. Les moteurs jouent ensuite.</p>
+<p class="en">Most collections hold the opening moves. Hydra64 plays them, shows them in the notation and stores them in the tournament database, followed by the marker <span style="color:var(--comment)">Fin des coups de la base</span> (end of the book moves). The engines play from there.</p>
+<p class="fr dim"><code>Drawkiller_balanced_big.hy64</code> ne contient que des positions, sans les coups qui y mènent : la partie commence directement à la position.</p>
+<p class="en dim"><code>Drawkiller_balanced_big.hy64</code> holds positions only, without the moves leading to them: the game starts directly from the position.</p>
+</section>
+<section>
+<h2><span class="fr">Choisir un recueil</span><span class="en">Choosing a collection</span></h2>
+<div class="rule"><span class="big">45–60 %</span><div style="flex:1"><span class="fr"><strong>de parties nulles</strong> : c'est la zone à viser.</span><span class="en"><strong>draws</strong>: that is the range to aim for.</span><div class="meter"></div><div class="meter-legend"><span><span class="fr">trop peu → recueil plus équilibré</span><span class="en">too few → a more balanced collection</span></span><span><span class="fr">trop → recueil plus déséquilibré (UHO)</span><span class="en">too many → a more unbalanced collection (UHO)</span></span></div></div></div>
+<div class="card" style="padding:6px 8px"><table><thead><tr><th><span class="fr">Recueil</span><span class="en">Collection</span></th><th><span class="fr">Situation</span><span class="en">Situation</span></th><th><span class="fr">Pourquoi</span><span class="en">Why</span></th></tr></thead><tbody>
+<tr><td class="file">UHO_2022_8mvs_+110_+119</td><td><span class="fr">Moteurs forts entre eux (Stockfish…)</span><span class="en">Strong engines against each other (Stockfish…)</span></td><td><span class="fr">Avantage blanc net : beaucoup moins de nulles.</span><span class="en">Clear White advantage: far fewer draws.</span></td></tr>
+<tr><td class="file">UHO_2022_8mvs_big_+100_+129</td><td><span class="fr">Idem, avec plus de variété</span><span class="en">The same, with more variety</span></td><td><span class="fr">Trois fois plus d'ouvertures.</span><span class="en">Three times as many openings.</span></td></tr>
+<tr><td class="file">8moves_v3</td><td><span class="fr">Moteurs moyens, tournoi court</span><span class="en">Mid-strength engines, short tournament</span></td><td><span class="fr">Ouvertures variées et équilibrées.</span><span class="en">Varied, balanced openings.</span></td></tr>
+<tr><td class="file">2moves_v2</td><td><span class="fr">Moteurs très faibles (Shuffle…)</span><span class="en">Very weak engines (Shuffle…)</span></td><td><span class="fr">2 coups seulement : rien n'est décidé d'avance.</span><span class="en">Only 2 moves: nothing is decided in advance.</span></td></tr>
+<tr><td class="file">Drawkiller_balanced_big</td><td><span class="fr">Tester le milieu de partie</span><span class="en">Testing the middlegame</span></td><td><span class="fr">Positions tendues, sans coups.</span><span class="en">Tense positions, no moves.</span></td></tr>
+<tr><td class="file">Nunn_10 · Nunn2_25</td><td><span class="fr">Match court et classique (« match Nunn »)</span><span class="en">Short classic match (“Nunn match”)</span></td><td><span class="fr">10 ou 25 ouvertures choisies par John Nunn.</span><span class="en">10 or 25 openings chosen by John Nunn.</span></td></tr>
+</tbody></table></div>
+</section>
+<section>
+<h2><span class="fr">Les fichiers</span><span class="en">The files</span></h2>
+<div class="card" style="padding:6px 8px"><table><thead><tr><th><span class="fr">Fichier</span><span class="en">File</span></th><th class=num><span class="fr">Ouvertures</span><span class="en">Openings</span></th><th><span class="fr">Coups</span><span class="en">Moves</span></th></tr></thead><tbody>
+<tr><td class="file">UHO_2022_8mvs_+110_+119.hy64</td><td class="num"><span class="fr">8 939</span><span class="en">8,939</span></td><td><span class="fr">8 coups</span><span class="en">8 moves</span></td></tr>
+<tr><td class="file">UHO_2022_8mvs_big_+100_+129.hy64</td><td class="num"><span class="fr">27 073</span><span class="en">27,073</span></td><td><span class="fr">8 coups</span><span class="en">8 moves</span></td></tr>
+<tr><td class="file">UHO_2022_6mvs_+110_+119.hy64</td><td class="num"><span class="fr">3 317</span><span class="en">3,317</span></td><td><span class="fr">6 coups</span><span class="en">6 moves</span></td></tr>
+<tr><td class="file">2moves_v2.hy64</td><td class="num"><span class="fr">12 092</span><span class="en">12,092</span></td><td><span class="fr">2 coups</span><span class="en">2 moves</span></td></tr>
+<tr><td class="file">8moves_v3.hy64</td><td class="num"><span class="fr">34 700</span><span class="en">34,700</span></td><td><span class="fr">8 coups</span><span class="en">8 moves</span></td></tr>
+<tr><td class="file">Drawkiller_balanced_big.hy64</td><td class="num"><span class="fr">15 962</span><span class="en">15,962</span></td><td><span class="fr">aucun</span><span class="en">none</span></td></tr>
+<tr><td class="file">Nunn_10.hy64</td><td class="num"><span class="fr">10</span><span class="en">10</span></td><td><span class="fr">10 à 13 coups</span><span class="en">10 to 13 moves</span></td></tr>
+<tr><td class="file">Nunn2_25.hy64</td><td class="num"><span class="fr">25</span><span class="en">25</span></td><td><span class="fr">8 à 13 coups</span><span class="en">8 to 13 moves</span></td></tr>
+</tbody></table></div>
+<div class="files" style="margin-top:14px">
+<div class="card file-card">
+<div class="file-head"><span class="file-name">UHO_2022_8mvs_+110_+119.hy64</span><div class="chips"><span class="chip"><span class="fr">8 939 ouvertures</span><span class="en">8,939 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span><span class="chip rec"><span class="fr">recommandé</span><span class="en">recommended</span></span></div></div>
+<p class="fr"><strong>Unbalanced Human Openings 2022</strong> de Stefan Pohl. Ouvertures réellement jouées par des joueurs de plus de 2300 Elo, coupées après 8 coups, les deux dames encore sur l'échiquier, et retenues parce que les Blancs y ont un avantage net mais pas décisif (Komodo Dragon 2.6 : <strong>+1,10 à +1,19</strong>). C'est le jeu que l'auteur recommande pour commencer. Avec l'aller-retour, chaque moteur a tour à tour le « bon » côté : l'avantage s'annule, seul l'écart de force ressort. Les en-têtes d'origine sont conservés ; les ouvertures des joueurs les plus forts sont en tête.</p>
+<p class="en">Stefan Pohl's <strong>Unbalanced Human Openings 2022</strong>. Openings actually played by players rated over 2300, cut after 8 moves with both queens still on the board, and kept because White has a clear but not decisive advantage (Komodo Dragon 2.6: <strong>+1.10 to +1.19</strong>). This is the set its author recommends to start with. With reversed colours each engine gets the “good” side in turn: the advantage cancels out and only the difference in strength shows. Original headers are kept; openings of the strongest players come first.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">UHO_2022_8mvs_big_+100_+129.hy64</span><div class="chips"><span class="chip"><span class="fr">27 073 ouvertures</span><span class="en">27,073 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span></div></div>
+<p class="fr">Même recueil sur un intervalle d'évaluation plus large (<strong>+1,00 à +1,29</strong>) : trois fois plus d'ouvertures, pour les longs tournois.</p>
+<p class="en">The same collection over a wider evaluation range (<strong>+1.00 to +1.29</strong>): three times as many openings, for long tournaments.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">UHO_2022_6mvs_+110_+119.hy64</span><div class="chips"><span class="chip"><span class="fr">3 317 ouvertures</span><span class="en">3,317 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span></div></div>
+<p class="fr">Version UHO coupée après 6 coups : les moteurs jouent davantage de l'ouverture eux-mêmes.</p>
+<p class="en">The UHO set cut after 6 moves: engines play more of the opening themselves.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">8moves_v3.hy64</span><div class="chips"><span class="chip"><span class="fr">34 700 ouvertures</span><span class="en">34,700 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span></div></div>
+<p class="fr">Le recueil « classique » historique des tests de Stockfish : ouvertures variées et équilibrées. Plus de nulles entre moteurs forts, mais très bon pour des moteurs de force moyenne.</p>
+<p class="en">The historical “classic” book of Stockfish testing: varied, balanced openings. More draws between strong engines, but very good for mid-strength ones.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">2moves_v2.hy64</span><div class="chips"><span class="chip"><span class="fr">12 092 ouvertures</span><span class="en">12,092 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span></div></div>
+<p class="fr">Ouvertures très courtes et équilibrées : les moteurs jouent eux-mêmes presque toute l'ouverture. Utile pour tester leur jeu d'ouverture, et pour les moteurs faibles.</p>
+<p class="en">Very short, balanced openings: engines play nearly the whole opening themselves. Useful to test their opening play, and for weak engines.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">Drawkiller_balanced_big.hy64</span><div class="chips"><span class="chip"><span class="fr">15 962 positions</span><span class="en">15,962 positions</span></span><span class="chip nomoves"><span class="fr">sans coups</span><span class="en">no moves</span></span></div></div>
+<p class="fr">Positions « anti-nulles » de milieu de partie construites par Stefan Pohl (placement des pièces modifié, sans droits de roque), avec beaucoup de matériel et de tension. Elles ne proviennent d'aucune suite de coups : la notation commence à la position.</p>
+<p class="en">“Anti-draw” middlegame positions built by Stefan Pohl (modified piece placement, no castling rights), with plenty of material and tension. They do not come from any move sequence: the notation starts at the position.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">Nunn_10.hy64</span><div class="chips"><span class="chip"><span class="fr">10 ouvertures</span><span class="en">10 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span></div></div>
+<p class="fr">Les positions de <strong>John Nunn</strong>, grand maître anglais : dix débuts équilibrés et typés (Sicilienne Sveshnikov, Sozin, Française Winawer, Espagnole fermée, Gambit dame variante d'échange, Grünfeld, Ouest-Indienne, Est-Indienne classique, Anglaise…). Le « match Nunn » classique des logiciels d'échecs : 20 parties par paire de moteurs avec l'aller-retour. Le nom de chaque ouverture est dans le champ « Blancs ».</p>
+<p class="en">The positions of <strong>John Nunn</strong>, English grandmaster: ten balanced, characteristic openings (Sveshnikov and Sozin Sicilians, French Winawer, Closed Ruy Lopez, Queen's Gambit Exchange, Grünfeld, Queen's Indian, Classical King's Indian, English…). The classic “Nunn match” of chess software: 20 games per pair of engines with reversed colours. Each opening's name is in the “White” field.</p>
+</div>
+<div class="card file-card">
+<div class="file-head"><span class="file-name">Nunn2_25.hy64</span><div class="chips"><span class="chip"><span class="fr">25 ouvertures</span><span class="en">25 openings</span></span><span class="chip moves"><span class="fr">avec coups</span><span class="en">with moves</span></span></div></div>
+<p class="fr">La seconde série, plus large : 25 ouvertures de A30 (Anglaise) à E (Indiennes), 50 parties par paire de moteurs. Moins de répétitions que Nunn_10 pour un tournoi un peu plus long.</p>
+<p class="en">The second, wider series: 25 openings from A30 (English) to E (Indian defences), 50 games per pair of engines. Fewer repeats than Nunn_10 for a slightly longer tournament.</p>
+</div>
+</div>
+</section>
+<section>
+<h2><span class="fr">Conseils</span><span class="en">Tips</span></h2>
+<ul class="tips">
+<li><div><span class="fr">Gardez <strong>« Aller-retour »</strong> coché : c'est ce qui rend les recueils déséquilibrés (UHO) équitables.</span><span class="en">Keep <strong>“Reversed colours”</strong> ticked: it is what makes unbalanced collections (UHO) fair.</span></div></li>
+<li><div><span class="fr"><strong>« Aléatoire »</strong> tire les ouvertures au hasard au lieu de prendre les premières du fichier. Recommandé avec les gros recueils, sinon tous les tournois commencent par les mêmes ouvertures.</span><span class="en"><strong>“Random”</strong> draws openings at random instead of taking the first ones in the file. Recommended with large collections, otherwise every tournament starts with the same openings.</span></div></li>
+<li><div><span class="fr">Trop de nulles malgré UHO ? L'archive complète de Stefan Pohl propose des jeux plus déséquilibrés, jusqu'à <strong>+1,89</strong>.</span><span class="en">Too many draws even with UHO? Stefan Pohl's full archive has more unbalanced sets, up to <strong>+1.89</strong>.</span></div></li>
+<li><div><span class="fr">Hydra64 accepte aussi vos propres fichiers <strong>EPD</strong>, <strong>FEN</strong> ou <strong>PGN</strong> ; un recueil dans un format propriétaire (ChessBase…) se convertit d'abord : <strong>Fichier → Convertir…</strong></span><span class="en">Hydra64 also accepts your own <strong>EPD</strong>, <strong>FEN</strong> or <strong>PGN</strong> files; a collection in a proprietary format (ChessBase…) is converted first: <strong>File → Convert…</strong></span></div></li>
+</ul>
+</section>
+<section>
+<h2><span class="fr">Origine</span><span class="en">Source</span></h2>
+<dl class="card origin">
+<dt>UHO_2022_*.hy64</dt><dd><span class="fr">Stefan Pohl — <a href="https://www.sp-cc.de/uho_2022.htm">sp-cc.de</a>, archive <code>uho_2022.7z</code>. Distribué gratuitement pour les tests de moteurs ; son ReadMe ne précise pas de licence.</span><span class="en">Stefan Pohl — <a href="https://www.sp-cc.de/uho_2022.htm">sp-cc.de</a>, archive <code>uho_2022.7z</code>. Distributed free of charge for engine testing; its ReadMe states no licence.</span></dd>
+<dt>8moves_v3.hy64 · 2moves_v2.hy64 · Drawkiller_balanced_big.hy64</dt><dd><span class="fr">Dépôt officiel des livres de test de Stockfish — <a href="https://github.com/official-stockfish/books">github.com/official-stockfish/books</a>, licence <strong>CC0 1.0</strong> (domaine public).</span><span class="en">Official Stockfish test books repository — <a href="https://github.com/official-stockfish/books">github.com/official-stockfish/books</a>, <strong>CC0 1.0</strong> licence (public domain).</span></dd>
+<dt>Nunn_10.hy64 · Nunn2_25.hy64</dt><dd><span class="fr">Positions de John Nunn, d'après les bases <em>nunn</em> et <em>Nunn2</em> livrées avec Fritz (ChessBase). Les positions elles-mêmes sont largement publiées ; les fichiers d'origine viennent d'un logiciel commercial.</span><span class="en">John Nunn's positions, from the <em>nunn</em> and <em>Nunn2</em> databases shipped with Fritz (ChessBase). The positions themselves are widely published; the original files come from commercial software.</span></dd>
+</dl>
+<p class="fr dim">Les recueils PGN et EPD d'origine ont été convertis tels quels au format Hydra64 : mêmes ouvertures, dans le même ordre.</p>
+<p class="en dim">The original PGN and EPD collections were converted as they are to the Hydra64 format: same openings, same order.</p>
+</section>
+
+<div class="board-strip"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<footer><span>Hydra64 · databases/tournament-openings</span><span><span class="fr">Mis à jour le 22 novembre 2026</span><span class="en">Updated 22 November 2026</span></span></footer>
+
+</main>
+<script>
+(function () {
+  var lang = 'en';
+  try { var saved = localStorage.getItem('hydra64-lang'); if (saved === 'en' || saved === 'fr') lang = saved; } catch (e) {}
+  function apply() {
+    document.documentElement.lang = lang;
+    document.title = document.body.getAttribute('data-title-' + lang);
+    var buttons = document.querySelectorAll('#lang button');
+    for (var i = 0; i < buttons.length; ++i) buttons[i].className = buttons[i].getAttribute('data-lang') === lang ? 'on' : '';
+  }
+  document.getElementById('lang').addEventListener('click', function (e) {
+    var l = e.target.getAttribute('data-lang');
+    if (!l) return;
+    lang = l;
+    try { localStorage.setItem('hydra64-lang', lang); } catch (err) {}
+    apply();
+  });
+  apply();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+Lichess, AGPLv3+
+
+Échiquier « metal » de Lichess (https://github.com/lichess-org/lila, public/images/board/metal.jpg),
+image d'origine, non modifiée.
+
+Auteurs : the lila authors et pirouetti (https://lichess.org/@/pirouetti)
+Licence : AGPLv3+ (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

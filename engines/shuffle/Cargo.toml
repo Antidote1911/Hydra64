@@ -1,0 +1,15 @@
+[package]
+name = "shuffle"
+version = "0.1.0"
+edition = "2021"
+description = "Shuffle : moteur d'échecs UCI qui joue des coups stupides, presque au hasard"
+license = "MIT"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

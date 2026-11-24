@@ -1,0 +1,83 @@
+// Hydra64: diagnostic of the export of an Aquarium tree.
+// Step 1: looks up the starting position (SearchFEN) and writes its moves.
+// Step 2: traversal of the tree (StartRecursive) limited to the first 2000 positions written.
+// Results: C:\Aquarium2024\Data\Hydra64_diag1.txt and Hydra64_diag2.txt
+const
+  TreeName = 'C:\Aquarium2024\Data\ATrees\statistics\d2m.hsh';
+  Diag1 = 'C:\Aquarium2024\Data\Hydra64_diag1.txt';
+  Diag2 = 'C:\Aquarium2024\Data\Hydra64_diag2.txt';
+  StartFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -';
+
+var
+  count: integer;
+  f: text;
+  t: TSTreeScanner;
+  ni: TSNodeInfo;
+  m: TSMoveInfo;
+  i: integer;
+
+procedure ProcessNode(AScanner: TSTreeScanner);
+var
+  n: TSNodeInfo;
+  mm: TSMoveInfo;
+  j: integer;
+  s: string;
+begin
+  Inc(count);
+  if count > 2000 then exit;
+  n := AScanner.CurrentNode;
+  s := n.Pos + #9 + IntToStr(n.Count);
+  for j := 0 to n.Count-1 do
+  begin
+    mm := n.Moves[j];
+    s := s + #9 + mm.Move + '|' + mm.PGNMove + '|' + IntToStr(mm.Wins) + '|' + IntToStr(mm.Draws) + '|'
+       + IntToStr(mm.Loses) + '|' + IntToStr(mm.ELO) + '|' + IntToStr(mm.Year) + '|' + IntToStr(mm.RelScore);
+  end;
+  WriteLn(f, s);
+  if count = 2000 then CloseFile(f);
+end;
+
+begin
+  t := TSTreeScanner.Create(TreeName);
+  if not t.Opened then
+  begin
+    ShowMessage('Tree not found: ' + TreeName);
+    t.Free;
+    exit;
+  end;
+
+  // ---- Step 1
+  print('step 1');
+  AssignFile(f, Diag1);
+  Rewrite(f);
+  WriteLn(f, 'tree opened');
+  ni := t.SearchFEN(StartFen);
+  if ni = nil then
+    WriteLn(f, 'starting position missing')
+  else
+  begin
+    WriteLn(f, 'moves: ' + IntToStr(ni.Count) + '; total: ' + IntToStr(ni.TotalCount));
+    for i := 0 to ni.Count-1 do
+    begin
+      m := ni.Moves[ni.Sorted[i]];
+      WriteLn(f, m.Move + '|' + m.PGNMove + '|' + IntToStr(m.Wins) + '|' + IntToStr(m.Draws) + '|'
+        + IntToStr(m.Loses) + '|' + IntToStr(m.ELO) + '|' + IntToStr(m.Year) + '|' + IntToStr(m.RelScore));
+    end;
+  end;
+  CloseFile(f);
+  print('step 1 finished');
+
+  // ---- Step 2: default settings of the traversal (no filter imposed)
+  print('step 2');
+  t.Reset;
+  AssignFile(f, Diag2);
+  Rewrite(f);
+  count := 0;
+  t.PosLoc := plInternal;
+  t.OnProcessNode := 'ProcessNode';
+  t.StartRecursive;
+  if count < 2000 then CloseFile(f);
+  print('step 2: ' + IntToStr(count) + ' positions');
+  ShowMessage('Diagnostic finished: ' + IntToStr(count) + ' positions traversed');
+  t.Free;
+end.

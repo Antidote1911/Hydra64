@@ -1,0 +1,63 @@
+// Hydra64: export of an Aquarium / Chess Assistant tree (.hsh + .elm) to a text file
+// that Hydra64 can import as an opening book.
+//
+// To be run in Aquarium: Scripter panel (AqScripter) → Open → this file → Run.
+// Edit TreeName / OutName below if needed (Windows paths, C:\ = Wine's drive_c).
+//
+// Output format: one line per position that has moves,
+//   EPD <TAB> move1 <TAB> move2 ...
+// each move: Move|PGNMove|Wins|Draws|Loses|ELO|Year|RelScore
+// (wins / losses of the side playing the move, highest Elo of the players, last year played)
+const
+  TreeName = 'C:\Aquarium2024\Data\ATrees\statistics\d2m.hsh';
+  OutName = 'C:\Aquarium2024\Data\Hydra64_d2m.txt';
+
+var
+  count: integer;
+  f: text;
+  t: TSTreeScanner;
+
+procedure ProcessNode(AScanner: TSTreeScanner);
+var
+  m: TSMoveInfo;
+  n: TSNodeInfo;
+  i: integer;
+  s: string;
+begin
+  n := AScanner.CurrentNode;
+  if n.Count = 0 then exit;
+  s := n.Pos;
+  for i := 0 to n.Count-1 do
+  begin
+    m := n.Moves[i];
+    s := s + #9 + m.Move + '|' + m.PGNMove + '|' + IntToStr(m.Wins) + '|' + IntToStr(m.Draws) + '|'
+       + IntToStr(m.Loses) + '|' + IntToStr(m.ELO) + '|' + IntToStr(m.Year) + '|' + IntToStr(m.RelScore);
+  end;
+  WriteLn(f, s);
+  Inc(count);
+  if count mod 100000 = 0 then
+    print(IntToStr(count) + ' positions');
+end;
+
+begin
+  print('Hydra64: export of ' + TreeName);
+  AssignFile(f, OutName);
+  Rewrite(f);
+  count := 0;
+
+  t := TSTreeScanner.Create(TreeName);
+  if not t.Opened then
+    ShowMessage('Tree not found: ' + TreeName)
+  else
+  begin
+    // Default settings of the traversal (MinValue / MaxValue filter the positions: do not set them)
+    t.PosLoc := plInternal;   // positions that have moves
+    t.OnProcessNode := 'ProcessNode';
+    t.StartRecursive;
+    print('ok');
+    ShowMessage('Export finished: ' + IntToStr(count) + ' positions in ' + OutName);
+  end;
+
+  CloseFile(f);
+  t.Free;
+end.

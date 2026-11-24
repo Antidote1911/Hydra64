@@ -1,0 +1,7 @@
+Lichess, AGPLv3+
+
+Échiquier « canvas2 » de Lichess (https://github.com/lichess-org/lila, public/images/board/canvas2.jpg),
+image d'origine, non modifiée.
+
+Auteurs : the lila authors et pirouetti (https://lichess.org/@/pirouetti)
+Licence : AGPLv3+ (voir https://github.com/lichess-org/lila/blob/master/COPYING.md)

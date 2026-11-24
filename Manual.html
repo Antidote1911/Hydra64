@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notice Hydra64</title>
+<style>
+  :root {
+    --window: #18181a; --panel: #212124; --panel-alt: #262629; --header: #2a2a2e;
+    --raised: #333338; --border: #0e0e10; --border-soft: #36363b;
+    --text: #d6d6da; --text-dim: #8e8e96; --text-faint: #5c5c64;
+    --accent: #e68a35; --accent-soft: rgba(230, 138, 53, .16);
+    --good: #5cb87e; --bad: #e05a50; --comment: #86b095; --info: #6fa3d8;
+    --sq-light: #c4c8ce; --sq-dark: #707a87;
+    --mono: "JetBrains Mono", "DejaVu Sans Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--window); scroll-behavior: smooth; scroll-padding-top: 16px; }
+  body {
+    margin: 0; color: var(--text); background: var(--window);
+    font: 15px/1.6 "Inter", "Segoe UI", "Noto Sans", "DejaVu Sans", system-ui, sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---- En-tête ---- */
+  header {
+    background: linear-gradient(180deg, var(--header), var(--window));
+    border-bottom: 1px solid var(--border);
+  }
+  header .wrap { display: flex; align-items: center; gap: 22px; padding-top: 40px; padding-bottom: 34px; }
+  header svg { width: 84px; height: 84px; flex: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+  .brand { font-size: 11px; font-weight: 600; letter-spacing: .22em; color: var(--text-faint); text-transform: uppercase; }
+  h1 { margin: 2px 0 6px; font-size: 30px; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+  h1 span { color: var(--accent); }
+  .lead { margin: 0; color: var(--text-dim); max-width: 70ch; }
+
+  /* ---- Mise en page : sommaire + contenu ---- */
+  .layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 40px; align-items: start; }
+  nav.toc {
+    position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto;
+    margin-top: 36px; padding: 14px 0; font-size: 13.5px;
+  }
+  nav.toc .toc-title { font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--text-faint); padding: 0 12px 8px; }
+  nav.toc a { display: block; padding: 4px 12px; color: var(--text-dim); border-left: 2px solid transparent; text-decoration: none; }
+  nav.toc a:hover { color: var(--text); border-left-color: var(--border-soft); text-decoration: none; }
+  nav.toc a.sub { padding-left: 24px; font-size: 12.5px; color: var(--text-faint); }
+  nav.toc a.sub:hover { color: var(--text-dim); }
+  main { min-width: 0; padding-bottom: 64px; }
+
+  /* ---- Sections ---- */
+  section { margin-top: 48px; }
+  h2 {
+    margin: 0 0 16px; font-size: 22px; font-weight: 700; letter-spacing: -.01em; color: #ececef;
+    display: flex; align-items: center; gap: 12px;
+  }
+  h2 .glyph { color: var(--accent); font-size: 24px; width: 28px; text-align: center; }
+  h2::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); margin-left: 6px; }
+  h3 {
+    margin: 26px 0 10px; font-size: 11px; font-weight: 600; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--text-faint);
+  }
+  h4 { margin: 0 0 6px; font-size: 15px; color: #ececef; font-weight: 600; }
+  p { margin: 0 0 12px; }
+  .dim { color: var(--text-dim); }
+  strong { color: #ececef; font-weight: 600; }
+  em { color: var(--text); }
+  code, .mono { font-family: var(--mono); font-size: .86em; }
+  code { background: var(--raised); padding: 1px 6px; border-radius: 4px; color: #ececef; white-space: nowrap; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  kbd {
+    font-family: var(--mono); font-size: 12px; padding: 1px 7px; border-radius: 4px; white-space: nowrap;
+    background: var(--panel-alt); border: 1px solid var(--border-soft); border-bottom-width: 2px; color: #ececef;
+  }
+  .menu { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  ul, ol { margin: 0 0 12px; padding-left: 22px; }
+  li { margin: 3px 0; }
+  li::marker { color: var(--text-faint); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 20px; box-shadow: 0 1px 0 var(--border-soft) inset;
+  }
+  .card > :last-child { margin-bottom: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stack { display: grid; gap: 14px; }
+
+  /* Fonction : carte avec liseré */
+  .feat { position: relative; overflow: hidden; }
+  .feat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+  .feat.blue::before { background: var(--info); }
+  .feat.green::before { background: var(--good); }
+  .feat.grey::before { background: var(--text-faint); }
+  .feat-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 8px; }
+  .feat-head h4 { margin: 0; }
+  .where { font-size: 12.5px; color: var(--text-faint); }
+  .where .menu { font-weight: 500; }
+
+  /* Pages : vignettes */
+  .pages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 6px; }
+  .page-tile {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 14px 12px;
+    text-decoration: none; color: var(--text); display: block; transition: border-color .15s, background .15s;
+  }
+  .page-tile:hover { border-color: var(--accent); background: var(--panel-alt); text-decoration: none; }
+  .page-tile .ico { font-size: 26px; color: var(--accent); line-height: 1; }
+  .page-tile .name { font-weight: 600; color: #ececef; margin-top: 8px; }
+  .page-tile .key { float: right; }
+  .page-tile .what { font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Encadrés */
+  .note {
+    display: flex; gap: 12px; margin: 14px 0; padding: 12px 16px; border-radius: 8px;
+    background: var(--accent-soft); border: 1px solid rgba(230,138,53,.4);
+  }
+  .note::before { content: "♞"; color: var(--accent); font-size: 18px; line-height: 1.3; }
+  .note.info { background: rgba(111,163,216,.12); border-color: rgba(111,163,216,.4); }
+  .note.info::before { content: "ℹ"; color: var(--info); }
+  .note > div > :last-child { margin-bottom: 0; }
+
+  /* Tableaux */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; vertical-align: top; }
+  th { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); border-bottom: 1px solid var(--border-soft); background: var(--panel-alt); }
+  tbody tr { border-bottom: 1px solid var(--border-soft); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--panel-alt); }
+  td.ext { font-family: var(--mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+  td.path { font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); word-break: break-all; }
+  tr.group td { background: var(--header); color: var(--text-faint); font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; padding: 7px 12px; }
+
+  .chips { display: inline-flex; flex-wrap: wrap; gap: 5px; }
+  .chip { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--raised); color: var(--text-dim); white-space: nowrap; }
+  .chip.r { background: rgba(111,163,216,.15); color: var(--info); }
+  .chip.w { background: rgba(92,184,126,.16); color: var(--good); }
+  .chip.c { background: var(--accent-soft); color: var(--accent); }
+  .chip.ro { background: rgba(224,90,80,.14); color: var(--bad); }
+
+  /* Notation d'exemple */
+  .moves { font-family: var(--mono); font-size: 13.5px; line-height: 1.9; background: var(--panel-alt); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+  .moves .cmt { color: var(--comment); font-family: inherit; }
+  .moves .var { color: var(--text-dim); }
+
+  .board-strip { display: flex; height: 6px; margin-top: 56px; border-radius: 3px; overflow: hidden; }
+  .board-strip i { flex: 1; background: var(--sq-light); }
+  .board-strip i:nth-child(even) { background: var(--sq-dark); }
+  footer { margin-top: 16px; font-size: 12px; color: var(--text-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; gap: 0; }
+    nav.toc { position: static; max-height: none; margin-top: 24px; columns: 2; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    nav.toc .toc-title { column-span: all; }
+    .pages { grid-template-columns: repeat(2, 1fr); }
+    .grid3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    header .wrap { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 19px; }
+    .wrap { padding: 0 16px; }
+    nav.toc { columns: 1; }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    code { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs>
+<radialGradient id="glow"><stop offset="0" stop-color="#ff2a2a" stop-opacity="0.75"/><stop offset="1" stop-color="#ff2a2a" stop-opacity="0"/></radialGradient>
+<radialGradient id="halo" cx="0.5" cy="0.42" r="0.6"><stop offset="0" stop-color="#5a0f1a"/><stop offset="0.55" stop-color="#1a1016"/><stop offset="1" stop-color="#0b0d12"/></radialGradient>
+<linearGradient id="sq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d7180"/><stop offset="1" stop-color="#b9bcc6"/></linearGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4a3d"/><stop offset="1" stop-color="#7a0c18"/></linearGradient>
+<linearGradient id="ink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a4a"/><stop offset="1" stop-color="#b3101f"/></linearGradient>
+</defs><rect x="10" y="10" width="492" height="492" rx="104" fill="url(#halo)" stroke="url(#rim)" stroke-width="12"/><g transform="translate(256 262) scale(0.93) translate(-256 -256)"><polygon points="131,388 381,388 458,479 54,479" fill="#0a0b0f" stroke="#d3162a" stroke-width="3" stroke-linejoin="round"/><polygon points="136.0,392.0 176.0,392.0 163.5,412.8 117.3,412.8" fill="url(#sq)"/><polygon points="176.0,392.0 216.0,392.0 209.8,412.8 163.5,412.8" fill="#22242d"/><polygon points="216.0,392.0 256.0,392.0 256.0,412.8 209.8,412.8" fill="url(#sq)"/><polygon points="256.0,392.0 296.0,392.0 302.2,412.8 256.0,412.8" fill="#22242d"/><polygon points="296.0,392.0 336.0,392.0 348.5,412.8 302.2,412.8" fill="url(#sq)"/><polygon points="336.0,392.0 376.0,392.0 394.7,412.8 348.5,412.8" fill="#22242d"/><polygon points="117.3,412.8 163.5,412.8 146.3,441.4 91.4,441.4" fill="#22242d"/><polygon points="163.5,412.8 209.8,412.8 201.1,441.4 146.3,441.4" fill="url(#sq)"/><polygon points="209.8,412.8 256.0,412.8 256.0,441.4 201.1,441.4" fill="#22242d"/><polygon points="256.0,412.8 302.2,412.8 310.9,441.4 256.0,441.4" fill="url(#sq)"/><polygon points="302.2,412.8 348.5,412.8 365.7,441.4 310.9,441.4" fill="#22242d"/><polygon points="348.5,412.8 394.7,412.8 420.6,441.4 365.7,441.4" fill="url(#sq)"/><polygon points="91.4,441.4 146.3,441.4 126.7,474.0 62.0,474.0" fill="url(#sq)"/><polygon points="146.3,441.4 201.1,441.4 191.3,474.0 126.7,474.0" fill="#22242d"/><polygon points="201.1,441.4 256.0,441.4 256.0,474.0 191.3,474.0" fill="url(#sq)"/><polygon points="256.0,441.4 310.9,441.4 320.7,474.0 256.0,474.0" fill="#22242d"/><polygon points="310.9,441.4 365.7,441.4 385.3,474.0 320.7,474.0" fill="url(#sq)"/><polygon points="365.7,441.4 420.6,441.4 450.0,474.0 385.3,474.0" fill="#22242d"/><path d="M176.0 392 L126.7 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M216.0 392 L191.3 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M256.0 392 L256.0 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M296.0 392 L320.7 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M336.0 392 L385.3 474" stroke="#8a0f1b" stroke-width="1.6"/><path d="M117.3 412.8 L394.7 412.8" stroke="#8a0f1b" stroke-width="1.6"/><path d="M91.4 441.4 L420.6 441.4" stroke="#8a0f1b" stroke-width="1.6"/><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#d3162a" stroke-width="59" stroke-linecap="round" stroke-linejoin="round"/><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#d3162a" stroke-width="59" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 300 L256 372" fill="none" stroke="#d3162a" stroke-width="87" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#d3162a" stroke-width="49" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="18,-76 48,-140 58,-62" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="50,-64 96,-116 82,-42" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="70,-40 130,-68 86,-10" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="64,-6 118,-8 66,24" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="-64,-6 -118,-8 -66,24" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#d3162a" stroke="#d3162a" stroke-width="13" stroke-linejoin="round"/></g><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#0a0b0f" stroke-width="51" stroke-linecap="round" stroke-linejoin="round"/><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#0a0b0f" stroke-width="51" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 300 L256 372" fill="none" stroke="#0a0b0f" stroke-width="79" stroke-linecap="round" stroke-linejoin="round"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#0a0b0f" stroke-width="41" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="140,48 226,22 158,74" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="90,24 126,-34 124,32" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="18,-76 48,-140 58,-62" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="50,-64 96,-116 82,-42" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="70,-40 130,-68 86,-10" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="64,-6 118,-8 66,24" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="-64,-6 -118,-8 -66,24" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#0a0b0f" stroke="#0a0b0f" stroke-width="5" stroke-linejoin="round"/></g><path d="M172 244 C212 248 222 296 236 352" fill="none" stroke="#1c1e26" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" /><path d="M340 244 C300 248 290 296 276 352" fill="none" stroke="#1c1e26" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" /><path d="M256 300 L256 372" fill="none" stroke="#1c1e26" stroke-width="74" stroke-linecap="round" stroke-linejoin="round" /><path d="M176 250 C208 258 216 300 228 350" fill="none" stroke="#e11d2e" stroke-width="15" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M336 250 C304 258 296 300 284 350" fill="none" stroke="#e11d2e" stroke-width="15" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M256 318 L256 372" fill="none" stroke="#e11d2e" stroke-width="30" stroke-linejoin="round" stroke-dasharray="9 5" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#1c1e26" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" /><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#30333f" stroke-width="22" stroke-linejoin="round" stroke-dasharray="16 5" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#555a6a" stroke-width="5" stroke-linejoin="round" stroke-dasharray="10 11" stroke-dashoffset="-3" stroke-linecap="butt"/><path d="M256 388 C312 326 420 336 412 386 C404 434 318 436 256 388 C194 340 108 342 100 390 C92 440 200 450 256 388 Z" fill="none" stroke="#e11d2e" stroke-width="22" stroke-linejoin="round" stroke-dasharray="2.5 18.5" stroke-dashoffset="-17.2" stroke-linecap="butt"/><g transform="translate(40 160) scale(0.84)"><polygon points="118,30 204,-30 152,46" fill="#30333f"/><polygon points="118,30 204,-30 138,34" fill="#555a6a"/><polygon points="140,48 226,22 158,74" fill="#30333f"/><polygon points="140,48 226,22 150,56" fill="#555a6a"/><polygon points="90,24 126,-34 124,32" fill="#30333f"/><polygon points="90,24 126,-34 106,26" fill="#555a6a"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#8a0f1b"/><polygon points="126,98 76,102 40,114 76,114 120,106" fill="#e11d2e"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#1c1e26"/><polygon points="34,136 70,148 126,142 140,128 100,134 60,134" fill="#0a0b0f"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#1c1e26"/><polygon points="40,48 72,30 96,20 150,38 122,42 88,38 56,52" fill="#30333f"/><polygon points="72,30 96,20 150,38 118,32 96,26" fill="#555a6a"/><polygon points="8,56 40,48 52,54 30,64 4,68" fill="#555a6a"/><polygon points="12,62 22,59 18,66" fill="#0a0b0f"/><polygon points="112,60 152,50 160,72 132,82" fill="#8a0f1b"/><polygon points="118,62 150,55 154,66 132,74" fill="#e11d2e"/><circle cx="84" cy="50" r="30" fill="url(#glow)"/><polygon points="62,52 102,40 94,58 74,60" fill="#ff4a3d"/><polygon points="72,53 96,46 90,55" fill="#ffe1d2"/><polygon points="54,50 106,30 104,41 62,54" fill="#0a0b0f"/><polygon points="8,86 20,90 15,106" fill="#f4e7c9"/><polygon points="27,91 41,89 35,112" fill="#f4e7c9"/><polygon points="47,88 57,86 53,100" fill="#f4e7c9"/><polygon points="63,86 73,85 69,97" fill="#f4e7c9"/><polygon points="80,84 90,83 86,94" fill="#f4e7c9"/><polygon points="22,122 33,123 26,104" fill="#f4e7c9"/><polygon points="39,124 49,124 44,109" fill="#f4e7c9"/><polygon points="57,124 67,122 61,110" fill="#f4e7c9"/><polygon points="75,119 85,116 79,106" fill="#f4e7c9"/></g><g transform="translate(472 160) scale(-0.84 0.84)"><polygon points="118,30 204,-30 152,46" fill="#30333f"/><polygon points="118,30 204,-30 138,34" fill="#555a6a"/><polygon points="140,48 226,22 158,74" fill="#30333f"/><polygon points="140,48 226,22 150,56" fill="#555a6a"/><polygon points="90,24 126,-34 124,32" fill="#30333f"/><polygon points="90,24 126,-34 106,26" fill="#555a6a"/><polygon points="26,92 60,86 100,82 136,92 100,112 60,124 20,122" fill="#8a0f1b"/><polygon points="126,98 76,102 40,114 76,114 120,106" fill="#e11d2e"/><polygon points="136,92 158,112 126,142 70,148 34,136 18,120 60,124 100,112" fill="#1c1e26"/><polygon points="34,136 70,148 126,142 140,128 100,134 60,134" fill="#0a0b0f"/><polygon points="0,70 8,56 40,48 72,30 96,20 150,38 166,74 136,92 100,82 60,86 26,92 6,86" fill="#1c1e26"/><polygon points="40,48 72,30 96,20 150,38 122,42 88,38 56,52" fill="#30333f"/><polygon points="72,30 96,20 150,38 118,32 96,26" fill="#555a6a"/><polygon points="8,56 40,48 52,54 30,64 4,68" fill="#555a6a"/><polygon points="12,62 22,59 18,66" fill="#0a0b0f"/><polygon points="112,60 152,50 160,72 132,82" fill="#8a0f1b"/><polygon points="118,62 150,55 154,66 132,74" fill="#e11d2e"/><circle cx="84" cy="50" r="30" fill="url(#glow)"/><polygon points="62,52 102,40 94,58 74,60" fill="#ff4a3d"/><polygon points="72,53 96,46 90,55" fill="#ffe1d2"/><polygon points="54,50 106,30 104,41 62,54" fill="#0a0b0f"/><polygon points="8,86 20,90 15,106" fill="#f4e7c9"/><polygon points="27,91 41,89 35,112" fill="#f4e7c9"/><polygon points="47,88 57,86 53,100" fill="#f4e7c9"/><polygon points="63,86 73,85 69,97" fill="#f4e7c9"/><polygon points="80,84 90,83 86,94" fill="#f4e7c9"/><polygon points="22,122 33,123 26,104" fill="#f4e7c9"/><polygon points="39,124 49,124 44,109" fill="#f4e7c9"/><polygon points="57,124 67,122 61,110" fill="#f4e7c9"/><polygon points="75,119 85,116 79,106" fill="#f4e7c9"/></g><g transform="translate(256 196) scale(1.06)"><polygon points="0,-156 -24,-70 24,-70" fill="#30333f"/><polygon points="0,-156 0,-70 24,-70" fill="#555a6a"/><polygon points="18,-76 48,-140 58,-62" fill="#30333f"/><polygon points="-18,-76 -48,-140 -58,-62" fill="#30333f"/><polygon points="48,-140 40,-70 58,-62" fill="#555a6a"/><polygon points="-48,-140 -40,-70 -58,-62" fill="#555a6a"/><polygon points="50,-64 96,-116 82,-42" fill="#30333f"/><polygon points="-50,-64 -96,-116 -82,-42" fill="#30333f"/><polygon points="96,-116 68,-52 82,-42" fill="#555a6a"/><polygon points="-96,-116 -68,-52 -82,-42" fill="#555a6a"/><polygon points="70,-40 130,-68 86,-10" fill="#30333f"/><polygon points="-70,-40 -130,-68 -86,-10" fill="#30333f"/><polygon points="130,-68 80,-24 86,-10" fill="#555a6a"/><polygon points="-130,-68 -80,-24 -86,-10" fill="#555a6a"/><polygon points="64,-6 118,-8 66,24" fill="#30333f"/><polygon points="-64,-6 -118,-8 -66,24" fill="#30333f"/><polygon points="118,-8 66,10 66,24" fill="#555a6a"/><polygon points="-118,-8 -66,10 -66,24" fill="#555a6a"/><polygon points="0,20 48,20 42,88 20,114 0,122 -20,114 -42,88 -48,20" fill="#1c1e26"/><polygon points="0,36 35,36 31,82 13,102 0,106 -13,102 -31,82 -35,36" fill="#8a0f1b"/><polygon points="-13,100 0,68 13,100 0,105" fill="#e11d2e"/><polygon points="0,70 3,98 0,102 -3,98" fill="#8a0f1b"/><polygon points="15,102 28,90 23,70" fill="#f4e7c9"/><polygon points="-15,102 -28,90 -23,70" fill="#f4e7c9"/><polygon points="3,105 11,103 7,90" fill="#f4e7c9"/><polygon points="-3,105 -11,103 -7,90" fill="#f4e7c9"/><polygon points="0,-82 38,-68 72,-34 68,4 48,30 30,42 0,46 -30,42 -48,30 -68,4 -72,-34 -38,-68" fill="#1c1e26"/><polygon points="0,-82 38,-68 30,-40 0,-26 -30,-40 -38,-68" fill="#30333f"/><polygon points="38,-68 72,-34 68,4 60,-22" fill="#30333f"/><polygon points="-38,-68 -72,-34 -68,4 -60,-22" fill="#30333f"/><polygon points="48,30 68,4 58,2 40,24" fill="#8a0f1b"/><polygon points="-48,30 -68,4 -58,2 -40,24" fill="#8a0f1b"/><polygon points="0,-68 11,-50 0,-32 -11,-50" fill="#e11d2e"/><polygon points="0,-68 11,-50 0,-50" fill="#ff4a3d"/><polygon points="0,-22 17,0 23,26 0,40 -23,26 -17,0" fill="#30333f"/><polygon points="0,6 15,22 0,35 -15,22" fill="#555a6a"/><polygon points="6,25 13,20 11,29" fill="#0a0b0f"/><polygon points="-6,25 -13,20 -11,29" fill="#0a0b0f"/><circle cx="36" cy="-16" r="34" fill="url(#glow)"/><circle cx="-36" cy="-16" r="34" fill="url(#glow)"/><polygon points="14,-12 56,-32 48,-8 26,-2" fill="#ff4a3d"/><polygon points="-14,-12 -56,-32 -48,-8 -26,-2" fill="#ff4a3d"/><polygon points="24,-11 48,-22 43,-11" fill="#ffe1d2"/><polygon points="-24,-11 -48,-22 -43,-11" fill="#ffe1d2"/><polygon points="6,-24 60,-48 68,-32 52,-31 12,-10" fill="#0a0b0f"/><polygon points="-6,-24 -60,-48 -68,-32 -52,-31 -12,-10" fill="#0a0b0f"/><polygon points="21,39 35,37 30,70" fill="#f4e7c9"/><polygon points="-21,39 -35,37 -30,70" fill="#f4e7c9"/><polygon points="8,43 17,41 13,57" fill="#f4e7c9"/><polygon points="-8,43 -17,41 -13,57" fill="#f4e7c9"/></g></g></svg>
+    <div>
+      <div class="brand">Hydra64 · Notice d'utilisation</div>
+      <h1>Tout <span>Hydra64</span> en une page</h1>
+      <p class="lead">Les quatre pages (Bases, Analyse, Jouer, Tournoi), chacune de leurs fonctions, les outils communs, les moteurs, et tous les types de fichiers que l'application lit ou écrit : à quoi ils servent et où ils se trouvent.</p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+
+<nav class="toc" aria-label="Sommaire">
+  <div class="toc-title">Sommaire</div>
+  <a href="#prise-en-main">Prise en main</a>
+  <a class="sub" href="#pages">Les quatre pages</a>
+  <a class="sub" href="#panneaux">Panneaux et menus</a>
+  <a class="sub" href="#echiquier">Échiquier et notation</a>
+  <a href="#bases">Page Bases de données</a>
+  <a class="sub" href="#bases-ouvrir">Ouvrir, créer, copier</a>
+  <a class="sub" href="#bases-recherche">Recherches</a>
+  <a class="sub" href="#bases-outils">Outils de base</a>
+  <a class="sub" href="#bases-statistiques">Statistiques</a>
+  <a href="#analyse">Page Analyse</a>
+  <a class="sub" href="#analyse-moteurs">Moteurs spectateurs</a>
+  <a class="sub" href="#analyse-annotation">Annotation</a>
+  <a class="sub" href="#analyse-approfondie">Analyse approfondie</a>
+  <a class="sub" href="#analyse-outils">Autres outils</a>
+  <a href="#jouer">Page Jouer</a>
+  <a class="sub" href="#jouer-regler">Régler la partie</a>
+  <a class="sub" href="#jouer-pendant">Pendant la partie</a>
+  <a class="sub" href="#jouer-aide">Coach, indice, entraînement</a>
+  <a href="#tournoi">Page Tournoi</a>
+  <a href="#outils">Outils communs</a>
+  <a class="sub" href="#outils-recueil">Vos recueils d'exercices</a>
+  <a href="#moteurs">Moteurs</a>
+  <a href="#fichiers">Types de fichiers</a>
+  <a class="sub" href="#fichiers-parties">Parties et positions</a>
+  <a class="sub" href="#fichiers-arbres">Arbres d'ouverture</a>
+  <a class="sub" href="#fichiers-autres">Analyses, finales, exports</a>
+  <a class="sub" href="#fichiers-propres">Fichiers de l'application</a>
+  <a class="sub" href="#dossiers">Dossiers</a>
+  <a href="#preferences">Préférences</a>
+  <a href="#raccourcis">Raccourcis clavier</a>
+  <a href="#origines">Données et licences</a>
+</nav>
+
+<main>
+
+<!-- =================================================================== PRISE EN MAIN -->
+<section id="prise-en-main">
+  <h2><span class="glyph">♙</span>Prise en main</h2>
+  <p>Hydra64 est une interface d'échecs de bureau : elle gère des bases de parties, analyse avec des moteurs UCI (Stockfish, Lc0, Berserk…), fait jouer contre un moteur et organise des tournois entre moteurs. Un <strong>Stockfish est intégré</strong> : il évalue les positions en arrière-plan et sert d'adversaire ou de juge par défaut, sans rien installer.</p>
+
+  <h3 id="pages">Les quatre pages</h3>
+  <p>Les pages se choisissent dans la barre en bas de la fenêtre, ou avec <kbd>Maj</kbd>+<kbd>1</kbd> à <kbd>4</kbd>. Chaque page est indépendante : elle a <strong>sa propre partie</strong>, son orientation d'échiquier, son analyse en cours et sa disposition des panneaux. Passer d'une page à l'autre ne perd rien.</p>
+  <div class="pages">
+    <a class="page-tile" href="#bases"><span class="key"><kbd>Maj+1</kbd></span><div class="ico">⛁</div><div class="name">Bases de données</div><div class="what">Parcourir, chercher, trier, classer, convertir</div></a>
+    <a class="page-tile" href="#analyse"><span class="key"><kbd>Maj+2</kbd></span><div class="ico">♗</div><div class="name">Analyse</div><div class="what">Moteurs, annotation, analyse approfondie</div></a>
+    <a class="page-tile" href="#jouer"><span class="key"><kbd>Maj+3</kbd></span><div class="ico">♘</div><div class="name">Jouer</div><div class="what">Contre un moteur, avec pendule et coach</div></a>
+    <a class="page-tile" href="#tournoi"><span class="key"><kbd>Maj+4</kbd></span><div class="ico">♔</div><div class="name">Tournoi</div><div class="what">Moteurs contre moteurs, classement Elo</div></a>
+  </div>
+  <p class="dim">Au lancement suivant, tout est restauré : partie de chaque page, partie en cours contre le moteur (avec ses pendules), tournoi, bases ouvertes, arbre d'ouverture, moteurs spectateurs. La session est aussi enregistrée toutes les minutes (option dans les Préférences).</p>
+
+  <h3 id="panneaux">Panneaux et menus</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Panneaux</h4>
+      <p>Notation, Évaluation, Moteur, Bases de données, Arbre d'ouverture, Finales, Pendule, Analyse approfondie, Tournoi, Adversaire… Glissez un onglet pour le <strong>déplacer</strong>, le <strong>grouper</strong> avec d'autres ou le <strong>détacher</strong> dans une fenêtre flottante ; l'épingle le range dans une barre latérale escamotable.</p>
+      <p class="dim"><span class="menu">Affichage</span> ouvre ou ferme chaque panneau ; <span class="menu">Affichage → Réinitialiser la disposition de la page</span> revient à la disposition d'origine. <span class="menu">Affichage → Dispositions enregistrées</span> garde la disposition d'une page sous un nom, pour la reprendre plus tard ; chaque page a les siennes.</p>
+    </div>
+    <div class="card">
+      <h4>Menus par page</h4>
+      <p>Chaque page n'affiche que ses menus et commandes : <span class="menu">Base</span> sur la page Bases, <span class="menu">Tournoi</span> sur la page Tournoi, etc.</p>
+      <p>Le menu <span class="menu">Base</span> commence par les recherches et range le reste par thème : <span class="menu">Autres recherches</span>, <span class="menu">Parties sélectionnées</span>, <span class="menu">Ouvertures</span>, <span class="menu">Statistiques</span>, <span class="menu">Presse-papiers</span>, <span class="menu">Entretien de la base</span>. Le menu <span class="menu">Partie</span> fait de même avec <span class="menu">Outils</span>, <span class="menu">Entraînement</span>, <span class="menu">Répertoire d'ouvertures</span>, <span class="menu">Échiquier</span> et <span class="menu">Navigation</span>.</p>
+      <p>Dans les listes, les tables et les menus, l'élément choisi n'est pas surligné : son texte passe en orange.</p>
+      <p class="dim">La barre de menu peut être masquée (<kbd>Ctrl+Maj+M</kbd>). La tête d'hydre en bas à gauche ouvre alors les menus de la page ; sinon, elle ouvre les Préférences.</p>
+    </div>
+  </div>
+
+  <h3 id="echiquier">Échiquier et notation</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Échiquier</h4>
+      <ul>
+        <li>Coups par <strong>glisser-déposer</strong> ou <strong>clic-clic</strong> ; promotion au choix.</li>
+        <li><strong>Clic droit</strong> sur une case : une marque ; clic droit glissé : une flèche. Vert par défaut, rouge avec <kbd>Maj</kbd>, jaune avec <kbd>Ctrl</kbd>, bleu avec les deux ; le même geste l'efface. Flèches et marques sont <strong>enregistrées avec le coup</strong> (bases, PGN, pages HTML) ; la notation les signale par « ↗ ».</li>
+        <li><strong>Molette</strong> : coup suivant / précédent ; <kbd>←</kbd> <kbd>→</kbd> <kbd>Origine</kbd> <kbd>Fin</kbd> pour naviguer, <kbd>F</kbd> pour retourner l'échiquier.</li>
+        <li><strong>Barre d'évaluation</strong> à côté (Stockfish intégré), bandeaux des joueurs avec leurs pendules.</li>
+        <li><strong>Sous l'échiquier</strong> : le code et le nom de l'ouverture de la position (« B90 Défense sicilienne : variante Najdorf », en français quand l'interface l'est), même par transposition et après la sortie de la théorie ; s'il n'y en a pas, le dernier coup joué. Il suit la navigation et les coups repris.</li>
+        <li>Le crayon sous l'échiquier ouvre l'<a href="#outils">éditeur de position</a>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Notation</h4>
+      <ul>
+        <li>Variantes, commentaires, annotations (!, ?, !?, N pour une nouveauté…), temps de pendule.</li>
+        <li>Notation française (Cf3), anglaise (Nf3) ou en figurines (♘f3), au choix.</li>
+        <li>Clic sur le titre : informations de la partie (<kbd>Ctrl+I</kbd>). Clic droit : commenter, annoter (!, ?…), promouvoir une variante, supprimer à partir d'un coup.</li>
+        <li><kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Maj+Z</kbd> : <strong>annuler</strong> et <strong>rétablir</strong> une modification (coup, variante supprimée, commentaire, symbole, flèche, informations) sur les pages Bases et Analyse. Sur la page Jouer, <kbd>Ctrl+Z</kbd> reprend le coup.</li>
+        <li>Clic droit → <span class="menu">Diagramme après ce coup</span> pose le repère « ▦ » : un diagramme y est placé dans le PDF et à l'impression (le « [#] » des bases ChessBase est reconnu). Les <strong>médailles</strong> de ChessBase s'affichent après le coup (« ★ tactique, finale »).</li>
+        <li>Clic droit → <span class="menu">Question d'entraînement…</span> : le coup devient une question, avec un énoncé facultatif. <span class="menu">Partie → Entraînement → S'entraîner sur les questions de la partie…</span> les pose une à une : coup à retrouver sur l'échiquier, indice, solution, score (10 points au premier essai, 5 au deuxième, 2 ensuite).</li>
+        <li>Clic droit sur un coup → <span class="menu">Remplacer ce coup…</span> : l'échiquier revient avant ce coup, et le coup que vous jouez prend sa place ; la suite est supprimée. <span class="menu">Remplacer ce coup en gardant la suite…</span> garde les coups qui suivaient tant qu'ils restent légaux, avec leurs commentaires et variantes. Aller ailleurs dans la partie abandonne le remplacement. <span class="menu">Descendre la variante</span> fait passer une ligne un rang plus bas (l'inverse de Promouvoir) ; <span class="menu">Jouer un coup nul</span> passe le tour (noté « -- »), utile pour montrer une menace.</li>
+        <li><span class="menu">Partie → Entraînement → Deviner les coups de la partie…</span> : vous rejouez la partie affichée en cherchant les coups d'un camp (celui du vainqueur est proposé), à partir du coup de votre choix ; les réponses adverses se jouent seules. Le coup de la partie vaut 3 points. Un autre coup est comparé à celui de la partie par le Stockfish intégré : 2 points s'il est aussi bon, 1 s'il est jouable, 0 sinon. <strong>Indice</strong> marque la pièce à jouer (1 point au plus), <strong>Montrer le coup</strong> n'en donne aucun.</li>
+        <li><span class="menu">Fichier → Exporter en PDF…</span> et <span class="menu">Imprimer la partie…</span> (<kbd>Ctrl+P</kbd>) : la partie mise en page avec variantes, commentaires et diagrammes (aux repères « ▦ », sinon tous les dix coups).</li>
+        <li><kbd>Ctrl++</kbd> / <kbd>Ctrl+−</kbd> (ou A+ / A−) : taille de la police.</li>
+        <li>Bouton moteur de la barre : afficher ou masquer les <strong>notes des moteurs</strong> des parties de tournoi (« +0.23/31 2.6s » : évaluation, profondeur, temps). Masquées, elles restent dans la partie et dans le PGN.</li>
+        <li>Clic droit → <span class="menu">Enregistrer la partie</span> : en PGN, dans une base ouverte, ou en <a href="#outils-html">page HTML</a> avec échiquier.</li>
+      </ul>
+      <div class="moves">1. e4 c5 2. Nf3 d6 3. d4 <span class="var">(3. Bb5+ Bd7)</span> 3... cxd4 <span class="cmt">{Sicilienne ouverte}</span> 4. Nxd4 Nf6 5. Nc3 a6</div>
+    </div>
+  </div>
+  <div class="note info"><div><p><strong>Évaluation automatique</strong> : le Stockfish intégré évalue en arrière-plan chaque position de la partie affichée (d'abord la position courante, puis toute la ligne principale). La courbe et la barre d'évaluation se remplissent sans rien lancer. Fermer le panneau <em>Évaluation</em> d'une page arrête ce calcul sur cette page. Jamais sur la page Tournoi, pour laisser tous les processeurs aux moteurs.</p></div></div>
+  <div class="note info"><div><p><strong>Analyse assistée</strong> (<span class="menu">Affichage → Analyse assistée</span>, pages Bases et Analyse, éteinte par défaut) : quand vous prenez une pièce, ses cases d'arrivée se colorent selon la qualité du coup — <strong>vert</strong> bon coup, <strong>jaune</strong> jouable, <strong>rouge</strong> faute. Le Stockfish intégré évalue tous les coups de la position affichée en un peu plus d'une seconde ; les couleurs apparaissent dès les premiers résultats et s'affinent. <span class="menu">Affichage → Menace en flèche</span> ajoute une flèche rouge : ce que l'adversaire jouerait si le camp au trait passait son tour, quand cela lui rapporte vraiment (pas de flèche si rien ne menace, ni quand le roi est en échec). Ces deux aides ne fonctionnent jamais sur la page Jouer.</p></div></div>
+</section>
+
+<!-- =================================================================== BASES -->
+<section id="bases">
+  <h2><span class="glyph">⛁</span>Page Bases de données</h2>
+  <p>La liste des parties d'une ou plusieurs bases (un onglet par base), triable par colonne, avec l'échiquier et la notation de la partie choisie. Un clic sur une partie l'ouvre sur l'échiquier et dans la notation de cette page, sans toucher à la page Analyse (<kbd>Ctrl</kbd> ou <kbd>Maj</kbd> + clic étend la sélection sans rien ouvrir) ; un double-clic ouvre ses informations, pour les corriger dans le fichier.</p>
+
+  <h3 id="bases-ouvrir">Ouvrir, créer, enregistrer, copier</h3>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Ouvrir une base</h4><span class="where"><kbd>Ctrl+O</kbd> · bouton + des onglets · glisser un fichier</span></div>
+      <p>Bases <strong>PGN</strong> et <strong>Hydra64</strong> (en quatre fichiers, ou en un seul <code>.hy64</code>), fichiers de positions <strong>EPD</strong> (une partie par position), tous modifiables ; fichiers <strong>FEN</strong> en lecture seule. Les formats propriétaires (ChessBase, Chess Assistant / Aquarium) proposent la <a href="#outils-conversion">conversion</a>. Une grande base Hydra64 (11 millions de parties) s'ouvre en quelques millisecondes.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Créer et enregistrer</h4><span class="where"><span class="menu">Fichier → Nouvelle base…</span> · <kbd>Ctrl+S</kbd></span></div>
+      <p><strong>Nouvelle base</strong> : un fichier vide, au format Hydra64 ou PGN. <strong>Enregistrer dans la base</strong> (<kbd>Ctrl+S</kbd>) ajoute la partie affichée à la base ouverte ; une partie qui vient de cette base est mise à jour (ou ajoutée comme nouvelle partie, au choix). <span class="menu">Enregistrer dans une autre base…</span> change de fichier ; <span class="menu">Fichier → Exporter en PGN…</span> écrit la partie seule.</p>
+      <p class="dim">Un fichier PGN est réécrit de façon atomique : les autres parties restent identiques octet pour octet.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Clic droit sur des parties</h4><span class="where">sélection multiple avec <kbd>Ctrl</kbd> / <kbd>Maj</kbd></span></div>
+      <ul>
+        <li><strong>Aperçu…</strong> (échiquier et coups dans une fenêtre, sans charger la partie), <strong>Envoyer dans l'analyse</strong> (<kbd>Ctrl+Maj+A</kbd>), <strong>Copier le PGN</strong>, <strong>Exporter en page HTML…</strong> (une <a href="#outils-html">page autonome</a> avec échiquier, pour une partie).</li>
+        <li><strong>Modifier les informations…</strong> : joueurs, Elo, résultat, date, tournoi, lieu, ronde, ECO, annotateur, corrigés directement dans le fichier.</li>
+        <li><strong>Supprimer</strong> (<kbd>Suppr</kbd>) : dans une base Hydra64, la partie reste affichée, rayée, et se <strong>restaure</strong> ; <span class="menu">Base → Entretien de la base → Compacter la base</span> la retire pour de bon. Dans un PGN, la suppression est définitive, après confirmation.</li>
+        <li><strong>Drapeaux</strong> (bases Hydra64) : six repères personnels, Ouverture, Milieu de partie, Finale, Tactique, Stratégie, À revoir (lettres O M F T S R après le numéro).</li>
+        <li><strong>Annoter les parties…</strong> par lot, <strong>Fiche du joueur</strong>, <strong>Tableau croisé du tournoi</strong>.</li>
+      </ul>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Copier d'une base à l'autre</h4><span class="where">glisser-déposer</span></div>
+      <p>Sélectionnez des parties et glissez-les sur l'onglet d'une autre base (encadré orange quand il accepte). Glissées hors de Hydra64, elles arrivent en texte PGN.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Colonnes</h4></div>
+        <p>Clic droit sur l'en-tête : afficher ou masquer chaque colonne (Lieu, Ronde, nombre de Coups sont masquées par défaut). Clic sur un en-tête : tri.</p>
+      </div>
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Signets</h4><span class="where"><kbd>Ctrl+D</kbd></span></div>
+        <p><span class="menu">Fichier → Signets</span> retient une partie et le coup affiché ; choisir le signet rouvre la base, la partie et ce coup (jusqu'à 50).</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="bases-recherche">Recherches</h3>
+  <div class="stack">
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Filtre rapide</h4></div>
+      <p>Le champ au-dessus de la liste filtre par joueur, tournoi, lieu…</p>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Recherche avancée</h4><span class="where"><span class="menu">Base → Recherche avancée…</span> · <kbd>Ctrl+Maj+H</kbd></span></div>
+      <p>Joueurs (Blancs, Noirs, ou l'un contre l'autre sans tenir compte des couleurs), tournoi, lieu, ronde, annotateur (début de mot, sans casse ni accents), Elo, années, codes ECO, résultat, nombre de coups, parties avec variantes ou commentaires, drapeaux. Le résultat remplace la recherche, s'y restreint (ET) ou s'y ajoute (OU). <span class="menu">Base → Autres recherches → Inverser le résultat</span> donne les autres parties ; <span class="menu">Toute la base</span> efface la recherche.</p>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Recherche par matériel et motifs</h4><span class="where"><span class="menu">Base → Autres recherches → Recherche par matériel et motifs…</span></span></div>
+      <ul>
+        <li>Nombre de dames, tours, fous, cavaliers et pions de chaque camp ; différence de matériel ; fous de même couleur ou de couleurs opposées.</li>
+        <li>Motifs : pion d isolé, pions pendants, centre Maroczy, fianchettos, roques opposés, pion passé, sacrifice de tour en c3…</li>
+        <li>Comparaison avec l'échiquier : mêmes pions sur les mêmes cases, mêmes colonnes de pions, même matériel.</li>
+        <li>Entre deux demi-coups, et pendant au moins N demi-coups de suite.</li>
+      </ul>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Recherche de position</h4><span class="where"><span class="menu">Base → Rechercher la position de l'échiquier</span> · <kbd>Ctrl+Maj+F</kbd></span></div>
+      <p>Les parties qui passent par la position de l'échiquier. Instantanée sur une base Hydra64 grâce à son index des positions.</p>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Manœuvre, structure de pions, finales semblables</h4><span class="where">menu <span class="menu">Base</span> · bases Hydra64</span></div>
+      <ul>
+        <li><span class="menu">Rechercher une manœuvre…</span> : une pièce va d'une case à une autre en N coups au plus, éventuellement en passant par une troisième (un cavalier f3 → f5 par h4, par exemple).</li>
+        <li><span class="menu">Rechercher la structure de pions de l'échiquier</span> : les parties où les pions des deux camps occupent exactement ces cases.</li>
+        <li><span class="menu">Rechercher le matériel de l'échiquier</span> : les parties qui passent par le même matériel (finales semblables). La correspondance est exacte, sans degré de ressemblance.</li>
+      </ul>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Index</h4><span class="where"><span class="menu">Base → Statistiques → Index : joueurs, tournois, annotateurs…</span> · bases Hydra64</span></div>
+      <p>Les joueurs (nombre de parties, années, meilleur Elo, score), tournois, lieux, annotateurs et sources de la base. Filtre par nom, tri par colonne ; double-clic : les parties de l'entrée dans la liste. Clic droit sur un joueur : sa fiche.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Partie au hasard, partie n°</h4><span class="where"><kbd>Ctrl+Maj+G</kbd></span></div>
+        <p><span class="menu">Base → Partie au hasard</span> charge une partie de la liste affichée ; <span class="menu">Aller à la partie n°…</span> par son numéro.</p>
+      </div>
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Navigateur ECO</h4><span class="where"><span class="menu">Base → Ouvertures → Navigateur ECO…</span></span></div>
+        <p>Les codes A00 à E99 en arbre avec leurs lignes nommées et le nombre de parties de la base. <strong>Filtrer la base</strong> sur un code ou une tranche, ou <strong>Jouer la ligne</strong> dans la page Analyse.</p>
+      </div>
+      <div class="card feat grey">
+        <div class="feat-head"><h4>Synthèses d'ouverture</h4><span class="where"><span class="menu">Base → Ouvertures → Synthèses d'ouverture…</span></span></div>
+        <p>Pour une base livrée avec des synthèses d'ouverture, chacune dans sa propre base (encyclopédie des ouvertures de ChessBase convertie) : la liste des synthèses triée par code ECO, avec titre, auteur, parution et nombre de parties. Cherchez un code, un titre ou un auteur ; un double-clic ouvre la synthèse comme une base. L'index est le fichier <code>&lt;base&gt;.surveys.json</code> à côté de la base ; il se crée avec <code>hydra64-convert --survey-index &lt;base.hy64&gt; &lt;dossier des synthèses&gt;</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="bases-outils">Outils de base</h3>
+  <div class="grid2">
+    <div class="card feat">
+      <div class="feat-head"><h4>Classer les parties (ECO)</h4></div>
+      <p><span class="menu">Base → Entretien de la base → Classer les parties (ECO)…</span> recalcule le code et le nom d'ouverture de chaque partie d'après ses coups, quel que soit l'ordre des coups (environ 3 900 ouvertures).</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Beauté des parties</h4></div>
+      <p>La colonne <b>Beauté</b> de la liste donne à chaque partie de zéro à trois étoiles ; un clic sur son en-tête affiche les plus belles en premier. La note vient des coups seuls, sans moteur, pour le camp qui gagne : sacrifices (matériel donné et pas repris dans les deux coups, dans une partie gagnée peu après ou dont le matériel revient), partie finie par un mat, chasse au roi, sous-promotion, partie courte. Elle dit « spectaculaire », pas « bien jouée » : la justesse d'un sacrifice n'est pas vérifiée, et un sacrifice offert mais refusé ne compte pas. Les nulles n'ont pas d'étoile.</p>
+      <p>Une partie ajoutée, modifiée ou convertie est notée d'office. Pour une base créée avant cette fonction, <span class="menu">Base → Entretien de la base → Évaluer la beauté des parties…</span> note toutes ses parties (bases Hydra64 ; les parties elles-mêmes ne sont pas modifiées), ou en ligne de commande <code>hydra64-convert --beauty &lt;base&gt;</code>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Doublons</h4></div>
+      <p><span class="menu">Base → Entretien de la base → Doublons…</span> : mêmes joueurs, même longueur, et les critères cochés (coups, résultat, année, tournoi, ronde). La partie la plus riche est gardée ; les autres s'affichent ou se marquent supprimées.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Corriger un nom</h4></div>
+      <p><span class="menu">Base → Entretien de la base → Corriger un nom…</span> : joueur, tournoi, lieu, ronde ou annotateur, remplacé dans toutes les parties. Choisir un nom existant fusionne les deux (« Carlsen, M » et « Carlsen, Magnus »).</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Trier, compacter</h4></div>
+      <p><span class="menu">Base → Entretien de la base → Trier la base dans l'ordre affiché…</span> réécrit la base dans l'ordre du tri ; <span class="menu">Compacter la base</span> retire les parties rayées. Bases Hydra64.</p>
+      <p><span class="menu">Base → Entretien de la base → Test d'intégrité…</span> relit toutes les parties de la base, sans rien écrire : emplacement de chaque partie dans le fichier, noms, décodage complet (variantes et commentaires compris), longueur. Le résultat dit combien de parties ont été relues et liste les problèmes trouvés (les cent premiers). Une base de douze millions de parties est relue en une demi-minute. En ligne de commande : <code>hydra64-convert --check base.hy64</code>.</p>
+      <p><span class="menu">Base → Entretien de la base → Améliorer les noms des joueurs…</span> (avec l'<a href="#bases-statistiques">encyclopédie des joueurs</a>) : chaque nom que l'encyclopédie reconnaît sans hésitation est proposé sous son écriture « Nom, Prénom ». Les changements sûrs (ordre des mots, casse, accents, ponctuation) sont cochés ; ceux qui complètent un prénom abrégé sont à vérifier. Rien n'est écrit avant <strong>Appliquer</strong>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Exporter les parties affichées</h4></div>
+      <p><span class="menu">Base → Exporter les parties affichées…</span> (la recherche s'applique) : <strong>PGN</strong>, <strong>EPD</strong> (position finale ou après N demi-coups) ou <strong>page HTML</strong> autonome.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Fusionner des parties</h4></div>
+      <p>Sélectionner plusieurs parties, clic droit → <span class="menu">Fusionner</span> : une seule partie dont les lignes divergentes deviennent des variantes, dans une nouvelle partie ou dans celle de la page Analyse. Chaque ligne se termine par un repère « Blancs – Noirs, lieu année, résultat ».</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Base presse-papiers</h4></div>
+      <p>Une base de dépôt, <code>Bases/Clipboard.hy64</code> : clic droit sur des parties → <span class="menu">Copier dans la base presse-papiers</span>, ou <span class="menu">Partie → Ajouter à la base presse-papiers</span>. <span class="menu">Base → Presse-papiers</span> l'ouvre ou la vide.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Répertoire d'ouvertures</h4></div>
+      <p><span class="menu">Partie → Répertoire d'ouvertures</span> : un arbre de coups par camp (dossier <code>Répertoire</code>). <strong>Ajouter la ligne affichée</strong>, ouvrir le répertoire dans la page Analyse pour le retoucher, puis l'enregistrer. Le <strong>rapport</strong> confronte les parties affichées au répertoire : coups adverses non prévus, lignes à prolonger, vos écarts, avec le nombre de parties et votre score.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Textes d'une base ChessBase</h4></div>
+      <p><span class="menu">Base → Textes de la base ChessBase…</span> affiche les introductions et leçons d'une base <code>.cbh</code> ouverte. À la conversion, chaque texte reste à sa place parmi les parties : Blancs = son titre, tournoi « Texte », le texte en commentaire. Les liens vers les parties et les images ne sont pas repris ; les textes des <code>.2cbh</code> ne sont pas lus.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Trouver la nouveauté</h4></div>
+      <p><span class="menu">Partie → Outils → Trouver la nouveauté</span> : le premier coup de la partie qu'aucune partie de la base de référence n'a joué. Il reçoit la marque N.</p>
+    </div>
+  </div>
+
+  <h3 id="bases-statistiques">Statistiques</h3>
+  <div class="grid2">
+    <div class="card feat green">
+      <div class="feat-head"><h4>Fiche du joueur</h4></div>
+      <p>Score avec chaque couleur, années de jeu, Elo le plus haut et courbe de l'Elo, ouvertures favorites, adversaires fréquents. <strong>Ses parties</strong> les affiche ; la fiche s'exporte en HTML.</p>
+      <p><strong>Encyclopédie des joueurs</strong> : si vous possédez celle de ChessBase (« Playbase »), indiquez son dossier dans <a href="#preferences">Préférences → Bases</a>. La fiche ajoute alors la photo du joueur, son titre, sa fédération, ses dates, son Elo et son rang mondial, et la courbe de ses Elo dans les listes FIDE (1976 à la date de l'encyclopédie). Le bas de la fenêtre indique si elle est chargée ; un joueur qui n'y figure pas est signalé en orange. Les noms sont reconnus sous plusieurs formes : « Nom, Prénom », « Nom » seul, « Prénom Nom », « Nom Prénom (FED) ».</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Se préparer contre un joueur</h4></div>
+      <p><span class="menu">Base → Statistiques → Se préparer contre un joueur…</span>, ou <strong>Se préparer contre lui…</strong> dans sa fiche (bases Hydra64). Tapez son nom, puis choisissez la couleur qu'il aura contre vous : le rapport montre l'arbre de ce qu'il joue avec cette couleur (ses coups en gras ; parties, score et dernière année pour chaque choix), les lignes où il marque le moins et celles où il marque le plus, ses ouvertures par code ECO, la longueur de ses défaites et ses défaites les plus courtes.</p>
+      <p>Un clic sur un nombre de parties les affiche dans la liste. Trois réglages : le nombre de coups suivis, l'année à partir de laquelle ses parties comptent, et le nombre de parties sous lequel un coup n'est pas affiché. Les transpositions sont réunies : les chiffres d'un coup sont ceux de toutes les parties où il a été joué dans cette position, quel que soit l'ordre des coups ; une position atteinte par plusieurs ordres n'est développée qu'une fois, les autres ordres y renvoient (« → suite sous… »). Le rapport s'exporte en HTML.</p>
+      <p><strong>Face à votre répertoire</strong> : si vous avez un répertoire (<span class="menu">Partie → Répertoire d'ouvertures</span>) pour la couleur que vous aurez, le rapport liste les lignes du joueur qui en sortent — un coup qu'il joue et que votre répertoire ne prévoit pas, ou l'endroit où votre répertoire s'arrête — de la plus jouée à la moins jouée, et l'arbre indique pour chaque ligne si elle est dans votre répertoire.</p>
+      <p><strong>Rapport d'erreur</strong> : <strong>Analyser ses défaites</strong> fait examiner par le moteur ses défaites les plus récentes avec cette couleur (30 par défaut, 0,2 s par position ; les deux se règlent). Dans chacune, il retient le coup qui lui a coûté le plus de chances de gain. La section « Ses fautes » dit alors à quel moment il craque (ouverture, milieu de jeu, finale), dans quelle position (il était mieux, à égalité, déjà moins bien), et liste les fautes avec le meilleur coup et l'évaluation avant et après ; <strong>voir</strong> ouvre la partie sur la position où le coup a été joué. L'analyse tourne en arrière-plan et s'arrête quand on veut ; elle saute les quatre premiers coups et s'interrompt dès que la partie est perdue sans appel. Les résultats sont gardés dans un fichier <code>.errors.json</code> à côté de la base : une partie déjà analysée ne l'est plus, sauf si vous demandez un temps plus long.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Tableau croisé</h4></div>
+      <p>Les joueurs du tournoi de la partie, classés, avec Elo, résultats croisés, points et performance. Double-clic : les parties concernées.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Rapport d'ouverture</h4></div>
+      <p><span class="menu">Base → Ouvertures → Rapport d'ouverture…</span> : pour la position de l'échiquier, résultats, Elo, coups suivants, popularité par période, joueurs fréquents, meilleures parties, structures de pions typiques. Exportable en HTML.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Pièces sur les parties affichées</h4></div>
+      <p><span class="menu">Base → Statistiques → Pièces sur les parties affichées…</span> (bases Hydra64) : pour toutes les parties de la liste — filtrez d'abord par joueur, ouverture ou période — une carte de l'échiquier montre <strong>où se tiennent les pièces</strong> d'un genre (part des positions où un cavalier blanc, par exemple, occupe chaque case), sur toute la partie ou par tranche de dix coups. <strong>Premier coup d'une pièce</strong> montre où va d'abord chacune des trente-deux pièces de départ, dans quelle part des parties elle bouge et à quel coup en moyenne.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Graphiques du filtre</h4></div>
+      <p><span class="menu">Base → Statistiques → Graphiques du filtre…</span> : les parties affichées par année et par Elo moyen, en barres (gains Blancs, nulles, gains Noirs) avec le score des Blancs.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Arbre de la base</h4></div>
+      <p><span class="menu">Base → Ouvertures → Arbre de la base</span> : dans le panneau Arbre d'ouverture, les coups joués dans la base depuis la position, avec leurs résultats.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Tables de finales</h4></div>
+      <p>Le panneau <a href="#outils-finales">Finales</a> est aussi sur cette page.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================================== ANALYSE -->
+<section id="analyse">
+  <h2><span class="glyph">♗</span>Page Analyse</h2>
+  <p>Un échiquier libre pour étudier une partie ou une position : variantes, commentaires, moteurs, annotation automatique et arbre d'analyse. Les parties y arrivent par <strong>Envoyer dans l'analyse</strong> (<kbd>Ctrl+Maj+A</kbd>) depuis les pages Bases et Jouer, par un collage de FEN ou de PGN (<kbd>Ctrl+Maj+V</kbd>), ou par l'éditeur de position.</p>
+
+  <h3 id="analyse-moteurs">Moteurs spectateurs</h3>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Autant de moteurs que voulu</h4><span class="where">bouton + d'un panneau moteur · <kbd>Ctrl+Maj+K</kbd></span></div>
+      <p>Chaque moteur analyse la position affichée sans jamais jouer, avec son bouton <strong>Play / Stop</strong>, le nombre de variantes (boutons <strong>−</strong> et <strong>+</strong>, 1 à 10), le bouton <strong>CPU</strong> (ses options) et le <strong>camp analysé</strong> (les deux, Blancs seulement, Noirs seulement). Il dessine sa flèche dans sa propre couleur ; des flèches sur le même coup se superposent en s'affinant.</p>
+      <p class="dim">Quitter la page arrête les moteurs ; aucun ne redémarre tout seul au retour (bouton Play). Double-clic sur une ligne : jouer son premier coup.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Clic droit sur une ligne</h4></div>
+      <ul>
+        <li><strong>Ajouter la variante</strong> (ou toutes) à la notation.</li>
+        <li><strong>Exclure</strong> son premier coup : le moteur cherche parmi les autres (« et si je ne joue pas ça ? »).</li>
+        <li><strong>Verrouiller</strong> le moteur sur la position (aussi le cadenas) : il continue d'analyser pendant qu'on navigue ailleurs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="analyse-annotation">Annotation automatique</h3>
+  <div class="card feat">
+    <div class="feat-head"><h4>Annoter la partie</h4><span class="where"><span class="menu">Partie → Annoter la partie…</span> · <kbd>Ctrl+Maj+N</kbd></span></div>
+    <p>Le moteur analyse chaque position de la ligne principale (1 s par défaut). Un coup qui fait perdre des chances de gain reçoit <strong>?!</strong>, <strong>?</strong> ou <strong>??</strong> (seuils de 10 / 20 / 30 % de chances, comme sur Lichess), son évaluation en commentaire et la meilleure suite en variante. Options : camp annoté, premiers coups ignorés, mats manqués, <strong>sortie du livre</strong> (dernier coup connu de l'arbre d'ouverture), <strong>exercices tactiques</strong> (les gaffes deviennent des positions à résoudre, ajoutées à un recueil EPD rejouable dans l'Entraînement).</p>
+    <div class="moves">23. Qd2 <span class="cmt">{+0.4}</span> 23... Rc8?? <span class="cmt">{+3.1}</span> <span class="var">(23... Nd7 24. Rad1 Rc8 25. h4 {+0.5})</span> 24. Nxe6</div>
+  </div>
+
+  <h3 id="analyse-approfondie">Analyse approfondie</h3>
+  <p>Panneau <span class="menu">Moteur → Analyse approfondie</span>, d'après l'IDeA d'Aquarium et l'ECA de BanksiaGUI : un <strong>arbre d'analyse</strong> qui grandit tout seul à partir d'une ou plusieurs positions, et qu'on peut guider pendant qu'il tourne. Les transpositions sont fusionnées, les scores remontent par minimax, les bons coups sont prolongés et des coups alternatifs sont cherchés là où le meilleur coup n'est pas sûr. On arrête, on reprend des jours plus tard.</p>
+  <div class="grid2">
+    <div class="card feat">
+      <div class="feat-head"><h4>Arbre</h4><span class="where">onglet Arbre</span></div>
+      <p>Il suit l'échiquier : pour chaque coup, score minimax, évaluation et profondeur du moteur, taille de la branche, notes. Flèche orange : meilleur coup de l'arbre. Clic droit : <strong style="color:var(--good)">vert</strong> (seul coup analysé ici), <strong style="color:var(--bad)">rouge</strong> (exclu). <kbd>F4</kbd> copie la meilleure ligne dans la notation.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Tâches</h4><span class="where">onglet Tâches</span></div>
+      <p>Boutons : <strong>Position</strong> (<kbd>Ctrl+Maj+T</kbd>), <strong>Alternative</strong>, <strong>Toutes</strong> les positions de la notation, <strong>Racine</strong>, <strong>Auto-play</strong>, <strong>Personnalisée</strong>, <strong>Infinie</strong>. L'étape en cours en carrés : gris fait, vert en cours, jaune en attente, rouge manuel.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Projets</h4><span class="where">onglet Projets</span></div>
+      <p>Un projet par analyse : racines, part du processeur, arbre maître, qualité (temps, profondeur), largeur de l'arbre, nombre d'alternatives, camp préféré (préparation de répertoire), coups thématiques, bornes de score, mode EPD. Plusieurs projets se partagent les moteurs.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Notes et exports</h4><span class="where">onglet Notes · menu du panneau</span></div>
+      <p>Quatre listes de positions (bonne, intéressante, critique, douteuse). Exports : <strong>PGN</strong>, arbre <strong>.hy64book</strong> (avec l'évaluation de chaque coup), livre <strong>Polyglot</strong>. Démarrer / arrêter : <kbd>Ctrl+Maj+D</kbd>.</p>
+    </div>
+  </div>
+
+  <h3 id="analyse-outils">Autres outils de la page</h3>
+  <div class="grid3">
+    <div class="card feat grey"><h4>Finir la partie</h4><p><span class="menu">Partie → Outils → Finir la partie (moteur)…</span> : le moteur joue les deux camps jusqu'à la fin.</p></div>
+    <div class="card feat grey"><h4>Calcul de variantes</h4><p><span class="menu">Partie → Outils → Calcul de variantes…</span> : vous notez vos variantes et leur évaluation, Stockfish les juge (exercice de Stoyko).</p></div>
+    <div class="card feat grey"><h4>Suivi des pièces</h4><p><span class="menu">Partie → Outils → Suivi des pièces…</span> : carte des cases occupées par une pièce ou un type de pièce au fil de la partie.</p></div>
+    <div class="card feat grey"><h4>Identifier l'ouverture</h4><p><span class="menu">Partie → Outils → Identifier l'ouverture</span> : code ECO et nom dans les en-têtes.</p></div>
+    <div class="card feat grey"><h4>Courbe d'évaluation</h4><p>Cliquable, comme une timeline : un clic va au coup.</p></div>
+    <div class="card feat grey"><h4>Arbre d'ouverture, finales</h4><p>Panneaux <a href="#outils-arbre">Arbre d'ouverture</a> et <a href="#outils-finales">Finales</a>.</p></div>
+  </div>
+</section>
+
+<!-- =================================================================== JOUER -->
+<section id="jouer">
+  <h2><span class="glyph">♘</span>Page Jouer</h2>
+  <p>La partie contre un moteur, avec sa propre partie. <strong>Il suffit de jouer un coup</strong> pour lancer une partie avec les derniers réglages : vous prenez le camp de la pièce jouée, depuis la position affichée.</p>
+
+  <h3 id="jouer-regler">Régler la partie</h3>
+  <div class="card feat">
+    <div class="feat-head"><h4>Jouer contre le moteur</h4><span class="where"><span class="menu">Partie → Jouer contre le moteur…</span> · <kbd>Ctrl+G</kbd></span></div>
+    <ul>
+      <li><strong>Camp</strong> : Blancs, Noirs ou au hasard ; votre nom va dans l'en-tête PGN.</li>
+      <li><strong>Force</strong> : un seul curseur à paliers — tout à gauche les niveaux <strong>débutant</strong> 1 à 3 sous 1320 Elo, puis l'Elo de 50 en 50 (1320 à 3150), et tout à droite la force maximale, sans puis avec les tables de finales (le moteur fait des fautes humaines, pas des coups au hasard) ; ou profondeur fixe (4 à 20 demi-coups).</li>
+      <li><strong>Cadence</strong> : Bullet, Blitz, Rapide, Classique, personnalisée (minutes + incrément), cadence différente pour le moteur (handicap), ou sans pendule avec un temps fixe par coup.</li>
+      <li><strong>Ouverture imposée</strong> : un code ECO (« B90 »), des coups (« 1. e4 c5 2. Nf3 ») ou une ligne choisie dans le navigateur ECO.</li>
+      <li><strong>Coach</strong>, <strong>réflexion permanente</strong> du moteur, départ depuis la position affichée.</li>
+    </ul>
+  </div>
+
+  <h3 id="jouer-pendant">Pendant la partie</h3>
+  <div class="grid2">
+    <div class="card feat">
+      <div class="feat-head"><h4>Onglet Adversaire</h4></div>
+      <p>Le nom du moteur (clic : <strong>changer d'adversaire</strong> sans recommencer), le bouton <strong>Elo</strong> (clic : le même curseur, pour changer sa force même en cours de partie ; à « Force maximale » le moteur utilise les tables de finales), sa réflexion (évaluation, profondeur, variantes), l'icône de l'onglet verte quand il est prêt, rouge quand il travaille (clic sur la ligne d'évaluation ou <kbd>Ctrl+Espace</kbd> : il joue tout de suite son meilleur coup). <strong>Play / Stop</strong> (<kbd>Espace</kbd>) : Stop libère les coups des deux camps ; Play lui fait jouer le camp au trait. Le bouton livre lui fait jouer les coups de l'arbre d'ouverture ouvert.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Pendule</h4></div>
+      <p>Le moteur gère son temps selon la pendule. Drapeau tombé : perdu (ou nulle si l'adversaire ne peut pas mater) ; jouer un coup ensuite <strong>continue la même partie</strong> : notation et pendules gardées, la pendule tombée reste à 0:00 et ne tombe plus. Le PGN note la cadence et le temps après chaque coup. Le panneau <span class="menu">Affichage → Pendule</span> l'affiche en grand.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Reprendre, consulter</h4></div>
+      <p><kbd>Ctrl+Z</kbd> reprend votre dernier coup. Revenir en arrière permet de consulter sans que le moteur rejoue. Jouer un autre coup depuis une position passée laisse l'ancienne suite en variante. <span class="menu">Partie → Abandonner</span>.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Fin de partie</h4></div>
+      <p>Mat, pat, matériel insuffisant, 50 coups, triple répétition détectés. Le bandeau propose : <strong>Enregistrer dans la base</strong>, <strong>Analyser la partie</strong>, <strong>Revanche</strong> (couleurs inversées), <strong>Nouvelle partie…</strong></p>
+    </div>
+  </div>
+  <p class="dim">Quitter la page Jouer met la partie en pause (moteur et pendule arrêtés). Au retour, et même au lancement suivant, la partie est là mais rien ne repart tout seul, ni moteur ni pendule : si vous avez le trait, la partie repart quand vous jouez votre coup ; si l'adversaire avait le trait, il attend le bouton Jouer (<kbd>Espace</kbd>). Des moteurs spectateurs peuvent aussi suivre la partie : bouton <strong>+</strong> à droite de l'onglet Adversaire (ou <kbd>Ctrl+Maj+K</kbd> sur cette page) ; chacun a son panneau sous l'adversaire, à l'arrêt jusqu'à son bouton Jouer.</p>
+
+  <h3 id="jouer-aide">Coach, indice, entraînement</h3>
+  <div class="grid2">
+    <div class="card feat green">
+      <div class="feat-head"><h4>Coach</h4></div>
+      <p>Après chacun de vos coups, pendules arrêtées, un Stockfish à part juge le coup. Une imprécision, une erreur ou une gaffe est signalée avec le meilleur coup : vous pouvez le reprendre ou le jouer quand même.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Indice</h4><span class="where"><kbd>Ctrl+Maj+I</kbd></span></div>
+      <p>Une flèche verte montre un bon coup quand c'est à vous de jouer.</p>
+    </div>
+  </div>
+  <div class="card feat green" style="margin-top:14px">
+    <div class="feat-head"><h4>Entraînement</h4><span class="where"><span class="menu">Partie → Entraînement → Entraînement…</span></span></div>
+    <ul>
+      <li><strong>Ouverture avec l'arbre</strong> : l'arbre d'ouverture ouvert vous répond ; une sortie de l'arbre est signalée avec les coups attendus.</li>
+      <li><strong>Trouver le meilleur coup</strong> : bases intégrées <code>best_move_easy</code> (&lt; 1500), <code>best_move_medium</code> (1500–2000) et <code>best_move_hard</code> (&gt; 2000), 600 exercices chacune.</li>
+      <li><strong>Mats en N</strong> : bases intégrées <code>mate_in_1</code> à <code>mate_in_5</code> (1 765 positions, chaque solution vérifiée). Stockfish défend au mieux et vérifie que le mat reste forcé.</li>
+    </ul>
+    <p><strong>Mes recueils</strong> : vos recueils de <code>~/Documents/hydra64/exercises</code> (voir <a href="#outils-recueil">Ajouter au recueil</a>) sont proposés d'office, pour les deux exercices, dans l'ordre du fichier. « Autre fichier… » en prend un ailleurs.</p>
+    <p><strong>Révision espacée</strong> (cochée par défaut) : une position réussie revient après 1, 3, 7, 14 puis 30 jours ; une position ratée revient 4 positions plus loin et passe en tête de la séance suivante. La fenêtre affiche, pour le recueil, les positions à revoir, nouvelles et acquises, et votre taux de réussite. <strong>Remettre à zéro</strong> oublie la progression du recueil ; les recueils eux-mêmes ne sont jamais modifiés. <strong>Vérifier…</strong> ouvre la <a href="#moteurs-verifier">vérification du recueil</a>.</p>
+    <p class="dim">Les 3 565 exercices des bases intégrées (<code>databases/training/</code>, au format Hydra64, ouvrables dans la page Bases) viennent de la base publique de Lichess (domaine public) et arrivent dans un ordre au hasard. <strong>Solution</strong> montre la suite complète ; <strong>Analyser</strong> ouvre la position dans la page Analyse.</p>
+  </div>
+</section>
+
+<!-- =================================================================== TOURNOI -->
+<section id="tournoi">
+  <h2><span class="glyph">♔</span>Page Tournoi de moteurs</h2>
+  <p>Des moteurs s'affrontent à la pendule, une partie après l'autre ou plusieurs à la fois, et la partie suivie s'affiche en direct. Pas d'évaluation automatique sur cette page : les moteurs gardent tous les processeurs.</p>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Organiser</h4><span class="where">panneau Tournoi · <span class="menu">Tournoi → Nouveau tournoi</span></span></div>
+      <ul>
+        <li><strong>Participants</strong> : au moins deux moteurs de la gestion des moteurs, chacun avec ses options.</li>
+        <li><strong>Appariements</strong> : toutes rondes, <strong>gauntlet</strong> (le premier contre chacun des autres, pour tester une nouvelle version) ou <strong>système suisse</strong> (groupes de points, sans revanche, couleurs équilibrées, exempt à 1 point).</li>
+        <li><strong>Tours</strong> et <strong>aller-retour</strong> (chaque appariement avec les deux couleurs).</li>
+        <li><strong>Limite</strong> : pendule (minutes + incrément), temps par coup ou profondeur fixe.</li>
+        <li><strong>Un seul bouton, selon l'état</strong> : <em>Lancer le tournoi</em> quand il n'y en a pas, <em>Interrompre</em> pendant qu'il tourne, <em>Reprendre le tournoi</em> après une interruption (avec <em>Nouveau tournoi</em> à côté pour l'abandonner), <em>Nouveau tournoi</em> une fois terminé.</li>
+      </ul>
+    </div>
+    <div class="card feat blue">
+      <div class="feat-head"><h4>Parties simultanées</h4><span class="where">bouton Arbitrage… · bouton Vue d'ensemble · <kbd>Ctrl+Maj+G</kbd></span></div>
+      <ul>
+        <li><strong>Nombre de parties jouées en même temps</strong> : dans <em>Arbitrage…</em> (1 par défaut). Chaque partie lance ses deux moteurs et a sa pendule : comptez les processeurs.</li>
+        <li><strong>Suivre une autre partie</strong> : double-clic sur une partie marquée « en cours » dans la liste ; elle passe sur l'échiquier et dans la notation.</li>
+        <li><strong>Vue d'ensemble</strong> (<span class="menu">Tournoi → Vue d'ensemble des parties en cours</span>) : un échiquier par partie en cours, avec les noms, le numéro du coup et les pendules. <strong>Clic</strong> sur un échiquier : sa partie s'affiche dans la notation (elle est marquée « ● ») ; <strong>double-clic</strong> : elle passe en grand.</li>
+        <li>Quand la partie suivie se termine, l'échiquier passe à une autre partie en cours. Les moteurs restent ouverts d'une partie à l'autre, et le temps de réflexion est mesuré à part de l'interface.</li>
+      </ul>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Ouvertures</h4></div>
+      <ul>
+        <li><strong>Position initiale</strong>.</li>
+        <li><strong>Positions de départ</strong> : un fichier EPD, PGN ou Hydra64, chaque position jouée avec les deux couleurs. C'est le plus juste pour comparer des moteurs. Fournis : <code>databases/tournament-openings/</code> (Nunn, UHO, Drawkiller…).</li>
+        <li><strong>Livre des moteurs</strong> : un arbre Hydra64 ou Polyglot, jusqu'au coup choisi ; coups notés « livre » dans le PGN.</li>
+      </ul>
+    </div>
+    <div class="grid2">
+      <div class="card feat">
+        <div class="feat-head"><h4>Arbitrage</h4><span class="where">bouton Arbitrage…</span></div>
+        <p><strong>Nulle</strong> quand les deux moteurs voient une évaluation proche de 0 pendant N coups ; <strong>abandon</strong> quand les deux voient un camp perdu ; évaluation, profondeur et temps de chaque coup en commentaire (« +0.23/31 2.6s », masquables dans la <a href="#echiquier">notation</a>) ; réflexion permanente ; nombre de parties simultanées.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Résultats</h4></div>
+        <p>Classement (points, +, =, −, %), <strong>écart d'Elo ± marge</strong> (95 %) et <strong>LOS</strong> (probabilité d'être plus fort), <strong>tableau croisé</strong>, liste des parties : double-clic pour en revoir une, <span class="menu">Tournoi → Suivre la partie en cours</span> pour revenir au direct.</p>
+      </div>
+    </div>
+    <div class="card feat grey">
+      <p><kbd>Espace</kbd> lance ou interrompt le tournoi ; une partie interrompue est rejouée. Les parties s'enregistrent dans une base Hydra64 (<code>.hy64</code>), une par tournoi, créée à la première partie terminée (un tournoi interrompu avant ne laisse pas de fichier vide ; une partie finie sans aucun coup joué n'y est pas écrite), dans le dossier <code>engines_tournaments</code> de votre dossier Hydra64 (<code>~/Documents/hydra64</code> ; sous Windows, <code>Documents\hydra64</code>), et <span class="menu">Tournoi → Exporter les parties…</span> les copie ailleurs. Le tournoi entier est restauré au lancement suivant.</p>
+    </div>
+    <div class="card feat green">
+      <div class="feat-head"><h4>Exporter en page HTML</h4><span class="where">bouton d'export du panneau · <span class="menu">Tournoi → Exporter en page HTML…</span></span></div>
+      <p>Tout le tournoi dans une <a href="#outils-html">page autonome</a> : classement avec l'écart d'Elo, tableau croisé, liste des parties et échiquier pour les rejouer, courbe d'évaluation de chaque partie, téléchargement du PGN. Les coups imposés (positions de départ, livre des moteurs) sont en gris, suivis de « fin de la bibliothèque ». Au-delà de 3 000 parties, un avertissement prévient que la page sera lourde.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================================== OUTILS COMMUNS -->
+<section id="outils">
+  <h2><span class="glyph">♖</span>Outils communs</h2>
+  <div class="stack">
+    <div class="card feat" id="outils-arbre">
+      <div class="feat-head"><h4>Arbre d'ouverture</h4><span class="where">panneau · pages Bases, Analyse, Jouer</span></div>
+      <p>Ouvre un arbre <strong>Hydra64</strong> (<code>.hy64book</code>) ou un livre <strong>Polyglot</strong> (<code>.bin</code>). Pour chaque coup de la position : nombre de parties, gains / nulles / pertes, score, annotation, Elo moyen et performance en infobulle ; <span style="color:var(--good)">pastille verte</span> pour un coup recommandé, <span style="color:var(--bad)">rouge</span> pour un coup à éviter. Double-clic : jouer le coup. Le nom de l'arbre donne les derniers arbres ouverts.</p>
+    </div>
+    <div class="card feat green" id="outils-recueil">
+      <div class="feat-head"><h4>Ajouter au recueil (vos exercices)</h4><span class="where"><span class="menu">Partie → Entraînement → Ajouter au recueil…</span> · <kbd>Ctrl+Maj+R</kbd> · toutes les pages</span></div>
+      <p>La position affichée devient un exercice ; sa solution est <strong>le coup suivant de la notation</strong>. Jouez la solution sur l'échiquier, revenez d'un coup, puis <kbd>Ctrl+Maj+R</kbd>. Vous choisissez :</p>
+      <ul>
+        <li>le <strong>recueil</strong> : un fichier EPD, PGN ou une base Hydra64 de <code>~/Documents/hydra64/exercises</code>, ou « Choisir ou créer un fichier… » ;</li>
+        <li>un <strong>nom</strong> (proposé d'après les joueurs et le coup) et un <strong>commentaire</strong> ;</li>
+        <li>le <strong>type</strong> : meilleur coup ou <strong>mat en N</strong>, reconnu tout seul quand la suite de la notation se termine par un mat ;</li>
+        <li>s'il faut <strong>garder la suite</strong> de la notation (jusqu'au mat, ou 20 demi-coups), montrée par « Solution » à l'entraînement.</li>
+      </ul>
+      <p class="dim">Vos recueils s'ouvrent dans la page Bases pour être corrigés, complétés ou triés. Dans un PGN ou une base Hydra64, un exercice reste une partie ordinaire, lisible partout : en-tête FEN, la solution en premier coup, une variante « ? » pour un coup à éviter, et <code>dm 3; c0 "commentaire"</code> en commentaire de départ.</p>
+    </div>
+    <div class="card feat" id="outils-finales">
+      <div class="feat-head"><h4>Finales (tables Syzygy)</h4><span class="where">panneau · toutes les pages · <span class="menu">Préférences → Finales</span></span></div>
+      <p>Pour une position couverte par vos tables : le résultat exact (gain, nulle, perte, sauvé par la règle des 50 coups) et celui de chaque coup, avec la distance (DTZ). Double-clic : jouer le coup. Le bouton crayon ouvre <span class="menu">Préférences → Finales</span>, où tout se règle :</p>
+      <ul>
+        <li><strong>Sources</strong> : des dossiers de tables, et des <strong>images de disque <code>.iso</code></strong> utilisées telles quelles, sans rien copier (les DVD « Endgame Turbo » de ChessBase, par exemple). Choisir un dossier qui contient des images suffit : elles sont reconnues. Le résumé indique ce qui est couvert, par exemple « 3 à 5 pièces : complètes ; 6 pièces : 27 finales sur 365 ».</li>
+        <li><strong>Moteurs</strong> : trois cases décident si les moteurs utilisent les tables — en analyse, quand vous jouez contre un moteur à pleine force, dans les tournois. Un adversaire de niveau limité ne les reçoit jamais. Le changement vaut dès la prochaine recherche d'un moteur, sans le relancer.</li>
+        <li><strong>Télécharger</strong> : du plus léger au plus complet — 3, 4 et 5 pièces (environ 1 Go), jusqu'à 6 pièces résultats seuls (environ 74 Go), jusqu'à 6 pièces complètes (environ 161 Go). La place nécessaire et la place libre sont affichées. Le débit et le temps restant s'affichent pendant le téléchargement. On peut interrompre et reprendre ; chaque fichier est contrôlé. Le téléchargement continue si la fenêtre est fermée, et s'arrête avec Hydra64.</li>
+        <li><strong>Tournois</strong> : dans les réglages d'un tournoi, « Arrêter la partie dès que la position est dans les tables de finales » attribue le résultat des tables sans faire jouer la finale (désactivé par défaut).</li>
+        <li><strong>Service en ligne de Lichess</strong> (désactivé par défaut) : pour le panneau seulement, jusqu'à 7 pièces ; la position affichée est alors envoyée à <code>tablebase.lichess.ovh</code>.</li>
+      </ul>
+      <p class="dim">Les images ISO demandent Linux. Les tables à 6 pièces sont bien plus rapides sur un SSD. Les tables à 7 pièces (plusieurs téraoctets) ne sont pas proposées au téléchargement.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat blue" id="outils-html">
+        <div class="feat-head"><h4>Pages HTML avec échiquier</h4><span class="where">notation · liste d'une base · tournoi</span></div>
+        <p>Une partie ou un tournoi dans <strong>un seul fichier</strong>, lisible dans n'importe quel navigateur sans connexion : échiquier avec vos pièces et vos couleurs, coups cliquables, <strong>variantes</strong>, commentaires, symboles, pendules, évaluations et leur courbe quand la partie en contient.</p>
+        <p class="dim">Dans la page : <kbd>←</kbd> <kbd>→</kbd> pour les coups, <kbd>↑</kbd> <kbd>↓</kbd> pour changer de partie (tournoi), <kbd>Origine</kbd> <kbd>Fin</kbd>, <kbd>F</kbd> pour retourner. Boutons <strong>EN / FR</strong> en haut à droite (anglais par défaut) : textes, dates, notation des coups et motifs de fin suivent la langue.</p>
+      </div>
+      <div class="card feat blue" id="outils-960">
+        <div class="feat-head"><h4>Chess960</h4><span class="where"><span class="menu">Fichier → Nouvelle partie Chess960…</span></span></div>
+        <p>Position de départ d'un numéro (0 à 959, tiré au hasard par défaut ; 518 = position classique). Le <strong>roque</strong> se joue en posant le roi sur sa tour, ou sur sa case d'arrivée (g ou c). FEN à colonnes de tours (« HAha »), PGN, bases Hydra64 et conversions ChessBase / Chess Assistant sont gérés ; les moteurs reçoivent l'option <code>UCI_Chess960</code> quand la position le demande.</p>
+        <p class="dim">Les livres <code>.ctg</code> et les arbres Aquarium ne connaissent que le roque classique : ils restent muets sur une position Chess960.</p>
+      </div>
+    </div>
+    <div class="card feat" id="outils-conversion">
+      <div class="feat-head"><h4>Conversion</h4><span class="where"><span class="menu">Fichier → Convertir…</span></span></div>
+      <p>Les formats propriétaires ne s'ouvrent pas directement : ils se convertissent une fois. Bases ChessBase et bases Chess Assistant / Aquarium → base Hydra64 ou PGN ; livres ChessBase, arbres Aquarium / Chess Assistant → arbre Hydra64 ou Polyglot ; EPD → base modifiable. Une <strong>base de parties</strong> peut aussi devenir un <strong>arbre d'ouverture</strong> (<span class="menu">Base → Ouvertures → Créer l'arbre d'ouverture de la base…</span>, ou en choisissant « Arbre Hydra64 » ou « Livre Polyglot » comme format d'arrivée) : pour chaque position, les coups joués avec les gains, nulles et pertes du camp qui joue, l'Elo le plus élevé et la dernière année. Deux réglages : la profondeur (50 demi-coups par défaut) et le nombre de parties qui doivent connaître une position pour que les parties soient suivies au-delà (2 par défaut : la suite qu'une partie est seule à jouer n'entre pas dans l'arbre ; 1 : tout entre). Avec les réglages par défaut, l'arbre est celui que ChessOK livre avec ses bases. Pour la Mega Database (11 millions de parties), la lecture des parties prend une quinzaine de secondes, avant le calcul de l'index des positions. Aussi en ligne de commande : <code>hydra64-convert source destination</code>.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat">
+        <div class="feat-head"><h4>Éditeur de position</h4><span class="where"><kbd>Ctrl+E</kbd> · crayon sous l'échiquier</span></div>
+        <p>Palette de pièces (clic, glisser pour peindre, gomme), trait, roques (y compris en Chess960, roi et tours sur n'importe quelles colonnes), prise en passant, numéro du coup, miroir, inversion des couleurs, FEN modifiable. La position est vérifiée en direct ; Valider démarre une partie depuis elle.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Informations de la partie</h4><span class="where"><kbd>Ctrl+I</kbd></span></div>
+        <p>Joueurs, Elo, résultat, date, tournoi, lieu, ronde, ECO, annotateur.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Échiquier en image</h4><span class="where">menu Partie</span></div>
+        <p><span class="menu">Copier l'échiquier en image</span> (presse-papiers) ou <span class="menu">Enregistrer l'échiquier en image…</span> (PNG, JPEG), flèches comprises.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>FEN et PGN</h4><span class="where"><kbd>Ctrl+Maj+C</kbd> / <kbd>Ctrl+Maj+V</kbd></span></div>
+        <p>Copier la FEN de la position ; coller une FEN ou une partie PGN (même en notation française).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================================== MOTEURS -->
+<section id="moteurs">
+  <h2><span class="glyph">⚙</span>Moteurs</h2>
+  <div class="stack">
+    <div class="card feat">
+      <div class="feat-head"><h4>Gestion des moteurs</h4><span class="where"><span class="menu">Moteur → Gestion des moteurs…</span> · <kbd>Ctrl+Maj+E</kbd></span></div>
+      <p>Ajouter ou retirer des moteurs <strong>UCI</strong> (Stockfish, Lc0, Berserk, Komodo…), les vérifier, choisir le moteur par défaut et régler leurs options (Threads, Hash, SyzygyPath, Skill Level…). La grille est générée d'après ce que déclare chaque moteur ; les valeurs modifiées sont en orange. Ce sont les réglages du moteur lui-même : chaque onglet qui l'utilise en hérite.</p>
+      <p><strong>Réglages par onglet</strong> : le bouton <strong>CPU</strong> d'un onglet (Adversaire, Spectateur 1, 2…) ouvre les réglages du moteur <em>pour cet onglet seulement</em>. Une option changée là (Threads, Hash…) ne touche ni les autres onglets qui utilisent le même moteur, ni la Gestion des moteurs ; « Reprendre les réglages du moteur » l'efface. Pendant une partie, les options réglées par la partie (force, variantes) y sont grisées dans l'onglet Adversaire, et lui seul.</p>
+    </div>
+    <div class="grid2">
+      <div class="card feat">
+        <div class="feat-head"><h4>Stockfish intégré</h4></div>
+        <p>Compilé avec Hydra64, toujours présent (« Stockfish … (intégré) ») : il évalue en arrière-plan, sert d'adversaire, de coach et de juge. Ses options se règlent, mais il ne peut pas être retiré. <span class="menu">Préférences → Évaluation</span> : processeurs, mémoire, profondeur et temps de l'évaluation automatique.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Shuffle intégré</h4></div>
+        <p>Le moteur maison, en Rust, lui aussi toujours présent (« Shuffle … (intégré) ») : il joue des coups stupides, presque au hasard. Utile pour tester, ou pour gagner à coup sûr. Comme Stockfish, il ne peut pas être retiré de la liste.</p>
+      </div>
+      <div class="card feat">
+        <div class="feat-head"><h4>Vos moteurs</h4><span class="where">dossier <code>uci_engines</code></span></div>
+        <p>Stockfish et Shuffle sont les deux seuls moteurs livrés. Les autres s'ajoutent avec <strong>Ajouter…</strong>, qui s'ouvre dans le dossier <code>uci_engines</code> de votre dossier Hydra64 : rangez-y vos exécutables UCI (Lc0, Komodo, Berserk…). Ce dossier est vide au départ ; les deux moteurs intégrés n'y sont pas, ils restent avec le programme pour ne pas être supprimés par erreur.</p>
+      </div>
+    </div>
+    <div class="card feat green" id="moteurs-verifier">
+      <div class="feat-head"><h4>Vérifier un recueil</h4><span class="where"><span class="menu">Moteur → Vérifier un recueil…</span> · bouton Vérifier… de l'Entraînement</span></div>
+      <p>Stockfish cherche chaque position d'un recueil (1 s par défaut) et classe chaque exercice : <strong style="color:var(--good)">correct</strong>, <strong style="color:var(--accent)">ambigu</strong> (un autre coup vaut presque autant : moins de 0,6 pion d'écart, ou les deux gagnent nettement), <strong style="color:var(--accent)">mat plus court</strong>, <strong style="color:var(--bad)">solution douteuse</strong> (le moteur préfère nettement un autre coup), <strong style="color:var(--bad)">coup à éviter joué</strong>, <strong style="color:var(--bad)">mat non forcé</strong>. Chaque ligne donne les évaluations ; double-clic : la position dans la page Analyse.</p>
+    </div>
+    <div class="card feat">
+      <div class="feat-head"><h4>Test de solutions</h4><span class="where"><span class="menu">Moteur → Test de solutions…</span></span></div>
+      <p>Le moteur cherche chaque position d'un recueil (EPD, PGN ou base Hydra64) pendant un temps fixé ; pour chaque position, le coup proposé en direct, depuis quand il tient la solution, et le résultat ; à la fin, le nombre de positions résolues. Fourni : le <em>Tactics Marathon</em> (210 positions, <code>databases/engine-tests/</code>).</p>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================================== FICHIERS -->
+<section id="fichiers">
+  <h2><span class="glyph">▤</span>Types de fichiers</h2>
+  <p>Ce que Hydra64 lit et écrit, à quoi sert chaque format, et comment l'application s'en sert.</p>
+  <p>
+    <span class="chips">
+      <span class="chip r">lu</span><span class="chip w">écrit</span><span class="chip ro">lecture seule</span><span class="chip c">par conversion</span>
+    </span>
+    <span class="dim" style="font-size:13px; margin-left:8px">« par conversion » : à passer par Fichier → Convertir… avant usage.</span>
+  </p>
+
+  <h3 id="fichiers-parties">Parties et positions</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Extension</th><th>Format</th><th>À quoi il sert</th><th>Accès</th></tr></thead>
+      <tbody>
+        <tr><td class="ext">.pgn</td><td>PGN, le format standard des parties</td><td>Bases de parties lisibles par tous les logiciels : en-têtes, coups, variantes, commentaires, annotations, temps de pendule (<code>[%clk]</code>). Bases, enregistrement de vos parties, tournois, exports, positions de départ, recueils d'exercices. Un PGN en notation française est accepté.</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.hy64i<br>.hy64n<br>.hy64g<br>.hy64p</td><td>Base Hydra64 (format maison)</td><td>Pour les grandes bases : ouverture et tri instantanés, recherche de position, drapeaux, suppression restaurable. <code>.hy64i</code> : index (une ligne de 64 octets par partie, c'est le fichier qu'on ouvre) ; <code>.hy64n</code> : noms des joueurs, tournois, lieux ; <code>.hy64g</code> : les coups (un octet par coup) et le texte ; <code>.hy64p</code> : index des positions (recalculable). Les quatre fichiers vont ensemble.</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.hy64</td><td>Base Hydra64 en un seul fichier</td><td>Les quatre fichiers d'une base Hydra64 réunis en un, plus simple à copier ou à partager. S'ouvre telle quelle, sans extraction, aussi vite que la base ordinaire, recherche de position comprise, et se modifie de la même façon. Ce qui est ajouté est écrit aussitôt sur le disque, dans un journal en fin de fichier ; la ligne sous la liste des parties l'indique (« journal : … »), et il est rangé dans le corps de la base automatiquement à la fermeture quand il grossit. Rien n'est à faire pour ne rien perdre. Forme proposée d'abord par <span class="menu">Fichier → Nouvelle base…</span> et la conversion. Produite et défaite par <a href="#outils-conversion">Fichier → Convertir…</a> (une simple copie : moins d'une seconde pour 8 millions de parties).</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.epd</td><td>EPD, une position par ligne (format ouvert de la norme PGN)</td><td>Recueils de positions : test de solutions, entraînement (meilleur coup, mats en N), vos recueils d'exercices, positions de départ des tournois, tâches et résultats de l'analyse approfondie, exercices tactiques, export de positions. Opérations : <code>bm</code> (meilleur coup), <code>am</code> (coup à éviter), <code>id</code>, <code>pv</code> (suite), <code>dm</code> (mat en N), <code>ce</code>, <code>acd</code>, <code>c0</code>… S'ouvre comme une base, une partie par position, et se modifie : chaque modification réécrit le fichier en EPD (les autres en-têtes, commentaires des coups et sous-variantes n'y ont pas de place).</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.cbh<br>.2cbh</td><td>Base ChessBase (et ChessBase 18)</td><td>Bases du commerce (Mega Database…), avec leurs fichiers compagnons <code>.cbg .cba .cbj .cbp .cbt .cbs</code>. Converties en base Hydra64 ou en PGN, sans perte des commentaires ni des variantes.</td><td><span class="chips"><span class="chip c">par conversion</span></span></td></tr>
+        <tr><td class="ext">.cdp</td><td>Base Chess Assistant / Aquarium (ChessOK, « Chess Data Pro »)</td><td>Bases de parties ChessOK, avec leurs fichiers compagnons (<code>.d00 .d02 .a02 .emb .dxx</code>…) : coups, variantes, commentaires, évaluations, pendules, en-têtes et noms. Lues par Hydra64 lui-même, sans Aquarium ; les parties supprimées sont ignorées. Converties en base Hydra64 ou en PGN (on peut désigner n'importe lequel des fichiers de la base).</td><td><span class="chips"><span class="chip c">par conversion</span></span></td></tr>
+        <tr><td class="ext">.cbv<br>.2cbv</td><td>Archive ChessBase (et ChessBase 18)</td><td>Base ChessBase compressée (<code>.2cbv</code> : un fichier ZIP) : extraite une fois (dans <code>~/Documents/hydra64/databases</code>), puis convertie.</td><td><span class="chips"><span class="chip c">par conversion</span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="fichiers-arbres">Arbres d'ouverture</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Extension</th><th>Format</th><th>À quoi il sert</th><th>Accès</th></tr></thead>
+      <tbody>
+        <tr><td class="ext">.hy64book</td><td>Arbre Hydra64</td><td>Arbre d'ouverture complet : coups, annotations, coups recommandés / à éviter, parties, gains / nulles / pertes, Elo moyen, performance, ou évaluation et profondeur (arbre issu de l'analyse approfondie). Panneau Arbre d'ouverture, livre de l'adversaire et des tournois, entraînement d'ouverture.</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.bin</td><td>Livre Polyglot (format libre)</td><td>Le livre d'ouvertures le plus répandu (coups et poids). Mêmes usages que l'arbre Hydra64, avec moins d'informations. Produit par la conversion et l'analyse approfondie.</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.ctg<br>.cto<br>.ctb</td><td>Livre ChessBase (Fritz…)</td><td>Livres d'ouvertures du commerce, les trois fichiers ensemble. Convertis en arbre Hydra64 (rien n'est perdu) ou en Polyglot.</td><td><span class="chips"><span class="chip c">par conversion</span></span></td></tr>
+        <tr><td class="ext">.hsh<br>.elm</td><td>Arbre Aquarium / Chess Assistant (ChessOK)</td><td>Arbres d'ouverture ChessOK, lus sans Aquarium et convertis en arbre Hydra64 ou Polyglot.</td><td><span class="chips"><span class="chip c">par conversion</span></span></td></tr>
+        <tr><td class="ext">.txt</td><td>Export texte d'un arbre Aquarium</td><td>Produit dans Aquarium par le script <code>tools/aquarium/Hydra64_ExportTree.tsc</code>, puis converti.</td><td><span class="chips"><span class="chip c">par conversion</span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="fichiers-autres">Analyses, finales, exports</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Extension</th><th>Format</th><th>À quoi il sert</th><th>Accès</th></tr></thead>
+      <tbody>
+        <tr><td class="ext">.hy64deep</td><td>Projet d'analyse approfondie</td><td>L'arbre d'analyse d'un projet (positions, évaluations, coups verts et rouges, notes, tâches en attente) et ses options. Enregistré toutes les minutes ; l'analyse reprend là où elle s'est arrêtée.</td><td><span class="chips"><span class="chip r">lu</span><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.rtbw<br>.rtbz</td><td>Tables de finales Syzygy</td><td>Résultat exact des finales jusqu'à 7 pièces (<code>.rtbw</code> : gain / nulle / perte ; <code>.rtbz</code> : distance au prochain coup de pion ou à la prochaine prise). Panneau Finales ; à télécharger séparément, puis indiquer leur dossier.</td><td><span class="chips"><span class="chip r">lu</span></span></td></tr>
+        <tr><td class="ext">.html</td><td>Page web autonome</td><td>Exports lisibles dans un navigateur : parties d'une base, fiche du joueur, rapport d'ouverture ; <a href="#outils-html">pages avec échiquier</a> pour une partie ou un tournoi entier.</td><td><span class="chips"><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">.player<br>.rating<br>.media</td><td>Encyclopédie des joueurs de ChessBase (dossier « Playbase »)</td><td>Fiches de 525 000 joueurs, leurs Elo dans les listes FIDE et les fiches de leurs photos (dossiers <code>PlayBase.MMA</code> … <code>MMZ</code>). Complète la <a href="#bases-statistiques">fiche du joueur</a> ; le dossier se choisit dans les Préférences. Non fournie avec Hydra64.</td><td><span class="chips"><span class="chip r">lu</span></span></td></tr>
+        <tr><td class="ext">.png<br>.jpg</td><td>Image</td><td>L'échiquier tel qu'il est affiché, flèches et repères compris.</td><td><span class="chips"><span class="chip w">écrit</span></span></td></tr>
+        <tr><td class="ext">(exécutable)</td><td>Moteur UCI</td><td>Tout moteur qui parle le protocole UCI : analyse, adversaire, tournois, tests.</td><td><span class="chips"><span class="chip r">lancé</span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="fichiers-propres">Fichiers de l'application</h3>
+  <p class="dim">Créés et tenus à jour par Hydra64 ; on n'a pas à les modifier à la main. <span class="menu">Aide → Réinitialiser Hydra64…</span> les remet à neuf (vos bases ne sont pas touchées).</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fichier</th><th>Contenu</th></tr></thead>
+      <tbody>
+        <tr><td class="path">~/.config/Hydra64/Hydra64.conf</td><td>Préférences, disposition des panneaux de chaque page, bases et arbres récents, signets, derniers réglages des fenêtres (partie contre le moteur, entraînement, recherches…).</td></tr>
+        <tr><td class="path">~/.local/share/Hydra64/Hydra64/engines.json</td><td>Les moteurs enregistrés et leurs options UCI.</td></tr>
+        <tr><td class="path">~/.local/share/Hydra64/Hydra64/training-progress.json</td><td>Progression de la révision espacée : pour chaque recueil et chaque position, la boîte, la prochaine révision, les essais et les réussites.</td></tr>
+        <tr><td class="path">~/.local/share/Hydra64/Hydra64/session.json</td><td>La session : partie de chaque page, partie en cours contre le moteur (pendules comprises), tournoi, moteurs spectateurs.</td></tr>
+        <tr><td class="path">~/.config/Hydra64/Hydra64/diagnostic.log</td><td>Journal de diagnostic, écrit seulement si un problème d'affichage connu se produit ; utile pour un rapport de bogue.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="dossiers">Votre dossier Hydra64</h3>
+  <p class="dim">Dans vos Documents, sur tous les systèmes : <code>~/Documents/hydra64</code> (<code>Documents\hydra64</code> sous Windows). Les sélecteurs de fichiers s'y ouvrent d'abord.</p>
+  <div class="grid3">
+    <div class="card"><h4><code>databases</code></h4><p class="dim">Bases de parties : celles livrées (<code>games</code>, <code>training</code>, <code>tournament-openings</code>, <code>engine-tests</code>, copiées au premier lancement) et les vôtres.</p></div>
+    <div class="card"><h4><code>openingbooks</code></h4><p class="dim">Arbres d'ouverture (<code>.hy64book</code>, <code>.bin</code>).</p></div>
+    <div class="card"><h4><code>tablebases</code></h4><p class="dim">Tables de finales.</p></div>
+    <div class="card"><h4><code>uci_engines</code></h4><p class="dim">Vos moteurs UCI. Vide au départ : Stockfish et Shuffle intégrés n'y sont pas.</p></div>
+    <div class="card"><h4><code>engines_tournaments</code></h4><p class="dim">Parties des tournois de moteurs, une base Hydra64 (<code>.hy64</code>) par tournoi.</p></div>
+    <div class="card"><h4><code>exercises</code>, <code>analyses</code>, <code>repertoire</code>, <code>themes</code></h4><p class="dim">Vos recueils d'exercices, projets d'analyse approfondie, répertoire d'ouvertures, jeux de pièces et échiquiers ; créés quand ils servent.</p></div>
+  </div>
+</section>
+
+<!-- =================================================================== PRÉFÉRENCES -->
+<section id="preferences">
+  <h2><span class="glyph">✦</span>Préférences</h2>
+  <p><span class="menu">Édition → Préférences…</span> (<kbd>Ctrl+,</kbd>) ou clic sur la tête d'hydre.</p>
+  <div class="grid3">
+    <div class="card"><h4>Langue</h4><p class="dim">Français ou anglais (au redémarrage).</p></div>
+    <div class="card"><h4>Notation</h4><p class="dim">Française, anglaise ou figurines, avec aperçu. Les fichiers PGN restent au format standard.</p></div>
+    <div class="card"><h4>Navigation</h4><p class="dim">Molette sur l'échiquier, sens inversable.</p></div>
+    <div class="card"><h4>Affichage</h4><p class="dim">8 jeux de pièces (en SVG ou PNG) et 26 échiquiers (images ou SVG), dont le jeu et l'échiquier <strong>Hydra64</strong> par défaut, à l'orange et aux gris de l'interface, plus les vôtres et un échiquier <strong>Couleurs unies</strong> dont vous choisissez la couleur des cases claires et des cases foncées : ce sont des dossiers de ~/Documents/hydra64/themes (Pieces/&lt;jeu&gt; et Boards/&lt;échiquier&gt; ; formats décrits dans Themes/format.html), copiés au premier lancement, que vous pouvez compléter, renommer ou supprimer ; un bouton restaure les jeux livrés manquants. Barre d'évaluation, barre de menu.</p></div>
+    <div class="card"><h4>Évaluation</h4><p class="dim">Processeurs, mémoire, profondeur et temps du Stockfish d'arrière-plan.</p></div>
+    <div class="card"><h4>Démarrage</h4><p class="dim">Restaurer la partie de chaque page.</p></div>
+    <div class="card"><h4>Bases</h4><p class="dim">Dossier de l'encyclopédie des joueurs de ChessBase (« Playbase »), vérifié dès qu'il est choisi.</p></div>
+    <div class="card"><h4>Finales</h4><p class="dim">Dossiers et images ISO de <a href="#outils-finales">tables de finales</a>, usage par les moteurs, téléchargement.</p></div>
+  </div>
+</section>
+
+<!-- =================================================================== RACCOURCIS -->
+<section id="raccourcis">
+  <h2><span class="glyph">⌨</span>Raccourcis clavier</h2>
+  <div class="grid2">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Touche</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="2">Partout</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd> <kbd>Origine</kbd> <kbd>Fin</kbd></td><td>Naviguer dans la partie</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Retourner l'échiquier</td></tr>
+          <tr><td><kbd>Maj+1</kbd> … <kbd>Maj+4</kbd></td><td>Pages Bases, Analyse, Jouer, Tournoi</td></tr>
+          <tr><td><kbd>Ctrl+E</kbd></td><td>Éditer la position</td></tr>
+          <tr><td><kbd>Ctrl+I</kbd></td><td>Informations de la partie</td></tr>
+          <tr><td><kbd>Ctrl+S</kbd></td><td>Enregistrer dans la base</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Maj+Z</kbd></td><td>Annuler / rétablir une modification de la partie (pages Bases et Analyse)</td></tr>
+          <tr><td><kbd>Ctrl+P</kbd></td><td>Imprimer la partie</td></tr>
+          <tr><td><kbd>Ctrl+Maj+A</kbd></td><td>Envoyer dans l'analyse</td></tr>
+          <tr><td><kbd>Ctrl+Maj+C</kbd> / <kbd>V</kbd></td><td>Copier la FEN / coller FEN ou PGN</td></tr>
+          <tr><td><kbd>Ctrl+D</kbd></td><td>Ajouter un signet</td></tr>
+          <tr><td><kbd>Ctrl+Maj+R</kbd></td><td>Ajouter la position au recueil</td></tr>
+          <tr><td><kbd>Ctrl+Maj+E</kbd></td><td>Gestion des moteurs</td></tr>
+          <tr><td><kbd>Ctrl++</kbd> / <kbd>Ctrl+−</kbd></td><td>Police de la notation</td></tr>
+          <tr><td><kbd>Ctrl+Maj+M</kbd></td><td>Barre de menu</td></tr>
+          <tr><td><kbd>Ctrl+,</kbd></td><td>Préférences</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Touche</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="2">Bases</td></tr>
+          <tr><td><kbd>Ctrl+O</kbd></td><td>Ouvrir une base</td></tr>
+          <tr><td><kbd>Ctrl+Maj+H</kbd></td><td>Recherche avancée</td></tr>
+          <tr><td><kbd>Ctrl+Maj+F</kbd></td><td>Rechercher la position</td></tr>
+          <tr><td><kbd>Ctrl+Maj+G</kbd></td><td>Aller à la partie n°</td></tr>
+          <tr class="group"><td colspan="2">Analyse</td></tr>
+          <tr><td><kbd>Ctrl+Maj+K</kbd></td><td>Ajouter un moteur spectateur</td></tr>
+          <tr><td><kbd>Ctrl+Espace</kbd></td><td>Jouer maintenant (moteur adversaire)</td></tr>
+          <tr><td><kbd>Ctrl+Maj+N</kbd></td><td>Annoter la partie</td></tr>
+          <tr><td><kbd>Ctrl+Maj+D</kbd></td><td>Démarrer / arrêter l'analyse approfondie</td></tr>
+          <tr><td><kbd>Ctrl+Maj+T</kbd></td><td>Envoyer la position à l'analyse approfondie</td></tr>
+          <tr><td><kbd>F4</kbd></td><td>Meilleure ligne de l'arbre dans la notation</td></tr>
+          <tr class="group"><td colspan="2">Jouer et Tournoi</td></tr>
+          <tr><td><kbd>Ctrl+G</kbd></td><td>Jouer contre le moteur</td></tr>
+          <tr><td><kbd>Espace</kbd></td><td>Play / Stop du moteur ; lancer / interrompre le tournoi</td></tr>
+          <tr><td><kbd>Ctrl+Maj+G</kbd></td><td>Tournoi : vue d'ensemble des parties en cours</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>Reprendre le coup</td></tr>
+          <tr><td><kbd>Ctrl+Maj+I</kbd></td><td>Indice</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="dim" style="margin-top:12px">À la souris : clic droit (glissé) sur l'échiquier pour les marques et les flèches ; double-clic sur une ligne de moteur, de l'arbre d'ouverture ou des finales pour jouer le coup ; molette sur l'échiquier pour avancer ou reculer.</p>
+</section>
+
+<!-- =================================================================== ORIGINES -->
+<section id="origines">
+  <h2><span class="glyph">❦</span>Données et licences</h2>
+  <dl class="card" style="margin:0">
+    <dt><strong>Stockfish</strong></dt><dd class="dim" style="margin:2px 0 10px">Moteur libre (GPLv3), compilé depuis ses sources officielles.</dd>
+    <dt><strong>Ouvertures ECO</strong></dt><dd class="dim" style="margin:2px 0 10px">Données ouvertes de Lichess (<code>lichess-org/chess-openings</code>, domaine public).</dd>
+    <dt><strong>Exercices d'entraînement</strong></dt><dd class="dim" style="margin:2px 0 10px">Base d'exercices de Lichess, domaine public (CC0) : 3 565 exercices sélectionnés, en huit bases Hydra64.</dd>
+    <dt><strong>Pièces et échiquiers</strong></dt><dd class="dim" style="margin:2px 0 10px">Jeux et échiquiers de Lichess sous licence libre (AGPL, MIT, CC BY), sans les licences non commerciales ; jeu et échiquier par défaut dessinés pour Hydra64 (CC0).</dd>
+    <dt><strong>Icônes des bases</strong></dt><dd class="dim" style="margin:2px 0 10px">Dessins de Lucide (licence ISC ; certains dérivés de Feather, licence MIT).</dd>
+    <dt><strong>Tables de finales</strong></dt><dd class="dim" style="margin:2px 0 10px">Lecture Syzygy par Fathom (MIT) ; service en ligne de Lichess, en option.</dd>
+    <dt><strong>Bases ChessBase</strong></dt><dd class="dim" style="margin:2px 0 10px">Lues par la bibliothèque cbvault (MIT), indépendante de ChessBase ; Hydra64 en embarque une copie avec deux ajouts pour la conversion.</dd>
+    <dt><strong>Bases Chess Assistant et encyclopédie des joueurs</strong></dt><dd class="dim" style="margin:2px 0 10px">Formats lus par Hydra64 lui-même, d'après l'étude de fichiers existants. Aucune donnée de ChessOK ni de ChessBase n'est fournie : vous utilisez vos propres bases.</dd>
+    <dt><strong>Panneaux</strong></dt><dd class="dim" style="margin:2px 0 0">Qt Advanced Docking System (LGPL 2.1), interface en Qt 6.</dd>
+  </dl>
+</section>
+
+<div class="board-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<footer><span>Hydra64 0.1 · Notice d'utilisation</span><span>Mise à jour le 16/11/2026</span></footer>
+
+</main>
+</div>
+
+</body>
+</html>

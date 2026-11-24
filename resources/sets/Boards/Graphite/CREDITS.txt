@@ -1,0 +1,6 @@
+Hydra64, CC0
+
+Échiquier « Graphite » de Hydra64 : cases unies gris-bleu. C'était l'échiquier par défaut « Hydra64 »
+jusqu'en novembre 2026.
+
+Licence : CC0 1.0 (domaine public)
