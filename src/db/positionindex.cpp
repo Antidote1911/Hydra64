@@ -259,7 +259,8 @@ bool buildPositionIndex(Database& db, int depth, std::string* error, const std::
                     if (!buf.empty()) emit(buf.back().key);
                     for (auto [kind, data] : {std::pair<const char*, const std::vector<uint8_t>*>{"keys", &keysOut}, {"post", &postOut}}) {
                         std::FILE* f = std::fopen(bucketPath(b, kind).c_str(), "wb");
-                        if (!f || std::fwrite(data->data(), 1, data->size(), f) != data->size()) failed = true;
+                        // An empty bucket has no buffer: fwrite must not be given a null pointer, even for 0 bytes
+                        if (!f || (!data->empty() && std::fwrite(data->data(), 1, data->size(), f) != data->size())) failed = true;
                         if (f && std::fclose(f) != 0) failed = true;
                     }
                     bucket.keys = keysOut.size() / 16;
@@ -297,17 +298,17 @@ bool buildPositionIndex(Database& db, int depth, std::string* error, const std::
         if (postBase)
             for (size_t i = 0; i + 16 <= chunk.size(); i += 16)
                 if (const uint64_t v = get64(&chunk[i + 8]); !(v & SingleBit)) put64(&chunk[i + 8], v + postBase);
-        ok = ok && std::fwrite(chunk.data(), 1, chunk.size(), outF) == chunk.size();
+        ok = ok && (chunk.empty() || std::fwrite(chunk.data(), 1, chunk.size(), outF) == chunk.size());
         keys += buckets[b].keys;
         postBase += buckets[b].postings;
     }
     const uint64_t postingsAt = HeaderSize + keys * 16;
     for (unsigned b = 0; b < Buckets && ok; ++b) {
         readAll(bucketPath(b, "post"), chunk, buckets[b].postings);
-        ok = ok && std::fwrite(chunk.data(), 1, chunk.size(), outF) == chunk.size();
+        ok = ok && (chunk.empty() || std::fwrite(chunk.data(), 1, chunk.size(), outF) == chunk.size());
     }
     const uint64_t statesAt = postingsAt + postBase;
-    ok = ok && std::fwrite(states.data(), 1, states.size(), outF) == states.size();
+    ok = ok && (states.empty() || std::fwrite(states.data(), 1, states.size(), outF) == states.size());
     writeHeader(header, PositionsMagic, keys, 0);
     put32(header + 32, uint32_t(depth));
     put32(header + 36, StatsThreshold);

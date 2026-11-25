@@ -290,7 +290,7 @@ uint32_t Writer::add(const GameInfo& info, const std::vector<uint8_t>& blob)
     r.source = id(Source, info.source, true);
     r.offset = m_gamesEnd;
     r.size = uint32_t(blob.size());
-    std::fwrite(blob.data(), 1, blob.size(), m_games);
+    if (!blob.empty()) std::fwrite(blob.data(), 1, blob.size(), m_games);
     m_gamesEnd += blob.size();
     if (!m_pendingNames.empty()) {
         std::fwrite(m_pendingNames.data(), 1, m_pendingNames.size(), m_names_f);

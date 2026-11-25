@@ -174,7 +174,7 @@ bool exportPgn(const GameSource& source, const std::string& destination, Convert
         }
         if (!part.first.empty()) {
             if (!first) std::fputc('\n', out);
-            ok = ok && std::fwrite(part.first.data(), 1, part.first.size(), out) == part.first.size();
+            ok = ok && (part.first.empty() || std::fwrite(part.first.data(), 1, part.first.size(), out) == part.first.size());
             first = false;
         }
         const uint64_t inChunk = std::min(total, (c + 1) * Chunk) - c * Chunk;
