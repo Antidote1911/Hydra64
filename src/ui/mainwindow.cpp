@@ -603,6 +603,16 @@ ads::CDockWidget* MainWindow::makeDock(const QString& title, const QString& name
     return dock;
 }
 
+// The panels are destroyed after the window's own members (they are its children) and announce it
+// (visibilityChanged…): nothing of the window must be called any more at that point. The dock manager
+// is looked for among the children: closeEvent may already have had it destroyed (deleteLater).
+MainWindow::~MainWindow()
+{
+    if (const auto* manager = findChild<ads::CDockManager*>()) {
+        for (ads::CDockWidget* dock : manager->dockWidgetsMap()) disconnect(dock, nullptr, this, nullptr);
+    }
+}
+
 void MainWindow::scheduleStripLock()
 {
     if (m_stripLockPending) return;
@@ -4167,6 +4177,9 @@ void MainWindow::showAbout()
                               "<p>%1.<br>Qt %2 · Qt Advanced Docking System (LGPL 2.1) · %3 (GPL v3) · "
                               "Shuffle, moteur maison.</p>")
                                .arg(stockfish, QString::fromLatin1(qVersion()), sf)
+                           // The notice shipped with every package (THIRD-PARTY.md), read on the project's page
+                           + QStringLiteral("<p>%1</p>").arg(link.arg(QStringLiteral("https://github.com/Antidote1911/Hydra64/blob/master/THIRD-PARTY.md"), accent,
+                                                                    tr("Composants tiers et leurs licences")))
                            + QStringLiteral("<p>© 2026 %1</p>").arg(link.arg(QStringLiteral("https://github.com/Antidote1911"), accent, QStringLiteral("Antidote1911"))));
     for (QLabel* l : box.findChildren<QLabel*>()) { // clickable links, opened in the browser
         l->setOpenExternalLinks(true);

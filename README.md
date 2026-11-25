@@ -97,6 +97,7 @@ bundle, all built by `.github/workflows/release.yml`; the recipes are in `packag
       flatpak/              manifest of the Flatpak (KDE runtime)
       aur/hydra64-bin/      Arch Linux (AUR): the AppImage of a release, unpacked
       aur/hydra64/          Arch Linux (AUR): built from the sources, with the system's Qt and Stockfish
+      aur/publish.sh        brings both AUR packages to a published release and pushes them
 
 On Arch Linux and its derivatives, both packages are in the AUR:
 
@@ -106,7 +107,9 @@ yay -S hydra64       # built from the sources, with the system's Qt and Stockfis
 ```
 
 [`hydra64-bin`](https://aur.archlinux.org/packages/hydra64-bin) and [`hydra64`](https://aur.archlinux.org/packages/hydra64) replace each other. For a new
-version, the header of each `PKGBUILD` says what to change.
+version, once the release is on GitHub, `packaging/aur/publish.sh` sets the version and the checksums in
+both `PKGBUILD` files, rebuilds `.SRCINFO` and pushes them to the AUR (with the SSH key of the AUR
+account of whoever runs it; `--no-push` only updates the files, `--wait` waits for the release).
 
 The Windows installer of the releases is built by NSIS from `tools/windows/installer.nsi`.
 
@@ -152,7 +155,7 @@ contains **single-file Hydra64 databases** (`.hy64`) and their notices:
 Each folder has its `README.html` notice, in French and English (EN / FR buttons, choice remembered
 as on the exported HTML pages). They are produced by `tools/databases/make_readmes.py` (text in the
 script, style `readme.css`, logo `resources/hydra64.svg`): edit the script then run it again. The game sample is
-chosen by `tools/sample-games/select.cpp` from a large reference database (reproducible choice,
+chosen by `tools/sample-games/select.cpp` from ChessBase's Mega Database (reproducible choice,
 moves and headers only). The ECO codes, compiled into the program, are kept apart:
 `resources/eco-opening/`.
 
@@ -869,5 +872,6 @@ folder and of its subfolders, without touching their content.
 
 Hydra64 is free software, distributed under the **GNU General Public License, version 3**: see
 [`LICENSE`](LICENSE). It comes with no warranty. The components it embeds or downloads keep their
-own licences, named in the sections that describe them (Qt, Qt Advanced Docking System, cbvault,
-Stockfish, piece sets and boards).
+own licences: [`THIRD-PARTY.md`](THIRD-PARTY.md) lists them all with their authors (Qt, Qt Advanced
+Docking System, cbvault, Fathom, Stockfish, piece sets and boards, bundled databases…), and the
+[`licenses/`](licenses) folder holds the texts. Both are shipped in every package.

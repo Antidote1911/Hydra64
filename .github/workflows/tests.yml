@@ -35,7 +35,7 @@ jobs:
       CC: gcc-14
       CXX: g++-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install the tools
         # fonts-dejavu-core: the interface tests draw real windows off screen, they need a font
@@ -70,3 +70,45 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: ctest --test-dir build --output-on-failure --timeout 1800
+
+  sanitizers:
+    # The chess core and the readers of files, built with AddressSanitizer and UndefinedBehaviorSanitizer
+    # ("./build.sh asan"): the core tests, then damaged files (tests/fuzz_smoke.cpp), where a read outside
+    # a buffer or an undefined operation stops the run. The interface tests are not run here: they need
+    # the embedded Stockfish, and the system libraries they load report leaks of their own.
+    name: Linux, ASan + UBSan (core)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+              g++-14 ninja-build zlib1g-dev libfuse3-dev libgl1-mesa-dev libxkbcommon-dev libcups2
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+
+      - name: Build
+        run: |
+          cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHYDRA64_SANITIZE=ON -DBUNDLE_STOCKFISH=OFF
+          cmake --build build-asan --parallel "$(nproc)" --target core_tests fuzz_smoke
+
+      - name: Run the core tests and read damaged files
+        env:
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          ctest --test-dir build-asan --output-on-failure --timeout 1800 -R '^(core_tests|fuzz_smoke)$'
+          build-asan/fuzz_smoke . 3000 "$GITHUB_RUN_NUMBER" | tail -n 1

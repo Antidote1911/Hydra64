@@ -5524,6 +5524,10 @@ It is left unchanged so that nothing is lost.</translation>
         <translation>&lt;p&gt;Chess interface: PGN databases, analysis with spectator engines, games against an engine and engine tournaments.&lt;/p&gt;&lt;p&gt;%1.&lt;br&gt;Qt %2 · Qt Advanced Docking System (LGPL 2.1) · %3 (GPL v3) · Shuffle, home-made engine.&lt;/p&gt;</translation>
     </message>
     <message>
+        <source>Composants tiers et leurs licences</source>
+        <translation>Third-party components and their licences</translation>
+    </message>
+    <message>
         <source>Seront effacés : préférences, dispositions des pages, moteurs ajoutés et leurs réglages, moteurs spectateurs, parties de chaque page, partie en cours contre le moteur et tournoi.
 
 Vos fichiers PGN ne sont pas touchés (seulement oubliés).

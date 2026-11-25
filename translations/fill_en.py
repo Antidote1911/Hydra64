@@ -8,6 +8,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 EN = {
+    'Composants tiers et leurs licences': 'Third-party components and their licences',
     "Jouez sur l'échiquier le coup de remplacement ; la suite est gardée tant qu'elle reste légale (aller ailleurs : abandon)": 'Play the replacement move on the board; what follows is kept as long as it stays legal (going elsewhere: given up)',
     "Jouez sur l'échiquier le coup de remplacement ; la suite sera supprimée (aller ailleurs : abandon)": 'Play the replacement move on the board; what follows will be deleted (going elsewhere: given up)',
     "Ce coup est déjà une autre ligne de cette position : rien n'est remplacé": 'This move is already another line of this position: nothing is replaced',

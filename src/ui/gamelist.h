@@ -223,6 +223,9 @@ private:
     QTabBar* m_tabs; // reference state (current database, order), never displayed: see basesWidget()
     QWidget* m_basesBox = nullptr;
     class QListWidget* m_baseList = nullptr;
+    // Its viewport, kept to recognise it in eventFilter without asking the list: the last events of the
+    // viewport arrive while the list is being destroyed.
+    QObject* m_baseListViewport = nullptr;
     int m_dropRow = -1;
     // Open databases as a list (one row per database) or as large icons, ChessBase style.
     bool m_basesAsIcons = false;

@@ -18,4 +18,4 @@ The Windows files are not signed: Windows SmartScreen may ask for a confirmation
 
 ## Licences
 
-Hydra64 is free software under the GNU General Public License, version 3. The files above embed [Stockfish](https://stockfishchess.org/) {STOCKFISH} (GPL-3.0), built unmodified from its official sources: <https://github.com/official-stockfish/Stockfish/tree/{STOCKFISH}>. The other components and their licences are listed in the [README](https://github.com/Antidote1911/Hydra64#licence).
+Hydra64 is free software under the GNU General Public License, version 3. The files above embed [Stockfish](https://stockfishchess.org/) {STOCKFISH} (GPL-3.0), built unmodified from its official sources: <https://github.com/official-stockfish/Stockfish/tree/{STOCKFISH}>. The other components, their authors and their licences are listed in [`THIRD-PARTY.md`](https://github.com/Antidote1911/Hydra64/blob/master/THIRD-PARTY.md), shipped in every file above with the texts of the licences.

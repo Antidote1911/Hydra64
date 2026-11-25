@@ -55,6 +55,7 @@ public:
     enum Page { PageDatabase = 0, PageAnalysis = 1, PageBoard = 2, PageTournament = 3, PageCount = 4 };
 
     explicit MainWindow(QWidget* parent = nullptr);
+    ~MainWindow() override;
 
     bool openDatabase(const QString& path);
     // File → Convert… (source prefilled if given).

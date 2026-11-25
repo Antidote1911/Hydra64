@@ -14,7 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 CSS = open(os.path.join(HERE, "readme.css"), encoding="utf-8").read()
 LOGO = open(os.path.join(ROOT, "resources", "hydra64.svg"), encoding="utf-8").read().strip()
-UPDATED = ("22 novembre 2026", "22 November 2026")
+UPDATED = ("25 novembre 2026", "25 November 2026")
 
 SCRIPT = """
 (function () {
@@ -175,13 +175,13 @@ page(
                            "to edit these databases (add, annotate or delete games); to get the originals back, take them from the "
                            "program archive again.", "dim")),
         section("Origine et licences", "Sources and licences",
-                origin(("games/", "Coups et en-têtes de parties jouées en tournoi, sans commentaires ni variantes.",
-                        "Moves and headers of tournament games, without comments or variations."),
+                origin(("games/", "Coups et en-têtes de parties jouées en tournoi, sans commentaires ni variantes, choisies dans la Mega Database de ChessBase.",
+                        "Moves and headers of tournament games, without comments or variations, selected from ChessBase's Mega Database."),
                        ("training/", "Base d'exercices de Lichess, domaine public (CC0).", "Lichess puzzle database, public domain (CC0)."),
                        ("tournament-openings/", "Stefan Pohl (UHO), livres de test de Stockfish (CC0), positions de John Nunn.",
                         "Stefan Pohl (UHO), Stockfish test books (CC0), John Nunn's positions."),
-                       ("engine-tests/", "Positions de l'<em>Encyclopedia of Chess Middlegames</em>.",
-                        "Positions from the <em>Encyclopedia of Chess Middlegames</em>."))
+                       ("engine-tests/", "Positions de l'<em>Encyclopedia of Chess Middlegames</em> (Chess Informant), base Marathon de Fritz (ChessBase).",
+                        "Positions from the <em>Encyclopedia of Chess Middlegames</em> (Chess Informant), Marathon database of Fritz (ChessBase)."))
                 + "\n" + P("Le détail est dans la notice de chaque dossier.", "Details are in each folder's notice.", "dim")),
     ],
     "databases",
@@ -241,9 +241,9 @@ page(
                                [(p, f"{n}") for p, n in PERIODS])),
         section("Origine", "Source",
                 origin(("Masters_1000.hy64",
-                        "Parties jouées en public, relevées dans une grande base de référence. Seuls les coups et l'en-tête de chaque "
+                        "Parties jouées en public, relevées dans la Mega Database de ChessBase. Seuls les coups et l'en-tête de chaque "
                         "partie sont repris : aucun commentaire, aucune variante, aucun symbole d'annotation.",
-                        "Publicly played games, taken from a large reference database. Only the moves and the header of each game are "
+                        "Publicly played games, taken from ChessBase's Mega Database. Only the moves and the header of each game are "
                         "kept: no comments, no variations, no annotation symbols."))),
     ],
     "databases/games",

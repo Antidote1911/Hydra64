@@ -64,7 +64,10 @@ def main():
         shutil.copy2(os.path.join(sysroot, "share", "qt6", "translations", name), os.path.join(stage, "translations"))
     # Qt looks for its plugins and translations according to this file, next to the program.
     open(os.path.join(stage, "qt.conf"), "w").write("[Paths]\nPrefix = .\nPlugins = plugins\nTranslations = translations\n")
+    # The licence, the notice of the third-party components and the texts of their licences
     shutil.copy2(os.path.join(ROOT, "LICENSE"), stage)
+    shutil.copy2(os.path.join(ROOT, "THIRD-PARTY.md"), stage)
+    shutil.copytree(os.path.join(ROOT, "licenses"), os.path.join(stage, "licenses"))
     bases = os.path.join(build, "databases")  # bundled databases and their notices, copied by the build
     if os.path.isdir(bases):
         shutil.copytree(bases, os.path.join(stage, "databases"))

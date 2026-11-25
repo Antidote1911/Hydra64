@@ -1774,6 +1774,22 @@ int main(int argc, char** argv)
                 check(first && done && t->games().size() == 9 && t->swissRound() == 3 && noRematch && oneBye && byes.size() == 3
                           && Tournament::gameCount(5, ws.schedule, false, 3) == 6,
                       qPrintable(QStringLiteral("tournoi : système suisse, 3 rondes sans revanche, un exempt par ronde (%1 parties)").arg(t->games().size())));
+                {
+                    // Games played one after the other: both engines of a game are those of the previous one, whatever the
+                    // speed of the machine (with several games at once, the number depends on which ends first).
+                    Tournament::Settings qs = ws;
+                    qs.schedule = Tournament::Settings::Schedule::RoundRobin;
+                    qs.participants = ws.participants.mid(0, 2);
+                    qs.cycles = 2;
+                    qs.doubleRound = true;
+                    qs.concurrency = 1;
+                    const bool setQ = t->setup(qs, &error) && t->games().size() >= 2;
+                    t->start();
+                    const bool doneQ = waitFor([&] { return t->isComplete(); }, 60000);
+                    const int expected = 2 * (int(t->games().size()) - 1); // both engines of every game but the first
+                    check(setQ && doneQ && t->enginesReused() == expected,
+                          qPrintable(QStringLiteral("tournoi : parties à la suite, les deux moteurs repris à chaque partie (%1 reprises, %2 attendues)").arg(t->enginesReused()).arg(expected)));
+                }
                 // Simultaneous games: 5 participants in a round robin (10 games), 3 at a time
                 Tournament::Settings cs = ws;
                 // Normal pause here: the number of engines reused from one game to the next depends on it (a game started
@@ -1821,7 +1837,10 @@ int main(int argc, char** argv)
                 check(set && all && complete && most == 3 && shownValid && !t->isRunning() && t->runningCount() == 0,
                       qPrintable(QStringLiteral("tournoi : parties simultanées (10 parties, jusqu'à %1 à la fois)").arg(most)));
                 check(overviewOk && switched, qPrintable(QStringLiteral("tournoi : vue d'ensemble (3 échiquiers : %1), clic → notation, double-clic → en grand : %2").arg(overviewOk).arg(switched)));
-                check(t->enginesReused() >= 8, qPrintable(QStringLiteral("tournoi : moteurs gardés d'une partie à l'autre (%1 reprises pour 10 parties)").arg(t->enginesReused())));
+                // With several games at once, the number of engines reused depends on which games end first (8 or more
+                // here, 7 seen on a slower machine): only "some" is checked. The exact count is checked above, on
+                // games played one after the other.
+                check(t->enginesReused() >= 1, qPrintable(QStringLiteral("tournoi : moteurs gardés d'une partie à l'autre (%1 reprises pour 10 parties simultanées)").arg(t->enginesReused())));
                 t->setGamePauseMs(20);
                 {
                     // HTML page of the tournament: standings, all the games; its script replays each

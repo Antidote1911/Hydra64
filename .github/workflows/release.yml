@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: git config --global core.autocrlf false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install the tools (MSYS2, UCRT64)
         uses: msys2/setup-msys2@v2
@@ -157,7 +157,7 @@ jobs:
       CC: gcc-14
       CXX: g++-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install the tools
         run: |
@@ -193,7 +193,8 @@ jobs:
           mkdir -p AppDir/usr/bin
           cp build/hydra64 build/hydra64-convert build/hydra64-tablefs build/stockfish build/shuffle AppDir/usr/bin/
           cp -r build/databases AppDir/usr/bin/databases
-          install -Dm644 LICENSE AppDir/usr/share/licenses/hydra64/LICENSE
+          install -Dm644 LICENSE THIRD-PARTY.md -t AppDir/usr/share/licenses/hydra64
+          cp -r licenses AppDir/usr/share/licenses/hydra64/licenses
           install -Dm644 packaging/linux/io.github.antidote1911.hydra64.metainfo.xml -t AppDir/usr/share/metainfo
           base=https://github.com/linuxdeploy
           curl -fsSL -o linuxdeploy "$base/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
@@ -278,7 +279,7 @@ jobs:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10 # the runtime of the manifest
       options: --privileged
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
@@ -311,7 +312,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4 # the notes of the release and the Stockfish version
+      - uses: actions/checkout@v7 # the notes of the release and the Stockfish version
 
       - uses: actions/download-artifact@v4
         with:

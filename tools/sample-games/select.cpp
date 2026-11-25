@@ -1,4 +1,4 @@
-// Chooses the 1000 games of databases/games/Masters_1000.hy64 from a large reference database.
+// Chooses the 1000 games of databases/games/Masters_1000.hy64 from ChessBase's Mega Database.
 //
 //   g++ -std=c++20 -O2 -Isrc tools/sample-games/select.cpp build/libhydra64_core.a -lz -o select-games
 //   ./select-games <large .hy64i or .hy64 database> <output.pgn>

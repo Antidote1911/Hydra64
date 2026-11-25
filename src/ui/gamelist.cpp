@@ -851,7 +851,8 @@ GameListPanel::GameListPanel(QWidget* parent)
     m_baseList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_baseList->setAcceptDrops(true);
     m_baseList->viewport()->setAcceptDrops(true);
-    m_baseList->viewport()->installEventFilter(this); // dragging games onto a database of the list
+    m_baseListViewport = m_baseList->viewport();
+    m_baseListViewport->installEventFilter(this); // dragging games onto a database of the list
     m_table->viewport()->installEventFilter(this);     // list width: columns laid out (layoutColumns)
     basesLayout->addWidget(basesBar);
     basesLayout->addWidget(m_baseList, 1);
@@ -1646,7 +1647,7 @@ bool GameListPanel::eventFilter(QObject* watched, QEvent* event)
         else if (event->type() == QEvent::MouseButtonRelease) m_headerPressed = false;
         return QWidget::eventFilter(watched, event);
     }
-    const bool onList = m_baseList && watched == m_baseList->viewport();
+    const bool onList = m_baseList && watched == m_baseListViewport;
     if (watched != m_tabs && !onList) return QWidget::eventFilter(watched, event);
     // Open databases reordered with the mouse: a database dragged over another takes its place
     // at once (the tab bar, hidden, keeps the order: see tabMoved).

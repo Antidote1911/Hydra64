@@ -138,6 +138,8 @@ FunctionEnd
   Delete "$INSTDIR\*.dll"
   Delete "$INSTDIR\qt.conf"
   Delete "$INSTDIR\LICENSE"
+  Delete "$INSTDIR\THIRD-PARTY.md"
+  RMDir /r "$INSTDIR\licenses"
   RMDir /r "$INSTDIR\plugins"
   RMDir /r "$INSTDIR\translations"
   RMDir /r "$INSTDIR\databases"

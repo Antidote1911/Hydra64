@@ -1,4 +1,4 @@
-# Maintainer: Antidote1911 <antidote1911@gmail.com>
+# Maintainer: Antidote1911 <antidote1911@users.noreply.github.com>
 #
 # Hydra64 built from the sources of a release. Two things differ from the AppImage:
 #   - Stockfish is the system's package (the program finds /usr/bin/stockfish and registers it as
@@ -8,7 +8,7 @@
 # Docking System, built statically, with the fix of cmake/patch-qtads.cmake) and the Rust crates
 # (fetched in prepare(), versions pinned by the Cargo.lock files).
 #
-# New version: change pkgver, then  updpkgsums && makepkg --printsrcinfo > .SRCINFO
+# New version: ../publish.sh (pkgver, updpkgsums, makepkg --printsrcinfo > .SRCINFO, push to the AUR)
 
 pkgname=hydra64
 pkgver=1.0.0
