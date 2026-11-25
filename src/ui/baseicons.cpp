@@ -20,11 +20,16 @@ const char* SettingsKey = "gameList/baseIcons";
 
 // Databases are recognised by their full path (the same file reopened keeps its icon).
 QString keyOf(const QString& path) { return QFileInfo(path).absoluteFilePath(); }
+
+// Hydra64's own drawing, next to Lucide's: the head of the logo (resources/hydra64-small.svg) as a
+// line drawing. In the "Collections" theme, beside the plain database.
+const char* HydraBody = R"(<path d="M 12 2.5 L 13.7 8.6 L 17.4 4.4 L 16.9 10.2 L 21.5 8.8 L 18 13.4 L 15.9 16.2 L 15.3 20 L 13.5 21.6 L 12 22 L 10.5 21.6 L 8.7 20 L 8.1 16.2 L 6 13.4 L 2.5 8.8 L 7.1 10.2 L 6.6 4.4 L 10.3 8.6 Z"/><path d="M 13.5 13.7 L 15.9 12.4"/><path d="M 10.5 13.7 L 8.1 12.4"/>)";
 } // namespace
 
 const std::vector<Entry>& entries()
 {
     static const std::vector<Entry> all = {
+        {"hydra64", 4, HydraBody},
 #include "baseicons.inc"
     };
     return all;
